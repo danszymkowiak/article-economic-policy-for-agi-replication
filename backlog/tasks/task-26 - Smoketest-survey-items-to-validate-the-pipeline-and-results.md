@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-03 08:10'
-updated_date: '2026-10-03 11:25'
+updated_date: '2026-10-03 11:26'
 labels:
   - phase2
 dependencies:
@@ -53,6 +53,8 @@ Second live run 2026-10-03 on deepseek-v4.1-flash (user's preferred model; confi
 Third live run 2026-10-03: glm-5.3-flash with cap 600 tokens/policy (config.smoketest-glm-cap600.yaml, own store results/smoketest/glm-cap600/, same design and seeds as run 1). 18/18 jobs ok (one first attempt invalid: schema violation, additional property; fixed by the retry), actual spend 0.0130 USD of 0.10 (plan estimated 0.0332). Largest output seen 2322 tokens of the 3600 cap, so the cap has headroom. Check: ok rate 1.00 PASS; led_all beats led_closet by 69.8 and lights_on by 72.6 PASS; chargers a/b gap 0.0 PASS; closet vs lights_on gap 2.8 FAIL (same miscalibrated expectation, left unchanged: both options score at the floor). Total smoketest spend across the three runs about 0.097 USD. glm-5.3-flash is now the smoketest/pilot default; ceilings are per ledger, so cumulative smoketest spend must be tracked by hand.
 
 AC4 (analysis functions on a planted effect) moved to a follow-up task (TASK-28, depends on TASK-20) with user approval 2026-10-03. Known-bad expectation left as is by user choice: sm_led_closet vs sm_lights_on (margin 10) fails because both options score at the floor.
+
+Post-hoc amendment 2026-10-03 (user approved): expectation sm_led_closet vs sm_lights_on changed from margin 10 to margin 0 (closet >= always-on), because both score at the floor. Re-checking the stored rows of all three live runs (no new calls): the amended expectation passes in each (gaps 2.3, 1.2, 2.8); the other results are unchanged. The two runs that still fail overall do so on the ok-rate expectation only (glm 250-cap 0.83, deepseek 0.72).
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

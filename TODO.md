@@ -12,8 +12,9 @@ tasks that own them (see `backlog task view <id>`, Implementation Notes).
   idempotent re-collect, file lock, deferred status, torn-write tail not swallowing records).
 
 ## Carried to later tasks
-- TASK-11: real snapshots and prices, alias-vs-pinned check, `max_tokens` cap, cached/reasoning
-  token pricing, ambiguous-submit reconciliation, confirm before first paid call per provider.
+- TASK-11 (now Zen readiness, no Anthropic client): study model and dated prices, alias handling in
+  the prereg, cached/reasoning token pricing, timeouts charged at estimate, hard ceiling across all
+  ledgers, confirm before the first paid study call.
 - TASK-12: re-estimate cost from real usage, optional 0.9x ceiling margin, torn final line
   repair (needs approval), Parquet only if needed, single-writer `exists()` assumption.
 - TASK-14 to 17: replace the placeholder template and fake inputs.

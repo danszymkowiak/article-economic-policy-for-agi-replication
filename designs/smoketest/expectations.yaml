@@ -2,7 +2,9 @@
 min_ok_rate: 0.9          # share of jobs whose response validated against the schema
 greater:                  # better must beat worse by at least `margin` points
   - {criterion: crit_savings, better: sm_led_all, worse: sm_led_closet, margin: 10}
-  - {criterion: crit_savings, better: sm_led_closet, worse: sm_lights_on, margin: 10}
+  # Amended 2026-10-03 AFTER the first three live runs (post hoc, user-approved): margin was 10, but
+  # both options score at the floor (about 0-3), so only the ordering is meaningful.
+  - {criterion: crit_savings, better: sm_led_closet, worse: sm_lights_on, margin: 0}
   - {criterion: crit_savings, better: sm_led_all, worse: sm_lights_on, margin: 30}
 close:                    # paraphrases of one action must land within `tolerance` points
   - {criterion: crit_savings, a: sm_charger_a, b: sm_charger_b, tolerance: 10}
