@@ -20,7 +20,8 @@ that the article's recommendations are wrong. Write-ups must say so.
 
 All 11 policies are rated in one prompt, per persona and per criterion, with a score from
 0 to 100 and a short rationale, on a reconstruction of the paper's setup (about 15 criteria
-x 11 policies x 51 personas, roughly 8,400 calls per configuration).
+x 11 policies x 51 personas = 8,415 ratings per configuration, in 765 calls: one call per
+persona x criterion, with the 11 policies in the same prompt).
 Baseline levels for each factor: TODO (fixed after task "Reconstruct setup from essay text").
 Baseline results are compared with the published tables by rank correlation.
 
@@ -58,7 +59,15 @@ before freezing. Pinned model snapshots, never aliases.
 | Repeats | TODO (number per cell, to separate sampling noise from factor effects) |
 
 Temperature and seed are recorded for every run. Temperature levels: TODO.
-Fraction and generator of the fractional factorial: TODO.
+Fractional design: not a generator-based regular fraction. The runs are a seeded, balanced
+greedy subset of the full grid (`expand_fractional` in `domain/design.py`). The grid is
+shuffled with `random.Random(seed)`. Each step then adds the not-yet-chosen row that
+minimises (1000 x the usage counts of its single factor levels + the usage counts of its
+pairwise level combinations), with ties going to the shuffled order. Main effects are
+balanced exactly when the run count is a multiple of every factor's level count, and
+within one otherwise; higher-order aliasing is not controlled. Run count, seed and the
+Python version are recorded in `design.yaml` before freezing, and the design is regenerated
+and diffed against the frozen copy before the full run. TODO: run count and seed.
 
 ## 5. Metrics (fixed in advance)
 

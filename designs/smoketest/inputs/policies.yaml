@@ -1,0 +1,26 @@
+# SMOKETEST items: household electricity bill, unrelated to the AGI-policy survey.
+# Synthetic and non-sensitive. Expected orderings are fixed in ../expectations.yaml.
+- id: sm_led_all
+  name: LED everywhere
+  description: "Replace every incandescent bulb in the home with an LED bulb."
+  blinded_description: "Swap all the old-style bulbs in a home for efficient ones."
+- id: sm_led_closet
+  name: LED in one closet
+  description: "Replace the incandescent bulb in one rarely used closet with an LED bulb and leave every other bulb unchanged."
+  blinded_description: "Swap a single old-style bulb in a rarely used closet for an efficient one and change nothing else."
+- id: sm_lights_on
+  name: Lights always on
+  description: "Leave all lights switched on around the clock so the bulbs are never switched on and off."
+  blinded_description: "Keep every light in the home switched on at all times."
+- id: sm_charger_a
+  name: Unplug idle chargers
+  description: "Unplug phone chargers from the wall when they are not charging a phone."
+  blinded_description: "Remove phone chargers from the wall when no phone is connected."
+- id: sm_charger_b
+  name: Pull chargers when unused
+  description: "Pull phone chargers out of the wall socket whenever no phone is attached to them."
+  blinded_description: "Take chargers out of the socket whenever nothing is attached to them."
+- id: sm_thermostat
+  name: Lower winter thermostat
+  description: "Lower the thermostat by one degree during the heating season."
+  blinded_description: "Set the heating one degree cooler during the cold months."

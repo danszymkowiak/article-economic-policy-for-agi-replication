@@ -328,3 +328,64 @@ def test_append_after_torn_write_keeps_new_record_on_its_own_line(tmp_path):
     store.append(row(job_id="j2"))
     lines = (tmp_path / "r.jsonl").read_text().splitlines()
     assert len(lines) == 3 and '"j2"' in lines[2]
+
+
+def test_zero_price_model_runs_under_a_zero_ceiling(env, capsys):
+    env.set_config(max_spend_usd=0, prices={SNAP: {"input": 0.0, "output": 0.0}})
+    assert env.run("submit", "--confirm", *env.design()) == 0
+    assert env.run("collect") == 0
+    assert {r.status for r in env.store().iter_rows()} == {"ok"}
+    capsys.readouterr()
+    assert env.run("status") == 0
+    assert "actual $0.0000 + outstanding $0.0000 of ceiling $0.00" in capsys.readouterr().out
+
+
+def _opencode_env(env, monkeypatch):
+    design = yaml.safe_load((env.root / "design.yaml").read_text())
+    design["factors"]["model"] = [{"provider": "opencode", "snapshot": "big-pickle"}]
+    (env.root / "design.yaml").write_text(yaml.safe_dump(design))
+    free = {"input": 0, "output": 0}
+    env.set_config(approved_providers=["opencode"], prices={"big-pickle": free})
+    monkeypatch.delenv("OPENCODE_API_KEY", raising=False)
+
+
+def test_opencode_without_key_is_refused_naming_the_variable(env, monkeypatch, capsys):
+    _opencode_env(env, monkeypatch)
+    argv = ["--config", str(env.config_path), "submit", "--confirm", *env.design()]
+    assert main(argv) == 2
+    err = capsys.readouterr().err
+    assert "REFUSED" in err and "OPENCODE_API_KEY" in err
+    assert not list(env.store().iter_rows())
+
+
+def test_main_loads_dotenv_next_to_config_without_overriding(env, monkeypatch):
+    (env.root / ".env").write_text("LLM_PANEL_TEST_VAR=from_dotenv\n", "utf-8")
+    monkeypatch.delenv("LLM_PANEL_TEST_VAR", raising=False)
+    assert env.run("plan", *env.design()) == 0
+    import os
+
+    assert os.environ["LLM_PANEL_TEST_VAR"] == "from_dotenv"
+    monkeypatch.delenv("LLM_PANEL_TEST_VAR")  # leave no trace for other tests
+
+
+def test_factory_builds_zen_client_capped_by_the_cost_estimate(tmp_path):
+    from llm_panel.adapters.zen_client import ZenClient
+    from llm_panel.bootstrap.cli import default_client_factory
+    from tests.domain.test_models import make_job
+
+    calls = []
+
+    def transport(url, headers, body, timeout):
+        calls.append(body)
+        return 200, {"choices": [{"message": {"content": "x"}}]}
+
+    factory = default_client_factory(
+        tmp_path,
+        est_output_tokens_per_policy=77,
+        environ={"OPENCODE_API_KEY": "k"},
+        zen_transport=transport,
+    )
+    client = factory("opencode")
+    assert isinstance(client, ZenClient) and factory("opencode") is client
+    client.submit_batch([make_job(provider="opencode")])  # two policies
+    assert calls[0]["max_tokens"] == 154

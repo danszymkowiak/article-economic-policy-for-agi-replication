@@ -1,0 +1,16 @@
+# Smoketest design: one model, one persona source, 3 personas x 2 criteria x 3 repeats = 18 calls.
+mode: full
+repeats: 3
+prompt_format: all_policies
+sampling:
+  temperature: 1.0
+  base_seed: 0
+factors:
+  model:
+    - {provider: opencode, snapshot: glm-5.3-flash}
+  persona_source: [synthetic]
+  paraphrase: [baseline]
+  policy_blinding: [named]
+  evidence_packet: [none]
+  presentation_order: [fixed]
+  score_aggregation: [mean]

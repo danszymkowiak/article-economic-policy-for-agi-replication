@@ -4,7 +4,7 @@ title: Recommendation robustness
 status: To Do
 assignee: []
 created_date: '2026-10-03 06:03'
-updated_date: '2026-10-03 06:07'
+updated_date: '2026-10-03 08:08'
 labels:
   - phase4
 dependencies:
@@ -24,3 +24,9 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 - [ ] #2 Report whether recommendations follow from the scores, e.g. UBS leads on durability yet is absent from the sequence, NIT recommended despite low political support
 - [ ] #3 Report how blinding policy names changes UBC versus Sovereign AI Fund on Ownership of Gains
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Carried over from TODO.md: read only from results/raw; count only status ok rows as ratings; treat deferred rows as budget-censored (not run), failed as model failures, duplicate as ignored; report the counts of each.
+<!-- SECTION:NOTES:END -->

@@ -221,3 +221,11 @@ __marimo__/
 
 # Private reference material
 docs/private/
+
+# Raw results: kept local until release (decide redistribution after checking provider terms)
+results/raw/*
+!results/raw/.gitkeep
+
+# Provider outputs and smoketest runs (synthetic, but same redistribution caution as raw results)
+results/zen/
+results/smoketest/

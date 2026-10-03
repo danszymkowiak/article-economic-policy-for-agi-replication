@@ -1,6 +1,6 @@
 # Runtime configuration (no secrets). Credentials come from environment variables.
 max_spend_usd: 15          # hard ceiling; values above 15 are rejected on load
-approved_providers: [fake] # add a provider only after the user has confirmed paid use of it
+approved_providers: [fake, opencode] # opencode: user-approved 2026-10-03 for the free big-pickle smoketest only
 batch_discount: 1.0        # multiplier on list price; 1.0 = conservatively assume no discount
 est_output_tokens_per_policy: 100
 chars_per_token: 4.0
@@ -12,3 +12,6 @@ paths:
 prices:
   fake-model-2026-01-01: {input: 1.0, output: 5.0}
   fake-model-2026-02-01: {input: 1.0, output: 5.0}
+  # OpenCode Zen alias, free for a limited time (smoketest only). If Zen starts charging, update
+  # this price BEFORE any run: a price of 0 would make the spend ceiling blind to real cost.
+  big-pickle: {input: 0.0, output: 0.0}

@@ -4,7 +4,7 @@ title: Prompt templates
 status: To Do
 assignee: []
 created_date: '2026-10-03 06:03'
-updated_date: '2026-10-03 06:07'
+updated_date: '2026-10-03 08:08'
 labels:
   - phase3
 dependencies:
@@ -26,3 +26,9 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 - [ ] #4 Policy presentation-order variants (e.g. shuffled or reversed) for the order factor
 - [ ] #5 Paper format (all 11 policies in one prompt) built first; one-policy-per-call variant second
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Carried over from TODO.md: replaces the placeholder prompt template (domain/rendering.py) and fake inputs (designs/fake_inputs/) for its part of the setup. Point config.yaml paths.inputs_dir at the real inputs when done.
+<!-- SECTION:NOTES:END -->

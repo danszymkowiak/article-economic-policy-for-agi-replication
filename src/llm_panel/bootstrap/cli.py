@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import os
 import sys
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
@@ -12,7 +13,9 @@ from pathlib import Path
 from llm_panel.adapters.fake_client import FakeModelClient
 from llm_panel.adapters.jsonl import JsonlBatchLedger, JsonlResultStore
 from llm_panel.adapters.lock import LockHeld, exclusive_lock
+from llm_panel.adapters.zen_client import ZenClient, ZenConfigError, urllib_transport
 from llm_panel.application.collect import collect
+from llm_panel.application.smoketest import ratings_from_store
 from llm_panel.application.spend import SpendCeilingError
 from llm_panel.application.status import get_status
 from llm_panel.application.submit import (
@@ -24,10 +27,14 @@ from llm_panel.application.submit import (
 )
 from llm_panel.bootstrap.config import load_config
 from llm_panel.bootstrap.design_loader import load_design
+from llm_panel.bootstrap.env import load_dotenv
 from llm_panel.bootstrap.inputs_loader import load_inputs
+from llm_panel.bootstrap.smoketest_loader import load_expectations
 from llm_panel.domain.design import to_run_specs
 from llm_panel.domain.pricing import MissingPriceError
+from llm_panel.domain.smoketest import evaluate
 
+CHECK_FAILED = 1
 REFUSED = 2
 
 
@@ -35,16 +42,31 @@ def _now() -> str:
     return datetime.now(UTC).isoformat()
 
 
-def default_client_factory(config_dir: Path) -> ClientFactory:
+def default_client_factory(
+    config_dir: Path,
+    *,
+    est_output_tokens_per_policy: int = 100,
+    environ=None,
+    zen_transport=urllib_transport,
+) -> ClientFactory:
     clients: dict = {}
 
     def factory(provider: str):
         if provider not in clients:
-            if provider != "fake":
+            if provider == "fake":
+                clients[provider] = FakeModelClient(
+                    state_path=config_dir / "results" / "fake_state.json"
+                )
+            elif provider == "opencode":
+                # The output cap equals the per-policy estimate, so the estimate bounds the cost.
+                clients[provider] = ZenClient(
+                    config_dir / "results" / "zen",
+                    env=environ,
+                    transport=zen_transport,
+                    max_tokens_per_policy=est_output_tokens_per_policy,
+                )
+            else:
                 raise ValueError(f"no adapter for provider {provider!r} yet")
-            clients[provider] = FakeModelClient(
-                state_path=config_dir / "results" / "fake_state.json"
-            )
         return clients[provider]
 
     return factory
@@ -69,6 +91,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("collect", help="fetch finished batches, validate, store, retry once")
     sub.add_parser("status", help="show spend versus ceiling and row counts")
+    check = sub.add_parser("check", help="check smoketest expectations against the store")
+    check.add_argument("--expectations", required=True)
     return parser
 
 
@@ -80,11 +104,14 @@ def main(
 ) -> int:
     args = build_parser().parse_args(argv)
     config_path = Path(args.config)
+    load_dotenv(config_path.parent / ".env", os.environ)
     config = load_config(config_path)
     store = JsonlResultStore(config.raw_store)
     ledger = JsonlBatchLedger(config.ledger)
-    factory = client_factory or default_client_factory(config_path.parent)
     settings = config.spend
+    factory = client_factory or default_client_factory(
+        config_path.parent, est_output_tokens_per_policy=settings.est_output_tokens_per_policy
+    )
 
     # submit and collect hold an exclusive lock so overlapping cron runs cannot double-spend
     lock = (
@@ -101,6 +128,7 @@ def main(
         ProviderNotApproved,
         MissingPriceError,
         LockHeld,
+        ZenConfigError,
     ) as exc:
         print(f"REFUSED: {exc}", file=sys.stderr)
         return REFUSED
@@ -133,6 +161,12 @@ def _run(args, config, store, ledger, factory, settings, now) -> int:
             f"deferred={r.deferred}"
         )
         return 0
+    if args.command == "check":
+        ratings, ok, total = ratings_from_store(store)
+        checks = evaluate(load_expectations(args.expectations), ratings, ok, total)
+        for c in checks:
+            print(f"{'PASS' if c.passed else 'FAIL'}  {c.description}: {c.detail}")
+        return 0 if all(c.passed for c in checks) else CHECK_FAILED
     s = get_status(store, ledger, settings)
     print(
         f"spend: actual ${s.spend.actual:.4f} + outstanding ${s.spend.outstanding:.4f} "

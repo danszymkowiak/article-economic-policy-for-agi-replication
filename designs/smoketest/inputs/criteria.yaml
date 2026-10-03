@@ -1,0 +1,2 @@
+- {id: crit_savings, name: Bill savings, description: "How much the policy would reduce a typical household's yearly electricity bill.", group: smoketest}
+- {id: crit_ease, name: Ease of doing, description: "How easy the policy is for a typical household to carry out.", group: smoketest}

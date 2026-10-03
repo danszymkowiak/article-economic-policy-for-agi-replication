@@ -1,0 +1,16 @@
+# Smoketest configuration: separate store, ledger and Zen state from the study, and a spend
+# tiny ceiling (0.25 USD) because Zen free models cannot be used outside OpenCode. Use with:
+#   uv run llm-panel --config config.smoketest.yaml plan --design designs/smoketest/design.yaml
+max_spend_usd: 0.25
+approved_providers: [fake, opencode]
+batch_discount: 1.0
+est_output_tokens_per_policy: 250  # also the max_tokens cap per policy; 100 truncated glm-5.3-flash
+chars_per_token: 4.0
+paths:
+  raw_store: results/smoketest/rows.jsonl
+  ledger: results/smoketest/ledger.jsonl
+  inputs_dir: designs/smoketest/inputs
+prices:
+  # OpenCode Zen list price per 1M tokens (docs, 2026-10-03). Model ids are aliases, not snapshots.
+  glm-5.3-flash: {input: 0.15, output: 0.50}
+  deepseek-v4-flash: {input: 0.14, output: 0.28}  # 'Model access is disabled' on this account

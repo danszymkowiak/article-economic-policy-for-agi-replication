@@ -4,7 +4,7 @@ title: Variance decomposition
 status: To Do
 assignee: []
 created_date: '2026-10-03 06:03'
-updated_date: '2026-10-03 06:07'
+updated_date: '2026-10-03 08:08'
 labels:
   - phase4
 dependencies:
@@ -24,3 +24,9 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 - [ ] #2 Report states how much variance persona explains
 - [ ] #3 Effective sample size of the persona panel estimated from the persona variance share
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Carried over from TODO.md: read only from results/raw; count only status ok rows as ratings; treat deferred rows as budget-censored (not run), failed as model failures, duplicate as ignored; report the counts of each.
+<!-- SECTION:NOTES:END -->

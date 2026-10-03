@@ -1,0 +1,14 @@
+# Third smoketest run: glm-5.3-flash with a higher output cap (600 tokens/policy, was 250). Own store
+# so results do not mix with the 250-cap run. Same design file, so only the cap differs.
+# Note: spend ceilings are per ledger; earlier smoketest runs spent about 0.084 USD in total.
+max_spend_usd: 0.10
+approved_providers: [opencode]
+batch_discount: 1.0
+est_output_tokens_per_policy: 600  # also the max_tokens cap per policy
+chars_per_token: 4.0
+paths:
+  raw_store: results/smoketest/glm-cap600/rows.jsonl
+  ledger: results/smoketest/glm-cap600/ledger.jsonl
+  inputs_dir: designs/smoketest/inputs
+prices:
+  glm-5.3-flash: {input: 0.15, output: 0.50}  # OpenCode Zen list price per 1M tokens

@@ -1,0 +1,3 @@
+- {id: sm_renter, description: "A synthetic renter in a small apartment who pays an electricity bill but cannot change the building."}
+- {id: sm_owner, description: "A synthetic homeowner in a large house with many light fittings."}
+- {id: sm_student, description: "A synthetic student on a tight budget sharing a flat."}

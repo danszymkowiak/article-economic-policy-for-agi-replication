@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Collection, Sequence
+from collections.abc import Callable, Collection, Sequence
 from pathlib import Path
 
 from llm_panel.domain.models import RenderedJob
@@ -28,12 +28,16 @@ class FakeModelClient:
         malformed_attempts: int = 1,
         pending_polls: int = 0,
         state_path: Path | str | None = None,
+        scorer: Callable[[str, str], int] = fake_score,
     ) -> None:
         """`malformed`/`errors` are job ids that misbehave for their first
         `malformed_attempts` submissions; `pending_polls` makes fetch_results report
         not-done that many times per batch. `state_path` persists submitted batches to a JSON
-        file so separate CLI invocations (submit, then collect) can share one fake provider."""
+        file so separate CLI invocations (submit, then collect) can share one fake provider.
+        `scorer(job_id, label)` returns the score for a label; the default is a hash, a custom one
+        lets a test plant a known ground truth."""
         self.provider = provider
+        self._scorer = scorer
         self._malformed = set(malformed)
         self._errors = set(errors)
         self._malformed_attempts = malformed_attempts
@@ -90,7 +94,7 @@ class FakeModelClient:
             ratings = [
                 {
                     "policy": label,
-                    "score": fake_score(jid, label),
+                    "score": self._scorer(jid, label),
                     "rationale": f"fake rationale for {label}",
                 }
                 for label in job.policy_labels

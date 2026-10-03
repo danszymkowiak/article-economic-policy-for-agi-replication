@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-03 06:03'
-updated_date: '2026-10-03 06:18'
+updated_date: '2026-10-03 08:08'
 labels:
   - phase1
 dependencies:
@@ -25,7 +25,7 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 - [x] #2 Jobs whose job_id already exists in the store are skipped
 - [x] #3 Tests cover skipping and resumption
 - [x] #4 Supports the paper format (all 11 policies in one prompt) as the default, and a one-policy-per-call mode as a later variant
-- [x] #5 Job count per configuration is reported (about 15 criteria x 11 policies x 51 personas, roughly 8,400 calls at baseline)
+- [x] #5 Job count per configuration is reported for both formats (baseline 15 criteria x 11 policies x 51 personas: 765 calls / 8,415 ratings in paper format; 8,415 calls in one-policy mode)
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -41,6 +41,8 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 
 <!-- SECTION:NOTES:BEGIN -->
 Prompt template is a PLACEHOLDER baseline (real templates/paraphrases = TASK-16). Note: AC5's '~8,400 calls' only holds for one-policy-per-call mode (15x11x51=8,415). In the paper format (11 policies per prompt) the baseline is 765 calls yielding 8,415 ratings; count_jobs reports both. Specs differing only in score_aggregation (analysis-level) render identical jobs and are deduplicated by job_id; reported as 'duplicates'.
+
+AC5 reworded 2026-10-03 per user: paper format is the baseline (765 calls, 8,415 ratings). Verified by test_count_jobs_baseline_numbers (uv run pytest: 122 passed).
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

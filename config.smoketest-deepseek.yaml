@@ -1,0 +1,14 @@
+# Second smoketest run on deepseek-v4.1-flash (a reasoning model): own store so results never mix
+# with the glm-5.3-flash run in config.smoketest.yaml. Use with designs/smoketest/design_deepseek.yaml.
+max_spend_usd: 0.25
+approved_providers: [opencode]
+batch_discount: 1.0
+est_output_tokens_per_policy: 400  # also the max_tokens cap per policy; reasoning eats the cap
+chars_per_token: 4.0
+paths:
+  raw_store: results/smoketest/deepseek/rows.jsonl
+  ledger: results/smoketest/deepseek/ledger.jsonl
+  inputs_dir: designs/smoketest/inputs
+prices:
+  # OpenCode Zen list price per 1M tokens (docs, 2026-10-03). Model ids are aliases.
+  deepseek-v4.1-flash: {input: 0.30, output: 1.20}
