@@ -88,6 +88,7 @@ def collect(
     client_factory: ClientFactory,
     settings: SpendSettings,
     now: Callable[[], str],
+    external: float = 0.0,
 ) -> CollectReport:
     report = CollectReport()
     seen = {(r.job_id, r.batch_id) for r in store.iter_rows()}  # makes re-collect idempotent
@@ -124,17 +125,21 @@ def collect(
         # in-flight batch; the next submit re-runs it with its attempt derived from the store.
         ledger.record({"event": "collected", "batch_id": entry["batch_id"], "collected_at": now()})
         report = _bump(report, batches_collected=1)
-        report = _retry(report, retry, entry, store, ledger, client_factory, settings, now)
+        report = _retry(
+            report, retry, entry, store, ledger, client_factory, settings, now, external
+        )
     return report
 
 
-def _retry(report, retry, entry, store, ledger, client_factory, settings, now) -> CollectReport:
+def _retry(
+    report, retry, entry, store, ledger, client_factory, settings, now, external=0.0
+) -> CollectReport:
     if not retry:
         return report
     jobs = [j for j, _ in retry]
     try:
         estimate = estimate_jobs(jobs, settings)
-        check_ceiling(compute_spend(store, ledger, settings), sum(estimate.values()))
+        check_ceiling(compute_spend(store, ledger, settings, external), sum(estimate.values()))
     except (SpendCeilingError, MissingPriceError) as exc:
         # Deferred, not failed: non-terminal, so a later submit can run it once budget allows.
         for job, attempt in retry:

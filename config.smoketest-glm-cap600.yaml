@@ -6,6 +6,8 @@ approved_providers: [opencode]
 batch_discount: 1.0
 est_output_tokens_per_policy: 600  # also the max_tokens cap per policy
 chars_per_token: 4.0
+# every config's ledger counts toward the global 15 USD hard cap (this config's own is skipped)
+counts_spend_from: ["config*.yaml"]
 paths:
   raw_store: results/smoketest/glm-cap600/rows.jsonl
   ledger: results/smoketest/glm-cap600/ledger.jsonl

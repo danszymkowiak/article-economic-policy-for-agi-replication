@@ -407,3 +407,29 @@ def test_any_provider_config_error_is_a_guarded_refusal(env, capsys):
     )
     assert code == 2
     assert "ACME_API_KEY" in capsys.readouterr().err
+
+
+def test_config_parses_optional_cached_input_price(env):
+    env.set_config(prices={SNAP: {"input": 1.0, "output": 5.0, "input_cached": 0.1}})
+    assert load_config(env.config_path).spend.price_for(SNAP).input_cached_per_mtok == 0.1
+    env.set_config(prices={SNAP: {"input": 1.0, "output": 5.0}})
+    assert load_config(env.config_path).spend.price_for(SNAP).input_cached_per_mtok is None
+
+
+def test_timed_out_request_is_charged_at_estimate_and_counts_toward_status(env):
+    # A timeout may have been billed and is not retried: it must cost the estimate, not zero.
+    job, client = malformed_first_job(env, attempts=99)
+    client._errors.add(job.job_id)  # error response with no usage, like a Zen read timeout
+    env.run("submit", "--confirm", *env.design(), client=client)
+    env.run("collect", client=client)
+    rows = list(env.store().iter_rows())
+    row = next(r for r in rows if r.job_id == job.job_id)
+    assert row.usage["estimated"]
+    from llm_panel.application.spend import compute_spend
+
+    cfg = load_config(env.config_path)
+    spend = compute_spend(env.store(), env.ledger(), cfg.spend)
+    from llm_panel.domain.pricing import usage_cost
+
+    price = cfg.spend.price_for(row.model_snapshot)
+    assert spend.actual >= usage_cost(row.usage, price, 1.0) > 0

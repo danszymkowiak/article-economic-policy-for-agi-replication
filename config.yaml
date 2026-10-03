@@ -2,8 +2,10 @@
 max_spend_usd: 15          # hard ceiling; values above 15 are rejected on load
 approved_providers: [fake, opencode] # opencode: user-approved 2026-10-03 for the free big-pickle smoketest only
 batch_discount: 1.0        # multiplier on list price; 1.0 = conservatively assume no discount
-est_output_tokens_per_policy: 100
+est_output_tokens_per_policy: 600  # also the max_tokens cap; 600 gave 18/18 valid for glm-5.3-flash
 chars_per_token: 4.0
+# every config's ledger counts toward the global 15 USD hard cap (this config's own is skipped)
+counts_spend_from: ["config*.yaml"]
 paths:
   raw_store: results/raw/rows.jsonl
   ledger: results/batches.jsonl
@@ -14,4 +16,7 @@ prices:
   fake-model-2026-02-01: {input: 1.0, output: 5.0}
   # OpenCode Zen alias, free for a limited time (smoketest only). If Zen starts charging, update
   # this price BEFORE any run: a price of 0 would make the spend ceiling blind to real cost.
+  # Study model (chosen by user 2026-10-03). List price per 1M tokens from the OpenCode Zen docs,
+  # read 2026-10-03; no cached-input price known, so cached tokens are charged at the full rate.
+  glm-5.3-flash: {input: 0.15, output: 0.50}
   big-pickle: {input: 0.0, output: 0.0}

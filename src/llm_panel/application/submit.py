@@ -15,6 +15,7 @@ from llm_panel.application.spend import (
     jobs_in_flight,
     send_batch,
 )
+from llm_panel.domain.model_ids import ModelIdReport, check_model_ids
 from llm_panel.domain.models import RenderedJob, RunSpec
 from llm_panel.domain.pricing import SpendSettings
 from llm_panel.ports import BatchLedger, ModelClient, ResultStore
@@ -30,6 +31,10 @@ class ProviderNotApproved(RuntimeError):
     pass
 
 
+class ModelIdDrift(RuntimeError):
+    pass
+
+
 @dataclass(frozen=True)
 class Plan:
     build: BuildResult
@@ -38,6 +43,7 @@ class Plan:
     cost_by_provider: dict[str, float]
     spend: Spend
     attempts: dict[str, int]  # job_id -> attempt number this submission would be
+    model_ids: ModelIdReport = ModelIdReport()
 
     @property
     def estimated_cost(self) -> float:
@@ -51,6 +57,7 @@ def make_plan(
     ledger: BatchLedger,
     settings: SpendSettings,
     provider: str | None = None,
+    external: float = 0.0,
 ) -> Plan:
     build = build_jobs(specs, inputs, store)
     flying = jobs_in_flight(ledger)
@@ -66,7 +73,8 @@ def make_plan(
         jobs=jobs,
         in_flight=sum(1 for j in build.jobs if j.job_id in flying),
         cost_by_provider=estimate_jobs(jobs, settings),
-        spend=compute_spend(store, ledger, settings),
+        spend=compute_spend(store, ledger, settings, external),
+        model_ids=check_model_ids(store.iter_rows()),
     )
 
 
@@ -86,6 +94,11 @@ def submit(
     unapproved = sorted(set(plan.cost_by_provider) - approved_providers)
     if unapproved:
         raise ProviderNotApproved(f"provider(s) not approved for paid use: {', '.join(unapproved)}")
+    if plan.model_ids.has_issues:
+        raise ModelIdDrift(
+            f"model id drift in stored rows ({plan.model_ids.describe()}); rows may not be "
+            "comparable. Inspect results/raw before spending more"
+        )
     check_ceiling(plan.spend, plan.estimated_cost)
 
     by_provider: dict[str, list[RenderedJob]] = {}

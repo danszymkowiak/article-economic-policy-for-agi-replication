@@ -222,3 +222,10 @@ def test_requests_identify_themselves_with_a_user_agent(tmp_path):
     client, _ = make_client(tmp_path, transport)
     client.submit_batch(jobs(1))
     assert transport.calls[0][1]["User-Agent"].startswith("llm-panel/")
+
+
+def test_timeout_response_carries_no_usage_so_the_estimate_is_charged(tmp_path):
+    transport = ScriptedTransport(default=TimeoutError("read timed out"))
+    client, _ = make_client(tmp_path, transport)
+    by_id, _ = run(client, jobs(1))
+    assert next(iter(by_id.values())).usage == {}  # collect turns empty usage into the estimate

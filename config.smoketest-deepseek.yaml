@@ -5,6 +5,8 @@ approved_providers: [opencode]
 batch_discount: 1.0
 est_output_tokens_per_policy: 400  # also the max_tokens cap per policy; reasoning eats the cap
 chars_per_token: 4.0
+# every config's ledger counts toward the global 15 USD hard cap (this config's own is skipped)
+counts_spend_from: ["config*.yaml"]
 paths:
   raw_store: results/smoketest/deepseek/rows.jsonl
   ledger: results/smoketest/deepseek/ledger.jsonl

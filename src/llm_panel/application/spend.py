@@ -8,7 +8,12 @@ from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 
 from llm_panel.domain.models import RenderedJob
-from llm_panel.domain.pricing import SpendSettings, estimate_job_cost, usage_cost
+from llm_panel.domain.pricing import (
+    HARD_CEILING_USD,
+    SpendSettings,
+    estimate_job_cost,
+    usage_cost,
+)
 from llm_panel.domain.results import STATUS_INVALID
 from llm_panel.ports import BatchLedger, ModelClient, ResultStore
 
@@ -21,7 +26,8 @@ class SpendCeilingError(RuntimeError):
 class Spend:
     actual: float  # from usage fields of every stored row (failures cost money too)
     outstanding: float  # estimated cost of submitted batches not yet collected
-    ceiling: float
+    ceiling: float  # limit on this ledger's own spend
+    external: float = 0.0  # committed spend in other ledgers; counts toward the global 15 USD
 
     @property
     def committed(self) -> float:
@@ -47,14 +53,18 @@ def attempt_counts(store: ResultStore) -> Counter:
     return Counter(r.job_id for r in store.iter_rows() if r.status == STATUS_INVALID)
 
 
-def compute_spend(store: ResultStore, ledger: BatchLedger, settings: SpendSettings) -> Spend:
+def compute_spend(
+    store: ResultStore, ledger: BatchLedger, settings: SpendSettings, external: float = 0.0
+) -> Spend:
     actual = sum(
         usage_cost(row.usage, settings.price_for(row.model_snapshot), settings.batch_discount)
         for row in store.iter_rows()
     )
     outstanding = sum(e["est_cost"] for e in pending_batches(ledger))
     outstanding += sum(e["est_cost"] for e in open_intents(ledger))
-    return Spend(actual=actual, outstanding=outstanding, ceiling=settings.max_spend_usd)
+    return Spend(
+        actual=actual, outstanding=outstanding, ceiling=settings.max_spend_usd, external=external
+    )
 
 
 def estimate_jobs(jobs: Iterable[RenderedJob], settings: SpendSettings) -> dict[str, float]:
@@ -71,6 +81,13 @@ def check_ceiling(spend: Spend, new_estimate: float) -> None:
         raise SpendCeilingError(
             f"refusing: actual ${spend.actual:.4f} + outstanding ${spend.outstanding:.4f} + "
             f"new estimate ${new_estimate:.4f} = ${total:.4f} exceeds ceiling ${spend.ceiling:.2f}"
+        )
+    global_total = total + spend.external
+    if global_total > HARD_CEILING_USD:
+        raise SpendCeilingError(
+            f"refusing: this ledger ${total:.4f} (incl. new estimate) + other ledgers "
+            f"${spend.external:.4f} = ${global_total:.4f} exceeds the global hard ceiling "
+            f"${HARD_CEILING_USD:.2f}"
         )
 
 

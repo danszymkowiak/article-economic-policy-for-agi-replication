@@ -79,3 +79,32 @@ def test_empty_text_error_still_reports_the_usage_the_provider_billed():
     resp = parse_completion("job1", 200, payload)
     assert resp.status == "error"
     assert resp.usage == {"input_tokens": 300, "output_tokens": 1500}
+
+
+def test_parse_completion_keeps_cached_and_reasoning_tokens_from_real_zen_shape():
+    # Shape observed in the live smoketest: both are subsets of prompt/completion tokens.
+    payload = {
+        "model": "glm-5.3-flash",
+        "choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}],
+        "usage": {
+            "prompt_tokens": 312,
+            "completion_tokens": 2323,
+            "completion_tokens_details": {"reasoning_tokens": 2084},
+            "prompt_tokens_details": {"cached_tokens": 182},
+            "total_tokens": 2635,
+        },
+    }
+    assert parse_completion("j", 200, payload).usage == {
+        "input_tokens": 312,
+        "output_tokens": 2323,
+        "cached_input_tokens": 182,
+        "reasoning_tokens": 2084,
+    }
+
+
+def test_parse_completion_omits_detail_fields_when_absent_or_empty():
+    payload = {
+        "choices": [{"message": {"content": "{}"}}],
+        "usage": {"prompt_tokens": 5, "completion_tokens": 7, "prompt_tokens_details": {}},
+    }
+    assert parse_completion("j", 200, payload).usage == {"input_tokens": 5, "output_tokens": 7}

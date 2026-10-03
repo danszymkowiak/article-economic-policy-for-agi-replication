@@ -19,6 +19,8 @@ class MissingPriceError(ValueError):
 class Price:
     input_per_mtok: float
     output_per_mtok: float
+    # Price of cached input tokens; None = charge them at the full input price (upper bound).
+    input_cached_per_mtok: float | None = None
 
 
 @dataclass(frozen=True)
@@ -48,10 +50,19 @@ class SpendSettings:
 
 
 def usage_cost(usage: Mapping, price: Price, discount: float) -> float:
+    """Cached input tokens are a subset of input tokens; reasoning tokens are a subset of output
+    tokens (already billed at the output rate), so they are recorded but not charged again."""
     usage = usage or {}
     tokens_in = usage.get("input_tokens", 0) or 0
     tokens_out = usage.get("output_tokens", 0) or 0
-    return (tokens_in * price.input_per_mtok + tokens_out * price.output_per_mtok) / 1e6 * discount
+    cached = min(usage.get("cached_input_tokens", 0) or 0, tokens_in)
+    cached_rate = (
+        price.input_per_mtok
+        if price.input_cached_per_mtok is None
+        else (price.input_cached_per_mtok)
+    )
+    total = (tokens_in - cached) * price.input_per_mtok + cached * cached_rate
+    return (total + tokens_out * price.output_per_mtok) / 1e6 * discount
 
 
 def estimated_usage(job: RenderedJob, settings: SpendSettings) -> dict:

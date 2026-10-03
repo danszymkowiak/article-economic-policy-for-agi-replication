@@ -19,11 +19,12 @@ from llm_panel.application.status import get_status
 from llm_panel.application.submit import (
     ClientFactory,
     ConfirmationRequired,
+    ModelIdDrift,
     ProviderNotApproved,
     make_plan,
     submit,
 )
-from llm_panel.bootstrap.config import load_config
+from llm_panel.bootstrap.config import ExternalSpendError, external_spend, load_config
 from llm_panel.bootstrap.design_loader import load_design
 from llm_panel.bootstrap.env import load_dotenv
 from llm_panel.bootstrap.inputs_loader import load_inputs
@@ -35,7 +36,7 @@ from llm_panel.bootstrap.providers import (
 )
 from llm_panel.bootstrap.smoketest_loader import load_expectations
 from llm_panel.domain.design import to_run_specs
-from llm_panel.domain.pricing import MissingPriceError
+from llm_panel.domain.pricing import HARD_CEILING_USD, MissingPriceError
 from llm_panel.domain.smoketest import evaluate
 from llm_panel.ports import ProviderConfigError
 
@@ -118,7 +119,9 @@ def main(
         ConfirmationRequired,
         SpendCeilingError,
         ProviderNotApproved,
+        ModelIdDrift,
         MissingPriceError,
+        ExternalSpendError,
         LockHeld,
         ProviderConfigError,
     ) as exc:
@@ -127,10 +130,11 @@ def main(
 
 
 def _run(args, config, store, ledger, factory, settings, now) -> int:
+    external = external_spend(config)
     if args.command in ("plan", "submit"):
         specs = to_run_specs(load_design(args.design))
         inputs = load_inputs(config.inputs_dir)
-        plan = make_plan(specs, inputs, store, ledger, settings, args.provider)
+        plan = make_plan(specs, inputs, store, ledger, settings, args.provider, external)
         if args.command == "plan":
             _print_plan(plan, settings.max_spend_usd)
             return 0
@@ -146,7 +150,7 @@ def _run(args, config, store, ledger, factory, settings, now) -> int:
         print(f"submitted {len(plan.jobs)} jobs in {len(batch_ids)} batch(es): {batch_ids}")
         return 0
     if args.command == "collect":
-        r = collect(store, ledger, factory, settings, now)
+        r = collect(store, ledger, factory, settings, now, external)
         print(
             f"collected {r.batches_collected} batch(es), {r.batches_pending} still pending; "
             f"ok={r.ok} invalid={r.invalid} failed={r.failed} retried={r.retried} "
@@ -159,13 +163,20 @@ def _run(args, config, store, ledger, factory, settings, now) -> int:
         for c in checks:
             print(f"{'PASS' if c.passed else 'FAIL'}  {c.description}: {c.detail}")
         return 0 if all(c.passed for c in checks) else CHECK_FAILED
-    s = get_status(store, ledger, settings)
+    s = get_status(store, ledger, settings, external)
     print(
         f"spend: actual ${s.spend.actual:.4f} + outstanding ${s.spend.outstanding:.4f} "
         f"of ceiling ${s.spend.ceiling:.2f}"
     )
+    if config.counts_spend_from:
+        print(f"other ledgers ${external:.4f} (count toward the global ${HARD_CEILING_USD:g} cap)")
     print(f"rows: {s.rows_by_status or 'none'}; pending: {s.pending_batches} batch(es), "
           f"{s.pending_jobs} job(s)")  # fmt: skip
+    m = s.model_ids
+    if m.has_issues:
+        print(f"WARNING: model id drift: {m.describe()}")
+    else:
+        print(f"model ids: ok ({m.checked} rows reported one, {m.unreported} unreported)")
     if s.unreconciled_intents:
         print(f"WARNING: {s.unreconciled_intents} submission(s) have no recorded batch id "
               "(crash mid-submit?); counted as outstanding until reconciled")  # fmt: skip

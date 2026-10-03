@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import glob
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
 
+from llm_panel.adapters.jsonl import JsonlBatchLedger, JsonlResultStore
+from llm_panel.application.spend import compute_spend
 from llm_panel.domain.pricing import HARD_CEILING_USD, Price, SpendSettings
 
 
@@ -17,6 +20,7 @@ class Config:
     raw_store: Path
     ledger: Path
     inputs_dir: Path
+    counts_spend_from: list[Path] = field(default_factory=list)  # config paths/globs
 
 
 def load_config(path: Path | str) -> Config:
@@ -30,7 +34,11 @@ def load_config(path: Path | str) -> Config:
     base = path.parent
     paths = data.get("paths") or {}
     prices = {
-        snapshot: Price(float(p["input"]), float(p["output"]))
+        snapshot: Price(
+            float(p["input"]),
+            float(p["output"]),
+            float(p["input_cached"]) if p.get("input_cached") is not None else None,
+        )
         for snapshot, p in (data.get("prices") or {}).items()
     }
     return Config(
@@ -45,4 +53,35 @@ def load_config(path: Path | str) -> Config:
         raw_store=base / paths.get("raw_store", "results/raw/rows.jsonl"),
         ledger=base / paths.get("ledger", "results/batches.jsonl"),
         inputs_dir=base / paths.get("inputs_dir", "."),
+        counts_spend_from=[base / p for p in data.get("counts_spend_from") or ()],
     )
+
+
+class ExternalSpendError(RuntimeError):
+    """Another ledger's spend could not be read, so the global ceiling cannot be enforced."""
+
+
+def external_spend(config: Config) -> float:
+    """Committed spend (actual + outstanding) in the ledgers of the configs this one lists in
+    `counts_spend_from`. Fails closed: an unmatched pattern or unreadable config refuses.
+    Not recursive, and this config's own ledger is skipped so nothing is counted twice."""
+    own = config.ledger.resolve()
+    seen: set[Path] = set()
+    total = 0.0
+    for pattern in config.counts_spend_from:
+        matches = sorted(glob.glob(str(pattern)))
+        if not matches:
+            raise ExternalSpendError(f"counts_spend_from matched no config: {pattern}")
+        for match in matches:
+            try:
+                other = load_config(match)
+                key = other.ledger.resolve()
+                if key == own or key in seen:
+                    continue
+                seen.add(key)
+                total += compute_spend(
+                    JsonlResultStore(other.raw_store), JsonlBatchLedger(other.ledger), other.spend
+                ).committed
+            except Exception as exc:  # unreadable store, missing price, bad yaml: fail closed
+                raise ExternalSpendError(f"cannot read spend from {match}: {exc}") from exc
+    return total

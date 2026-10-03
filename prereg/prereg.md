@@ -123,6 +123,13 @@ are TODO and must be fixed before freezing.
 - Simulated personas on a shared model are unlikely to be independent raters.
 - No human economist anchor in this study; a small human survey on a subset of policies
   is a possible extension.
+- Model snapshots cannot be pinned on OpenCode Zen: it serves model ids (e.g. `glm-5.3-flash`)
+  that the provider can repoint. The model id each response reports is stored per row and checked
+  against the requested id; `status` warns and `submit` refuses if a row reports a different id
+  or the reported id changes during the study. This detects a visible change but not a silent
+  one behind an unchanged id, so rankings are conditional on the provider serving one model
+  throughout. Zen may also ignore the `seed` parameter; repeats then measure sampling noise
+  and are not reproducible by seed.
 - Budget caps the number of models, repeats and cells.
 
 ## 10. Amendments

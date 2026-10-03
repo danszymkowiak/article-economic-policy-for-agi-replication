@@ -55,6 +55,13 @@ def parse_completion(job_id: str, status_code: int, payload: Mapping) -> ModelRe
         if usage.get("prompt_tokens") is not None and usage.get("completion_tokens") is not None
         else {}
     )
+    if reported:  # subsets of the counts above; recorded so cost covers them explicitly
+        cached = (usage.get("prompt_tokens_details") or {}).get("cached_tokens")
+        reasoning = (usage.get("completion_tokens_details") or {}).get("reasoning_tokens")
+        if cached:
+            reported["cached_input_tokens"] = cached
+        if reasoning:
+            reported["reasoning_tokens"] = reasoning
     if not text:
         return ModelResponse(
             job_id, "error", "", usage=reported, raw=raw, error="response had no text content"
