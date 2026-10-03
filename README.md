@@ -16,8 +16,8 @@ separate, clearly labeled adversarial arm.
 
 1. **Baseline**: reconstruct the setup from the essay (all 11 policies in one prompt) and
    compare against the published tables by rank correlation.
-2. **Factors** (fractional factorial): model, persona source (reconstructed survey, IGM
-   Clark Center US, IGM Europe, none), prompt wording, blinded policy labels, evidence
+2. **Factors** (fractional factorial): model, persona source (reconstructed synthetic panel,
+   none; IGM panels are a possible later extension), prompt wording, blinded policy labels, evidence
    packet (reconstructed, balanced, none), presentation order, score aggregation, repeats.
 3. **Measures**: Kendall's tau between configurations with bootstrap intervals; variance
    share from persona vs prompt vs model vs repeat noise; whether the three-stage

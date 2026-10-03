@@ -28,6 +28,7 @@ from llm_panel.bootstrap.config import ExternalSpendError, external_spend, load_
 from llm_panel.bootstrap.design_loader import load_design
 from llm_panel.bootstrap.env import load_dotenv
 from llm_panel.bootstrap.inputs_loader import load_inputs
+from llm_panel.bootstrap.persona_files import read_records, write_panel
 from llm_panel.bootstrap.providers import (
     ProviderBuilder,
     ProviderContext,
@@ -36,6 +37,7 @@ from llm_panel.bootstrap.providers import (
 )
 from llm_panel.bootstrap.smoketest_loader import load_expectations
 from llm_panel.domain.design import to_run_specs
+from llm_panel.domain.personas import build_igm_panel, build_synthetic_panel
 from llm_panel.domain.pricing import HARD_CEILING_USD, MissingPriceError
 from llm_panel.domain.smoketest import evaluate
 from llm_panel.ports import ProviderConfigError
@@ -84,6 +86,19 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("collect", help="fetch finished batches, validate, store, retry once")
     sub.add_parser("status", help="show spend versus ceiling and row counts")
+    build = sub.add_parser("build-personas", help="build a persona source file with provenance")
+    kinds = build.add_subparsers(dest="kind", required=True)
+    synth = kinds.add_parser("synthetic", help="our stand-in panel for the unpublished survey")
+    synth.add_argument("--n", type=int, default=51)
+    synth.add_argument("--seed", type=int, required=True)
+    synth.add_argument("--source", default="reconstructed")
+    igm = kinds.add_parser("igm", help="personas from anonymous expert-panel records (CSV)")
+    igm.add_argument("--records", required=True)
+    igm.add_argument("--source", required=True, help="e.g. igm_us or igm_europe")
+    igm.add_argument("--origin", required=True)
+    igm.add_argument("--retrieved", required=True)
+    for p in (synth, igm):
+        p.add_argument("--out", required=True, help="inputs directory")
     check = sub.add_parser("check", help="check smoketest expectations against the store")
     check.add_argument("--expectations", required=True)
     return parser
@@ -129,7 +144,31 @@ def main(
         return REFUSED
 
 
+def _build_personas(args) -> int:
+    try:
+        if args.kind == "synthetic":
+            panel = build_synthetic_panel(args.n, args.seed, args.source)
+        else:
+            records, digest = read_records(args.records)
+            panel = build_igm_panel(
+                records, source=args.source, origin=args.origin, retrieved=args.retrieved,
+                input_sha256=digest,
+            )  # fmt: skip
+    except ValueError as exc:  # e.g. identifying fields or no records
+        print(f"REFUSED: {exc}", file=sys.stderr)
+        return REFUSED
+    try:
+        path = write_panel(args.out, panel)
+    except FileExistsError as exc:
+        print(f"REFUSED: {exc}", file=sys.stderr)
+        return REFUSED
+    print(f"wrote {len(panel.personas)} personas ({args.source}) to {path}")
+    return 0
+
+
 def _run(args, config, store, ledger, factory, settings, now) -> int:
+    if args.command == "build-personas":
+        return _build_personas(args)
     external = external_spend(config)
     if args.command in ("plan", "submit"):
         specs = to_run_specs(load_design(args.design))

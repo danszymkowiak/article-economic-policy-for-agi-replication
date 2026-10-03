@@ -55,7 +55,7 @@ Speed and Readiness comparison with the published scores as lower-confidence. St
 |---|---|---|---|---|
 | R1 | Unit of one call | one call per persona x criterion, all 11 policies in one prompt, scored 0-100 with a short rationale | `prereg.md` section 2; the essay does not say how many policies per prompt | decided |
 | R2 | Persona representation | a `traits` dictionary per persona, rendered as `Your traits: {...}` after the instruction "You are answering questions as if you were a human. Do not break character." | EDSL's own default persona rendering, checked in section 5 | decided |
-| R3 | The 51 baseline personas | 51 synthetic trait dictionaries written by us, spread over field, ideology and views on redistribution, AI and labour; labelled a stand-in everywhere. IGM Clark Center and IGM Europe stay separate persona-source levels | the survey of 51 economists is unpublished; user decision 2026-10-03 | decided |
+| R3 | The 51 baseline personas | 51 synthetic trait dictionaries written by us, spread over field, ideology and views on redistribution, AI and labour; labelled a stand-in everywhere. the persona-source factor has two levels, this panel and no persona; the IGM Clark Center and IGM Europe levels were dropped on 2026-10-04 because their data is not sourced | the survey of 51 economists is unpublished; user decision 2026-10-03 | decided |
 | R4 | Evidence packet | neutral, balanced summaries of the evidence the essay cites (UI in Denmark, EITC, retraining, Alaska fund), written without the essay's conclusions to avoid circularity; the "balanced" and "none" levels remain | the essay says agents rate "based on the available evidence" but the packet is unpublished; user decision 2026-10-03 | decided |
 | R5 | Rating prompt wording | our own; the baseline is one fixed wording, paraphrases come from the prompt-templates task | not published | decided (wording drafted later) |
 | R6 | Policy order in a prompt | fixed in the baseline | not published | decided |
@@ -63,6 +63,25 @@ Speed and Readiness comparison with the published scores as lower-confidence. St
 | R8 | Composite score | unweighted mean of sub-criteria in a dimension | the essay shows composites but not the weights; we check that the published composites equal the mean of the published sub-criteria in the baseline-comparison task | decided, to be verified |
 | R9 | Temperature | recorded for every run; levels set in `prereg.md` | not published | open in prereg |
 | R10 | Repeats | several seeds per cell with otherwise identical prompts, to measure sampling stability; seed-stability cells use fixed order (random order is seeded by the same seed and would change the prompt) | user requirement 2026-10-03 | count TODO in prereg |
+
+### 4a. The baseline persona panel (stand-in, built 2026-10-04)
+
+`personas/reconstructed.yaml`, built with `llm-panel build-personas synthetic --n 51 --seed 2026`
+before any result existed; the provenance block in the file records the method, seed and trait
+space. Seven trait dimensions: field (8 levels), political leaning (5), view on redistribution (5),
+view on AI and labour (4), view on the role of government (3), seniority (4) and country of origin
+(8: US, UK, Germany, France, Canada, India, Brazil, Japan). Each dimension is balanced to within
+one persona and assigned independently. Consequences, stated so they are not read as findings:
+attitudes are not correlated with one another (real economists' views cluster), and the spread is
+flat (about as many very conservative as very liberal personas), which is wider than a real
+economist panel. The persona-source factor tests how much this choice matters.
+
+IGM Clark Center US and IGM Europe levels are dropped from the design (user decision
+2026-10-04): the respondent data is not sourced, and the persona-source factor is therefore
+reconstructed panel versus no persona. A builder exists for a later extension
+(`llm-panel build-personas igm` on anonymous respondent records in a CSV; the input file's
+sha256, origin and retrieval date go into the provenance). Adding those levels after freezing
+would be a recorded amendment.
 
 ## 5. EDSL reuse (checked 2026-10-03)
 

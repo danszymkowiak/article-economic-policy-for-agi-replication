@@ -50,7 +50,7 @@ before freezing. Pinned model snapshots, never aliases.
 | Factor | Levels |
 |---|---|
 | Model | TODO (snapshot ids for Claude, GPT, Gemini, one open-weights model; subject to the spend ceiling) |
-| Persona source | reconstructed survey (51); IGM Clark Center US; IGM Europe; none |
+| Persona source | reconstructed synthetic panel (51); none. IGM Clark Center US and IGM Europe panels were dropped from this design on 2026-10-04 (data not sourced); builders exist for a later extension |
 | Prompt wording | baseline; TODO neutral paraphrases |
 | Policy labels | named; blinded (mechanics only) |
 | Evidence packet | reconstructed; balanced; none |
