@@ -4,6 +4,7 @@ title: Write-up
 status: To Do
 assignee: []
 created_date: '2026-10-03 06:03'
+updated_date: '2026-10-03 06:07'
 labels:
   - phase5
 dependencies:
@@ -22,4 +23,5 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 - [ ] #1 Full range of results first, adversarial arm second
 - [ ] #2 Describes the study as a re-implementation from the public description
 - [ ] #3 Limitations section states that instability does not show the recommendations are wrong
+- [ ] #4 Notes a small human economist survey on a subset of policies as a possible anchor not done here
 <!-- AC:END -->

@@ -4,6 +4,7 @@ title: Rank stability
 status: To Do
 assignee: []
 created_date: '2026-10-03 06:03'
+updated_date: '2026-10-03 06:07'
 labels:
   - phase4
 dependencies:
@@ -21,4 +22,5 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 <!-- AC:BEGIN -->
 - [ ] #1 Kendall tau computed between configurations
 - [ ] #2 Bootstrap confidence intervals reported
+- [ ] #3 Alternative score aggregations (e.g. mean, median, trimmed mean) compared for rank stability
 <!-- AC:END -->

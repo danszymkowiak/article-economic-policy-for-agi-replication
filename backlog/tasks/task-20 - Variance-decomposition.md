@@ -4,6 +4,7 @@ title: Variance decomposition
 status: To Do
 assignee: []
 created_date: '2026-10-03 06:03'
+updated_date: '2026-10-03 06:07'
 labels:
   - phase4
 dependencies:
@@ -21,4 +22,5 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 <!-- AC:BEGIN -->
 - [ ] #1 Persona, prompt, model, evidence and repeat noise decomposed (mixed-effects or ANOVA)
 - [ ] #2 Report states how much variance persona explains
+- [ ] #3 Effective sample size of the persona panel estimated from the persona variance share
 <!-- AC:END -->

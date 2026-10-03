@@ -4,6 +4,7 @@ title: Prompt templates
 status: To Do
 assignee: []
 created_date: '2026-10-03 06:03'
+updated_date: '2026-10-03 06:07'
 labels:
   - phase3
 dependencies:
@@ -22,4 +23,6 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 - [ ] #1 Paper-faithful template (as reconstructed from the essay)
 - [ ] #2 3-5 neutral paraphrases
 - [ ] #3 Blinded variant describing policy mechanics without names
+- [ ] #4 Policy presentation-order variants (e.g. shuffled or reversed) for the order factor
+- [ ] #5 Paper format (all 11 policies in one prompt) built first; one-policy-per-call variant second
 <!-- AC:END -->

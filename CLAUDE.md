@@ -1,3 +1,22 @@
+# Project: LLM-panel sensitivity study
+
+Re-implementation (not a replication) of the "Economic Policy for AGI" survey from its public description, plus a preregistered sensitivity analysis of how stable its rankings are. See README.md for the design.
+
+## Ground rules
+- Report the whole range of results; do not search for maximum variation. The adversarial arm is separate, in its own directory, and clearly labeled.
+- Write `prereg/prereg.md` and keep it draft until the user tags it frozen. No paid API calls before that.
+- Hard spend ceiling `max_spend_usd = 15`, enforced in code (`submit` needs `--confirm` and refuses anything that would exceed the ceiling). Confirm with the user before any paid call on a new provider.
+- Run the tests and stop for user review after each task.
+- Pin exact model snapshots, never aliases. Use single structured batch calls, not agentic subagents.
+- Log every run, including failures, with seed and temperature. The raw store is append-only; analysis reads only from `results/raw`.
+- Instability of scores shows they lack the claimed precision, not that the recommendations are wrong. Say so in write-ups.
+
+## Architecture
+Layers: domain (no I/O) -> ports (`ModelClient`, `ResultStore`) -> adapters (per-provider batch clients, JSONL/Parquet store) -> application (expand, build jobs, submit, collect, validate) -> bootstrap (config, cron-friendly CLI).
+`job_id` = sha256(rendered prompt + model snapshot + temperature + seed), so reruns skip finished jobs. Responses are validated against a JSON schema (score 0-100 plus short rationale); malformed ones are retried once, then logged as failures.
+
+## Local-only reference
+`docs/private/` is gitignored and may hold the original design discussion (`design-chat.md`). Do not copy its contents verbatim into committed files.
 
 <!-- BACKLOG.MD GUIDELINES START -->
 <!-- backlog.md-instructions-version: 1.53.0 -->

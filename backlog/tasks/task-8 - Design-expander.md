@@ -4,6 +4,7 @@ title: Design expander
 status: To Do
 assignee: []
 created_date: '2026-10-03 06:03'
+updated_date: '2026-10-03 06:07'
 labels:
   - phase1
 dependencies:
@@ -23,4 +24,5 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 - [ ] #2 Produces RunSpecs for full factorial designs
 - [ ] #3 Supports fractional factorial designs
 - [ ] #4 Tests cover both modes
+- [ ] #5 Presentation order and score aggregation are design factors alongside the others
 <!-- AC:END -->
