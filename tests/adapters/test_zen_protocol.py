@@ -1,6 +1,6 @@
 import pytest
 
-from llm_panel.domain.zen_protocol import build_request, is_retryable, parse_completion
+from llm_panel.adapters.zen.protocol import build_request, is_retryable, parse_completion
 from tests.domain.test_models import make_job
 
 

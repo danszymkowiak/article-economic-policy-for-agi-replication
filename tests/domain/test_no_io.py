@@ -29,3 +29,10 @@ def test_domain_modules_do_no_io():
             assert not roots & FORBIDDEN_IMPORTS, f"{path.name} imports {roots & FORBIDDEN_IMPORTS}"
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
                 assert node.func.id not in FORBIDDEN_CALLS, f"{path.name} calls {node.func.id}"
+
+
+def test_domain_holds_no_vendor_specific_code():
+    # vendor wire formats live with their adapter, not in the domain layer
+    for path in domain_files():
+        assert "zen" not in path.name, path.name
+        assert "opencode" not in path.read_text().lower(), f"{path.name} mentions a vendor"

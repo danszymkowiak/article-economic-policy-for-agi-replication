@@ -368,8 +368,8 @@ def test_main_loads_dotenv_next_to_config_without_overriding(env, monkeypatch):
     monkeypatch.delenv("LLM_PANEL_TEST_VAR")  # leave no trace for other tests
 
 
-def test_factory_builds_zen_client_capped_by_the_cost_estimate(tmp_path):
-    from llm_panel.adapters.zen_client import ZenClient
+def test_default_factory_builds_zen_client_capped_by_the_cost_estimate(tmp_path):
+    from llm_panel.adapters.zen import ZenClient
     from llm_panel.bootstrap.cli import default_client_factory
     from tests.domain.test_models import make_job
 
@@ -383,9 +383,27 @@ def test_factory_builds_zen_client_capped_by_the_cost_estimate(tmp_path):
         tmp_path,
         est_output_tokens_per_policy=77,
         environ={"OPENCODE_API_KEY": "k"},
-        zen_transport=transport,
+        transports={"opencode": transport},
     )
     client = factory("opencode")
     assert isinstance(client, ZenClient) and factory("opencode") is client
     client.submit_batch([make_job(provider="opencode")])  # two policies
     assert calls[0]["max_tokens"] == 154
+
+
+def test_any_provider_config_error_is_a_guarded_refusal(env, capsys):
+    from llm_panel.ports import ProviderConfigError
+
+    class AcmeConfigError(ProviderConfigError):
+        pass
+
+    def factory(provider):
+        raise AcmeConfigError("ACME_API_KEY is not set")
+
+    code = main(
+        ["--config", str(env.config_path), "submit", "--confirm", *env.design()],
+        client_factory=factory,
+        now=lambda: "2026-10-03T00:00:00Z",
+    )
+    assert code == 2
+    assert "ACME_API_KEY" in capsys.readouterr().err

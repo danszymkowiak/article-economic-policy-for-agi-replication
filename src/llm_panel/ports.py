@@ -9,6 +9,14 @@ from llm_panel.domain.models import RenderedJob
 from llm_panel.domain.results import BatchResult, StoredRow
 
 
+class ProviderConfigError(RuntimeError):
+    """A provider cannot be used as configured (missing key, unknown provider, ...).
+
+    Adapters raise subclasses of this; the CLI reports it as a guarded refusal, so a new adapter
+    never needs to be named in core code.
+    """
+
+
 @runtime_checkable
 class ModelClient(Protocol):
     provider: str

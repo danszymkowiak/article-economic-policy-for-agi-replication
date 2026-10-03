@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from llm_panel.adapters.zen_client import ZenClient, ZenConfigError, urllib_transport
+from llm_panel.adapters.zen import ZenClient, ZenConfigError, urllib_transport
 from llm_panel.ports import ModelClient
 from tests.domain.test_models import make_job
 

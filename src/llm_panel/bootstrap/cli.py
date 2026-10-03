@@ -6,14 +6,12 @@ import argparse
 import contextlib
 import os
 import sys
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
-from llm_panel.adapters.fake_client import FakeModelClient
 from llm_panel.adapters.jsonl import JsonlBatchLedger, JsonlResultStore
 from llm_panel.adapters.lock import LockHeld, exclusive_lock
-from llm_panel.adapters.zen_client import ZenClient, ZenConfigError, urllib_transport
 from llm_panel.application.collect import collect
 from llm_panel.application.smoketest import ratings_from_store
 from llm_panel.application.spend import SpendCeilingError
@@ -29,10 +27,17 @@ from llm_panel.bootstrap.config import load_config
 from llm_panel.bootstrap.design_loader import load_design
 from llm_panel.bootstrap.env import load_dotenv
 from llm_panel.bootstrap.inputs_loader import load_inputs
+from llm_panel.bootstrap.providers import (
+    ProviderBuilder,
+    ProviderContext,
+    default_registry,
+    make_client_factory,
+)
 from llm_panel.bootstrap.smoketest_loader import load_expectations
 from llm_panel.domain.design import to_run_specs
 from llm_panel.domain.pricing import MissingPriceError
 from llm_panel.domain.smoketest import evaluate
+from llm_panel.ports import ProviderConfigError
 
 CHECK_FAILED = 1
 REFUSED = 2
@@ -47,29 +52,16 @@ def default_client_factory(
     *,
     est_output_tokens_per_policy: int = 100,
     environ=None,
-    zen_transport=urllib_transport,
+    transports: Mapping[str, Callable] | None = None,
+    registry: Mapping[str, ProviderBuilder] | None = None,
 ) -> ClientFactory:
-    clients: dict = {}
-
-    def factory(provider: str):
-        if provider not in clients:
-            if provider == "fake":
-                clients[provider] = FakeModelClient(
-                    state_path=config_dir / "results" / "fake_state.json"
-                )
-            elif provider == "opencode":
-                # The output cap equals the per-policy estimate, so the estimate bounds the cost.
-                clients[provider] = ZenClient(
-                    config_dir / "results" / "zen",
-                    env=environ,
-                    transport=zen_transport,
-                    max_tokens_per_policy=est_output_tokens_per_policy,
-                )
-            else:
-                raise ValueError(f"no adapter for provider {provider!r} yet")
-        return clients[provider]
-
-    return factory
+    context = ProviderContext(
+        config_dir=config_dir,
+        environ=os.environ if environ is None else environ,
+        est_output_tokens_per_policy=est_output_tokens_per_policy,
+        transports=transports or {},
+    )
+    return make_client_factory(context, registry or default_registry())
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -128,7 +120,7 @@ def main(
         ProviderNotApproved,
         MissingPriceError,
         LockHeld,
-        ZenConfigError,
+        ProviderConfigError,
     ) as exc:
         print(f"REFUSED: {exc}", file=sys.stderr)
         return REFUSED

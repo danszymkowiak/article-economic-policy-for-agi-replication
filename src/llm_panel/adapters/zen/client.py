@@ -18,9 +18,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict
 from pathlib import Path
 
+from llm_panel.adapters.zen.protocol import build_request, is_retryable, parse_completion
 from llm_panel.domain.models import RenderedJob
 from llm_panel.domain.results import BatchResult, ModelResponse
-from llm_panel.domain.zen_protocol import build_request, is_retryable, parse_completion
+from llm_panel.ports import ProviderConfigError
 
 API_KEY_ENV = "OPENCODE_API_KEY"
 DEFAULT_URL = "https://opencode.ai/zen/v1/chat/completions"
@@ -30,7 +31,7 @@ USER_AGENT = "llm-panel/0.1 (research pipeline)"
 Transport = Callable[[str, Mapping[str, str], dict, float], tuple[int, dict]]
 
 
-class ZenConfigError(RuntimeError):
+class ZenConfigError(ProviderConfigError):
     pass
 
 

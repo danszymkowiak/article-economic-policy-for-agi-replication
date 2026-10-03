@@ -58,3 +58,11 @@ def test_is_sha256_hex_of_canonical_encoding():
 def test_rendered_job_exposes_job_id():
     job = make_job(prompt="hello", model_snapshot="m", temperature=0.5, seed=3)
     assert job.job_id == job_id("hello", "m", 0.5, 3)
+
+
+def test_job_id_is_pinned_across_refactors():
+    # The preregistration relies on stable job ids: wiring changes must never alter this value.
+    assert (
+        job_id("Rate these policies.\nÉconomie: 50%", "opencode/glm-5.3-flash", 0.7, 42)
+        == "411abfe7603d30f40105915c9ef2341d117f6bc94d56ececa15df6ea38fcc1fc"
+    )
