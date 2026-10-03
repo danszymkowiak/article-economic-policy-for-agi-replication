@@ -1,0 +1,87 @@
+"""Deterministic in-memory ModelClient for tests and dry runs. Spends no money."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from collections.abc import Collection, Sequence
+
+from llm_panel.domain.models import RenderedJob
+from llm_panel.domain.results import BatchResult, ModelResponse
+
+OUTPUT_TOKENS_PER_POLICY = 40
+
+
+def fake_score(job_id: str, label: str) -> int:
+    digest = hashlib.sha256(f"{job_id}|{label}".encode()).digest()
+    return int.from_bytes(digest[:4], "big") % 101
+
+
+class FakeModelClient:
+    def __init__(
+        self,
+        provider: str = "fake",
+        *,
+        malformed: Collection[str] = (),
+        errors: Collection[str] = (),
+        malformed_attempts: int = 1,
+        pending_polls: int = 0,
+    ) -> None:
+        """`malformed`/`errors` are job ids that misbehave for their first
+        `malformed_attempts` submissions; `pending_polls` makes fetch_results report
+        not-done that many times per batch."""
+        self.provider = provider
+        self._malformed = set(malformed)
+        self._errors = set(errors)
+        self._malformed_attempts = malformed_attempts
+        self._pending_polls = pending_polls
+        self._batches: dict[str, tuple[RenderedJob, ...]] = {}
+        self._polls: dict[str, int] = {}
+        self._submissions: dict[str, int] = {}
+        self.submitted_batches: list[str] = []
+
+    def submit_batch(self, jobs: Sequence[RenderedJob]) -> str:
+        batch_id = f"fake-batch-{len(self._batches) + 1}"
+        self._batches[batch_id] = tuple(jobs)
+        self._polls[batch_id] = 0
+        for job in jobs:
+            self._submissions[job.job_id] = self._submissions.get(job.job_id, 0) + 1
+        self.submitted_batches.append(batch_id)
+        return batch_id
+
+    def fetch_results(self, batch_id: str) -> BatchResult:
+        if batch_id not in self._batches:
+            raise KeyError(f"unknown batch {batch_id}")
+        self._polls[batch_id] += 1
+        if self._polls[batch_id] <= self._pending_polls:
+            return BatchResult(done=False)
+        return BatchResult(
+            done=True, responses=tuple(self._respond(j) for j in self._batches[batch_id])
+        )
+
+    def _respond(self, job: RenderedJob) -> ModelResponse:
+        jid = job.job_id
+        usage = {
+            "input_tokens": -(-len(job.prompt) // 4),
+            "output_tokens": OUTPUT_TOKENS_PER_POLICY * len(job.policy_ids),
+        }
+        misbehave = self._submissions[jid] <= self._malformed_attempts
+        if jid in self._errors and misbehave:
+            return ModelResponse(
+                jid, "error", "", usage={}, raw={"error": "fake"}, error="fake error"
+            )
+        if jid in self._malformed and misbehave:
+            text = "this is not json"
+        else:
+            ratings = [
+                {
+                    "policy": label,
+                    "score": fake_score(jid, label),
+                    "rationale": f"fake rationale for {label}",
+                }
+                for label in job.policy_labels
+            ]
+            text = json.dumps({"ratings": ratings})
+        return ModelResponse(
+            jid, "ok", text, usage=usage, raw={"fake": True, "text": text, "usage": usage}
+        )
