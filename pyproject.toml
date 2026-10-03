@@ -1,0 +1,36 @@
+[project]
+name = "llm-panel"
+version = "0.1.0"
+description = "LLM-panel sensitivity study of the Economic Policy for AGI survey"
+readme = "README.md"
+authors = [
+    { name = "danszymkowiak", email = "szymkodf@duck.com" }
+]
+requires-python = ">=3.14"
+dependencies = []
+
+[project.scripts]
+llm-panel = "llm_panel:main"
+
+[build-system]
+requires = ["uv_build>=0.9.24,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.168.3",
+    "pre-commit>=4.6.2",
+    "pytest>=9.1.1",
+    "ruff>=0.16.10",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
