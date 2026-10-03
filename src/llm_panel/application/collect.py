@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from llm_panel.application.spend import (
     SpendCeilingError,
@@ -11,14 +11,16 @@ from llm_panel.application.spend import (
     compute_spend,
     estimate_jobs,
     job_entry,
-    jobs_from_entry,
     pending_batches,
+    send_batch,
 )
 from llm_panel.application.submit import ClientFactory
 from llm_panel.domain.models import RenderedJob
-from llm_panel.domain.pricing import SpendSettings
+from llm_panel.domain.pricing import MissingPriceError, SpendSettings, estimated_usage
 from llm_panel.domain.results import (
     MAX_ATTEMPTS,
+    STATUS_DEFERRED,
+    STATUS_DUPLICATE,
     STATUS_FAILED,
     STATUS_INVALID,
     STATUS_OK,
@@ -37,6 +39,7 @@ class CollectReport:
     invalid: int = 0
     failed: int = 0
     retried: int = 0
+    deferred: int = 0
 
 
 def _row(job, attempt, batch_id, status, response, usage, error, now) -> StoredRow:
@@ -49,7 +52,7 @@ def _row(job, attempt, batch_id, status, response, usage, error, now) -> StoredR
         temperature=job.temperature,
         seed=job.seed,
         timestamp=now(),
-        request=job_entry(job),
+        request=job_entry(job, attempt),
         response=response,
         usage=usage,
         batch_id=batch_id,
@@ -57,17 +60,26 @@ def _row(job, attempt, batch_id, status, response, usage, error, now) -> StoredR
     )
 
 
-def _judge(job: RenderedJob, resp: ModelResponse | None) -> tuple[str, str | None]:
-    """(status, error) for one response: 'ok' or 'bad'."""
+def _judge(job: RenderedJob, resp: ModelResponse | None) -> str | None:
+    """None if the response is good, else the reason it is not."""
     if resp is None:
-        return "bad", "job missing from batch results"
+        return "job missing from batch results"
     if resp.status != "ok":
-        return "bad", resp.error or "provider error"
+        return resp.error or "provider error"
     try:
         parse_ratings(job, resp.text)
     except InvalidResponse as exc:
-        return "bad", str(exc)
-    return "ok", None
+        return str(exc)
+    return None
+
+
+def _usage(job: RenderedJob, resp: ModelResponse | None, settings: SpendSettings) -> dict:
+    """Reported usage, or the estimate when the provider reported none: a job we sent may have
+    been billed even if it came back missing or errored, so never count it as free."""
+    usage = dict(resp.usage) if resp and resp.usage else {}
+    if "input_tokens" in usage and "output_tokens" in usage:
+        return usage
+    return {**estimated_usage(job, settings), "estimated": True}
 
 
 def collect(
@@ -78,77 +90,64 @@ def collect(
     now: Callable[[], str],
 ) -> CollectReport:
     report = CollectReport()
+    seen = {(r.job_id, r.batch_id) for r in store.iter_rows()}  # makes re-collect idempotent
     for entry in pending_batches(ledger):
-        client = client_factory(entry["provider"])
-        result = client.fetch_results(entry["batch_id"])
+        result = client_factory(entry["provider"]).fetch_results(entry["batch_id"])
         if not result.done:
             report = _bump(report, batches_pending=1)
             continue
         by_id = {r.job_id: r for r in result.responses}
-        attempt = entry["attempt"]
-        retry: list[RenderedJob] = []
-        for job in jobs_from_entry(entry):
-            if store.exists(job.job_id):  # e.g. re-collecting after a crash
+        retry: list[tuple[RenderedJob, int]] = []
+        for jd in entry["jobs"]:
+            job, attempt = RenderedJob.from_dict(jd), jd.get("attempt", 1)
+            if (job.job_id, entry["batch_id"]) in seen:
                 continue
             resp = by_id.get(job.job_id)
-            verdict, error = _judge(job, resp)
-            usage = dict(resp.usage) if resp else {}
+            error = _judge(job, resp)
+            usage = _usage(job, resp, settings)
             payload = dict(resp.raw) if resp else None
-            if verdict == "ok":
-                store.append(
-                    _row(job, attempt, entry["batch_id"], STATUS_OK, payload, usage, None, now)
-                )
+            bid = entry["batch_id"]
+            if store.exists(job.job_id):  # finished via another batch: keep only its usage
+                store.append(_row(job, attempt, bid, STATUS_DUPLICATE, payload, usage, error, now))
+            elif error is None:
+                store.append(_row(job, attempt, bid, STATUS_OK, payload, usage, None, now))
                 report = _bump(report, ok=1)
             elif attempt >= MAX_ATTEMPTS:
-                store.append(
-                    _row(job, attempt, entry["batch_id"], STATUS_FAILED, payload, usage, error, now)
-                )
+                store.append(_row(job, attempt, bid, STATUS_FAILED, payload, usage, error, now))
                 report = _bump(report, failed=1)
             else:
-                store.append(
-                    _row(
-                        job, attempt, entry["batch_id"], STATUS_INVALID, payload, usage, error, now
-                    )
-                )
-                retry.append(job)
+                store.append(_row(job, attempt, bid, STATUS_INVALID, payload, usage, error, now))
+                retry.append((job, attempt))
                 report = _bump(report, invalid=1)
         # Mark collected before retrying so this batch no longer counts as outstanding spend.
-        # A crash in between leaves non-terminal rows, which plan/submit simply re-run.
+        # If the retry submit then fails, the job keeps a non-terminal 'invalid' row and no
+        # in-flight batch; the next submit re-runs it with its attempt derived from the store.
         ledger.record({"event": "collected", "batch_id": entry["batch_id"], "collected_at": now()})
-        report = _retry(report, retry, entry, store, ledger, client_factory, settings, now)
         report = _bump(report, batches_collected=1)
+        report = _retry(report, retry, entry, store, ledger, client_factory, settings, now)
     return report
 
 
 def _retry(report, retry, entry, store, ledger, client_factory, settings, now) -> CollectReport:
     if not retry:
         return report
+    jobs = [j for j, _ in retry]
     try:
-        spend = compute_spend(store, ledger, settings)
-        estimate = estimate_jobs(retry, settings)
-        check_ceiling(spend, sum(estimate.values()))
-    except SpendCeilingError as exc:
-        for job in retry:
+        estimate = estimate_jobs(jobs, settings)
+        check_ceiling(compute_spend(store, ledger, settings), sum(estimate.values()))
+    except (SpendCeilingError, MissingPriceError) as exc:
+        # Deferred, not failed: non-terminal, so a later submit can run it once budget allows.
+        for job, attempt in retry:
             store.append(
-                _row(job, entry["attempt"] + 1, entry["batch_id"], STATUS_FAILED, None, {},
-                     f"retry blocked: {exc}", now)
+                _row(job, attempt, entry["batch_id"], STATUS_DEFERRED, None, {},
+                     f"retry deferred: {exc}", now)
             )  # fmt: skip
-        return _bump(report, failed=len(retry), invalid=-len(retry))
-    batch_id = client_factory(entry["provider"]).submit_batch(retry)
-    ledger.record(
-        {
-            "event": "submitted",
-            "batch_id": batch_id,
-            "provider": entry["provider"],
-            "attempt": entry["attempt"] + 1,
-            "submitted_at": now(),
-            "est_cost": sum(estimate.values()),
-            "jobs": [job_entry(j) for j in retry],
-        }
-    )
+        return _bump(report, deferred=len(retry))
+    attempts = {j.job_id: a + 1 for j, a in retry}
+    client = client_factory(entry["provider"])
+    send_batch(ledger, client, entry["provider"], jobs, attempts, sum(estimate.values()), now)
     return _bump(report, retried=len(retry))
 
 
 def _bump(report: CollectReport, **delta: int) -> CollectReport:
-    values = {k: getattr(report, k) + delta.get(k, 0) for k in report.__dataclass_fields__}
-    return CollectReport(**values)
+    return replace(report, **{k: getattr(report, k) + v for k, v in delta.items()})

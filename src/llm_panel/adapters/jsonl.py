@@ -17,6 +17,11 @@ class _AppendOnlyJsonl:
 
     def _append(self, record: dict) -> None:
         line = json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n"
+        if self._path.exists() and self._path.stat().st_size:
+            with self._path.open("rb") as fh:
+                fh.seek(-1, os.SEEK_END)
+                if fh.read(1) != b"\n":  # torn write: keep our record on its own line
+                    line = "\n" + line
         # "a" mode opens with O_APPEND; one write call per line keeps lines intact.
         with self._path.open("a", encoding="utf-8") as fh:
             fh.write(line)

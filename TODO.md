@@ -19,3 +19,23 @@ Collected during the unattended run of tasks 1-10. None blocked progress.
 - **Store**: JSONL only (no Parquet yet); `exists()` caches an index and assumes one writer.
 - `results/raw/` is tracked in git. Decide whether raw results get committed or ignored once real
   runs start (size, and any provider terms on redistributing outputs).
+
+## From the independent review of the spend/retry code (fixed in the follow-up commit)
+
+Fixed: attempt number now derived from the store (retry-once survives crashes and failed retry
+submits); jobs with no reported usage are charged at the estimate; submits record an intent before
+calling the provider so a crash mid-submit shows up as outstanding spend; re-collect is idempotent
+per (job, batch); estimate settings validated; submit/collect take an exclusive file lock;
+torn-write tail no longer swallows the next record; ceiling-blocked retries are `deferred`
+(non-terminal) rather than `failed`.
+
+Still open:
+- **Cap `max_tokens` in each real client** (TASK-11) so the output estimate is a true upper bound;
+  cached/reasoning tokens reported separately by a provider are not yet priced.
+- A torn final line still makes reads raise until that one line is removed by hand.
+- A provider call that errors *ambiguously* (timeout after the batch was actually created) is
+  recorded as `submit_failed` and could be paid twice. Reconcile manually against the provider
+  console if a timeout happens.
+- Analysis must treat `deferred`, `duplicate` and `failed` rows explicitly (budget-censored vs
+  model failures) and count only `ok` rows as ratings.
+- Optional safety margin on the ceiling (e.g. 0.9x) if estimates prove optimistic in the pilot.

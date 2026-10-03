@@ -29,6 +29,15 @@ class SpendSettings:
     chars_per_token: float = 4.0
     batch_discount: float = 1.0  # multiplier on list price; 1.0 = assume no discount
 
+    def __post_init__(self) -> None:
+        # Guard against settings that would silently zero out estimates and defeat the ceiling.
+        if not 0 < self.batch_discount <= 1:
+            raise ValueError("batch_discount must be in (0, 1]")
+        if self.chars_per_token <= 0:
+            raise ValueError("chars_per_token must be > 0")
+        if self.est_output_tokens_per_policy < 1:
+            raise ValueError("est_output_tokens_per_policy must be >= 1")
+
     def price_for(self, snapshot: str) -> Price:
         try:
             return self.prices[snapshot]
@@ -39,15 +48,19 @@ class SpendSettings:
 
 
 def usage_cost(usage: Mapping, price: Price, discount: float) -> float:
+    usage = usage or {}
     tokens_in = usage.get("input_tokens", 0) or 0
     tokens_out = usage.get("output_tokens", 0) or 0
     return (tokens_in * price.input_per_mtok + tokens_out * price.output_per_mtok) / 1e6 * discount
 
 
-def estimate_job_cost(job: RenderedJob, settings: SpendSettings) -> float:
-    price = settings.price_for(job.model_snapshot)
-    usage = {
+def estimated_usage(job: RenderedJob, settings: SpendSettings) -> dict:
+    return {
         "input_tokens": math.ceil(len(job.prompt) / settings.chars_per_token),
         "output_tokens": settings.est_output_tokens_per_policy * len(job.policy_ids),
     }
-    return usage_cost(usage, price, settings.batch_discount)
+
+
+def estimate_job_cost(job: RenderedJob, settings: SpendSettings) -> float:
+    price = settings.price_for(job.model_snapshot)
+    return usage_cost(estimated_usage(job, settings), price, settings.batch_discount)

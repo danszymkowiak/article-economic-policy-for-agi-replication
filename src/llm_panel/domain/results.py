@@ -9,6 +9,8 @@ MAX_ATTEMPTS = 2  # first try plus one retry for malformed responses
 STATUS_OK = "ok"
 STATUS_INVALID = "invalid"  # malformed or provider error; retryable until MAX_ATTEMPTS
 STATUS_FAILED = "failed"  # terminal failure
+STATUS_DEFERRED = "deferred"  # retry withheld (e.g. spend ceiling); non-terminal, rerun later
+STATUS_DUPLICATE = "duplicate"  # usage-only row: job already finished via another batch
 
 
 @dataclass(frozen=True)
@@ -61,4 +63,6 @@ class StoredRow:
     @classmethod
     def from_dict(cls, data: dict) -> StoredRow:
         names = {f.name for f in fields(cls)}
-        return cls(**{k: v for k, v in data.items() if k in names})
+        kw = {k: v for k, v in data.items() if k in names}
+        kw["usage"] = kw.get("usage") or {}
+        return cls(**kw)

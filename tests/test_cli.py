@@ -148,7 +148,7 @@ def test_submit_refuses_model_without_price(env, capsys):
 
 def test_end_to_end_submit_collect_status(env, capsys):
     assert env.run("submit", "--confirm", *env.design()) == 0
-    assert len(env.ledger().entries()) == 1
+    assert [e["event"] for e in env.ledger().entries()] == ["intent", "submitted"]
     assert env.run("collect") == 0
     rows = list(env.store().iter_rows())
     assert len(rows) == N_JOBS and {r.status for r in rows} == {"ok"}
@@ -207,11 +207,124 @@ def test_malformed_twice_is_logged_as_failure(env):
     assert len(client.submitted_batches) == 2  # no third attempt
 
 
-def test_retry_blocked_by_ceiling_is_logged_as_failure(env):
+def test_retry_blocked_by_ceiling_is_deferred_then_runs_once_budget_allows(env):
     job, client = malformed_first_job(env, attempts=1)
     env.run("submit", "--confirm", *env.design(), client=client)
-    env.set_config(max_spend_usd=0.0)  # nothing left to spend: the retry must be refused
+    env.set_config(max_spend_usd=0.0)  # nothing left to spend: the retry must be withheld
     env.run("collect", client=client)
     rows = [r for r in env.store().iter_rows() if r.job_id == job.job_id]
-    assert rows[-1].status == "failed" and "retry blocked" in rows[-1].error
+    assert [r.status for r in rows] == ["invalid", "deferred"]
+    assert "retry deferred" in rows[-1].error and not env.store().exists(job.job_id)
     assert len(client.submitted_batches) == 1
+    env.set_config(max_spend_usd=15)
+    env.run("submit", "--confirm", *env.design(), client=client)
+    env.run("collect", client=client)
+    rows = [r for r in env.store().iter_rows() if r.job_id == job.job_id]
+    assert [(r.status, r.attempt) for r in rows][-1] == ("ok", 2)
+
+
+class FlakySubmit(FakeModelClient):
+    """Raises on the Nth submit_batch call."""
+
+    def __init__(self, fail_on, **kw):
+        super().__init__(**kw)
+        self.fail_on, self.calls = fail_on, 0
+
+    def submit_batch(self, jobs):
+        self.calls += 1
+        if self.calls == self.fail_on:
+            raise ConnectionError("boom")
+        return super().submit_batch(jobs)
+
+
+def test_retry_once_holds_even_if_retry_submit_fails(env):
+    job = malformed_first_job(env, attempts=99)[0]
+    client = FlakySubmit(fail_on=2, malformed={job.job_id}, malformed_attempts=99)
+    env.run("submit", "--confirm", *env.design(), client=client)
+    with pytest.raises(ConnectionError):
+        env.run("collect", client=client)  # retry submit blows up after rows were written
+    env.run("submit", "--confirm", *env.design(), client=client)  # picks the job up again
+    env.run("collect", client=client)
+    rows = [r for r in env.store().iter_rows() if r.job_id == job.job_id]
+    assert [(r.status, r.attempt) for r in rows] == [("invalid", 1), ("failed", 2)]
+    env.run("submit", "--confirm", *env.design(), client=client)
+    assert client.calls == 3  # first batch, failed retry, resubmission - no fourth execution
+
+
+def test_missing_provider_usage_is_charged_at_estimate(env):
+    job, client = malformed_first_job(env, attempts=99)
+    client._errors.add(job.job_id)  # provider error row with no usage
+    env.run("submit", "--confirm", *env.design(), client=client)
+    env.run("collect", client=client)
+    row = next(r for r in env.store().iter_rows() if r.job_id == job.job_id)
+    assert row.usage["estimated"] and row.usage["input_tokens"] > 0
+
+
+def test_recollect_is_idempotent(env):
+    job, client = malformed_first_job(env, attempts=1)
+    env.run("submit", "--confirm", *env.design(), client=client)
+    env.run("collect", client=client)
+    n = len(list(env.store().iter_rows()))
+    # simulate a crash before the 'collected' event: forget it and collect the batch again
+    env.ledger()._path.write_text(
+        "".join(
+            line
+            for line in env.ledger()._path.read_text().splitlines(keepends=True)
+            if '"event": "collected"' not in line
+        )
+    )
+    env.run("collect", client=client)
+    first_batch_rows = [r for r in env.store().iter_rows() if r.batch_id == "fake-batch-1"]
+    assert len(first_batch_rows) == N_JOBS and len(list(env.store().iter_rows())) >= n
+
+
+def test_intent_without_batch_id_counts_as_outstanding_and_blocks_resubmit(env, capsys):
+    client = FlakySubmit(fail_on=0)
+    env.run("submit", "--confirm", *env.design(), client=client)
+    capsys.readouterr()
+    # simulate a crash after the intent was written but before the batch id was recorded
+    lines = env.ledger()._path.read_text().splitlines(keepends=True)
+    env.ledger()._path.write_text(lines[0])
+    env.run("status", client=client)
+    out = capsys.readouterr().out
+    assert "WARNING: 1 submission(s)" in out and "outstanding $0.0" in out
+    env.run("plan", *env.design())
+    assert "jobs to submit: 0" in capsys.readouterr().out
+
+
+def test_failed_submit_call_is_resolved_not_stuck(env):
+    client = FlakySubmit(fail_on=1)
+    with pytest.raises(ConnectionError):
+        env.run("submit", "--confirm", *env.design(), client=client)
+    assert env.run("submit", "--confirm", *env.design(), client=client) == 0
+
+
+@pytest.mark.parametrize(
+    "key,value",
+    [("batch_discount", 0), ("chars_per_token", 0), ("est_output_tokens_per_policy", 0)],
+)
+def test_config_rejects_settings_that_would_zero_estimates(env, key, value):
+    env.set_config(**{key: value})
+    with pytest.raises(ValueError, match=key):
+        load_config(env.config_path)
+
+
+def test_overlapping_run_is_refused_by_lock(env, capsys):
+    from llm_panel.adapters.lock import exclusive_lock
+
+    with exclusive_lock(env.root / "ledger.lock"):
+        assert env.run("submit", "--confirm", *env.design()) == 2
+    assert "holds" in capsys.readouterr().err
+    assert env.client.submitted_batches == []
+
+
+def test_append_after_torn_write_keeps_new_record_on_its_own_line(tmp_path):
+    from tests.domain.test_results import row
+
+    store = JsonlResultStore(tmp_path / "r.jsonl")
+    store.append(row(job_id="j1"))
+    with (tmp_path / "r.jsonl").open("a") as fh:
+        fh.write('{"job_id": "torn')  # no newline: crash mid-write
+    store.append(row(job_id="j2"))
+    lines = (tmp_path / "r.jsonl").read_text().splitlines()
+    assert len(lines) == 3 and '"j2"' in lines[2]

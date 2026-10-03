@@ -8,11 +8,12 @@ from dataclasses import dataclass
 from llm_panel.application.build_jobs import BuildResult, StudyInputs, build_jobs
 from llm_panel.application.spend import (
     Spend,
+    attempt_counts,
     check_ceiling,
     compute_spend,
     estimate_jobs,
-    job_entry,
     jobs_in_flight,
+    send_batch,
 )
 from llm_panel.domain.models import RenderedJob, RunSpec
 from llm_panel.domain.pricing import SpendSettings
@@ -36,6 +37,7 @@ class Plan:
     in_flight: int
     cost_by_provider: dict[str, float]
     spend: Spend
+    attempts: dict[str, int]  # job_id -> attempt number this submission would be
 
     @property
     def estimated_cost(self) -> float:
@@ -57,7 +59,9 @@ def make_plan(
         for j in build.jobs
         if j.job_id not in flying and (provider is None or j.provider == provider)
     ]
+    counts = attempt_counts(store)
     return Plan(
+        attempts={j.job_id: counts[j.job_id] + 1 for j in jobs},
         build=build,
         jobs=jobs,
         in_flight=sum(1 for j in build.jobs if j.job_id in flying),
@@ -89,17 +93,10 @@ def submit(
         by_provider.setdefault(job.provider, []).append(job)
     batch_ids = []
     for provider, jobs in by_provider.items():
-        batch_id = client_factory(provider).submit_batch(jobs)
-        ledger.record(
-            {
-                "event": "submitted",
-                "batch_id": batch_id,
-                "provider": provider,
-                "attempt": 1,
-                "submitted_at": now(),
-                "est_cost": plan.cost_by_provider[provider],
-                "jobs": [job_entry(j) for j in jobs],
-            }
+        client = client_factory(provider)
+        batch_ids.append(
+            send_batch(
+                ledger, client, provider, jobs, plan.attempts, plan.cost_by_provider[provider], now
+            )
         )
-        batch_ids.append(batch_id)
     return batch_ids

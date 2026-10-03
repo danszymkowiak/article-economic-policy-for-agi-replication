@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-03 06:03'
-updated_date: '2026-10-03 06:21'
+updated_date: '2026-10-03 06:25'
 labels:
   - phase1
 dependencies:
@@ -43,6 +43,8 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 
 <!-- SECTION:NOTES:BEGIN -->
 Guards run before any batch is sent: --confirm, approved_providers (extra), price present, then ceiling = actual stored spend + outstanding in-flight estimates + new estimate. Config rejects max_spend_usd > 15. collect validates (schema + labels), retries malformed/errored once (itself ceiling-checked; blocked retry is logged as failed), logs failures. Fake client can persist state so submit/collect work across processes. See TODO.md for open items.
+
+Post-review hardening (independent subagent review): attempts derived from store, estimated usage for unreported jobs, intent/submitted ledger events, per-(job,batch) idempotent collect, config validation, flock around submit/collect, torn-write repair, ceiling-blocked retries recorded as 'deferred'. 122 tests pass. Open items in TODO.md.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
