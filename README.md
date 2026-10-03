@@ -1,9 +1,11 @@
 # article-economic-policy-for-agi-replication
 
-This project attempts to replicate the survey results of
+This project re-implements, from the public description only, the simulated-economist panel of
 ["Economic Policy for AGI"](https://institute.deepmind.com/essays/economic-policy-for-agi/)
-by the DeepMind Institute, and to study how sensitive those results are to small
-changes in the survey approach.
+by the DeepMind Institute, and studies how sensitive its rankings are to small changes in the
+survey approach. It is a re-implementation, not a strict replication: see
+[`prereg/reconstruction.md`](prereg/reconstruction.md) for every reconstruction choice and which
+parts are our own stand-ins.
 
 ## Approach
 
@@ -40,7 +42,7 @@ Model snapshots are pinned, and total spend is capped at 15 USD in code. Work is
 
 A snapshot of the article, retrieved on 2026-10-03, is kept for posterity in
 [`docs/economic-policy-for-agi.html`](docs/economic-policy-for-agi.html). The live
-page may change or disappear; the snapshot is the reference for this replication.
+page may change or disappear; the snapshot is the reference for this re-implementation.
 It is the raw HTML of the page, so external assets such as images and styles are not
 included.
 
