@@ -3,11 +3,11 @@ id: TASK-29
 title: >-
   Provider registry and adapter contract (make adding a vendor edit-free for
   core)
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-03 11:30'
-updated_date: '2026-10-03 11:33'
+updated_date: '2026-10-03 11:34'
 labels:
   - refactor
 dependencies: []
