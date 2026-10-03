@@ -5,8 +5,9 @@ import llm_panel.domain as domain_pkg
 
 FORBIDDEN_IMPORTS = {
     "os", "pathlib", "sys", "socket", "subprocess", "shutil", "tempfile", "sqlite3",
-    "requests", "httpx", "urllib", "yaml", "io", "time", "datetime", "random", "logging",
+    "requests", "httpx", "urllib", "yaml", "io", "time", "datetime", "logging",
 }  # fmt: skip
+# `random` is allowed: the domain only uses explicitly seeded random.Random instances.
 FORBIDDEN_CALLS = {"open", "print", "input"}
 
 

@@ -1,0 +1,21 @@
+# Example design using the fake provider only; spends nothing.
+# The real study design (prereg factor levels, pinned snapshots) is a TODO until the
+# preregistration is frozen.
+mode: fractional
+n_runs: 4
+design_seed: 0
+repeats: 2
+prompt_format: all_policies
+sampling:
+  temperature: 1.0
+  base_seed: 0
+factors:
+  model:
+    - {provider: fake, snapshot: fake-model-2026-01-01}
+    - {provider: fake, snapshot: fake-model-2026-02-01, temperature: 0.0}
+  persona_source: [reconstructed, none]
+  paraphrase: [baseline]
+  policy_blinding: [named, blinded]
+  evidence_packet: [reconstructed, none]
+  presentation_order: [fixed, reversed]
+  score_aggregation: [mean, median]
