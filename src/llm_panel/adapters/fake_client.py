@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Collection, Sequence
+from pathlib import Path
 
 from llm_panel.domain.models import RenderedJob
 from llm_panel.domain.results import BatchResult, ModelResponse
@@ -26,10 +27,12 @@ class FakeModelClient:
         errors: Collection[str] = (),
         malformed_attempts: int = 1,
         pending_polls: int = 0,
+        state_path: Path | str | None = None,
     ) -> None:
         """`malformed`/`errors` are job ids that misbehave for their first
         `malformed_attempts` submissions; `pending_polls` makes fetch_results report
-        not-done that many times per batch."""
+        not-done that many times per batch. `state_path` persists submitted batches to a JSON
+        file so separate CLI invocations (submit, then collect) can share one fake provider."""
         self.provider = provider
         self._malformed = set(malformed)
         self._errors = set(errors)
@@ -39,6 +42,13 @@ class FakeModelClient:
         self._polls: dict[str, int] = {}
         self._submissions: dict[str, int] = {}
         self.submitted_batches: list[str] = []
+        self._state_path = Path(state_path) if state_path else None
+        if self._state_path and self._state_path.exists():
+            stored = json.loads(self._state_path.read_text())
+            self._batches = {
+                k: tuple(RenderedJob.from_dict(j) for j in v) for k, v in stored.items()
+            }
+            self._polls = dict.fromkeys(self._batches, 0)
 
     def submit_batch(self, jobs: Sequence[RenderedJob]) -> str:
         batch_id = f"fake-batch-{len(self._batches) + 1}"
@@ -47,6 +57,10 @@ class FakeModelClient:
         for job in jobs:
             self._submissions[job.job_id] = self._submissions.get(job.job_id, 0) + 1
         self.submitted_batches.append(batch_id)
+        if self._state_path:
+            self._state_path.parent.mkdir(parents=True, exist_ok=True)
+            dump = {k: [j.to_dict() for j in v] for k, v in self._batches.items()}
+            self._state_path.write_text(json.dumps(dump))
         return batch_id
 
     def fetch_results(self, batch_id: str) -> BatchResult:
@@ -65,7 +79,7 @@ class FakeModelClient:
             "input_tokens": -(-len(job.prompt) // 4),
             "output_tokens": OUTPUT_TOKENS_PER_POLICY * len(job.policy_ids),
         }
-        misbehave = self._submissions[jid] <= self._malformed_attempts
+        misbehave = self._submissions.get(jid, 1) <= self._malformed_attempts
         if jid in self._errors and misbehave:
             return ModelResponse(
                 jid, "error", "", usage={}, raw={"error": "fake"}, error="fake error"

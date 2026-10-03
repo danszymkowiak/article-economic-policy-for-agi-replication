@@ -1,0 +1,53 @@
+"""Cost estimation and spend settings. Pure."""
+
+from __future__ import annotations
+
+import math
+from collections.abc import Mapping
+from dataclasses import dataclass
+
+from llm_panel.domain.models import RenderedJob
+
+HARD_CEILING_USD = 15.0  # the study's absolute cap; config may lower it, never raise it
+
+
+class MissingPriceError(ValueError):
+    """No price is configured for a model snapshot, so its cost cannot be bounded."""
+
+
+@dataclass(frozen=True)
+class Price:
+    input_per_mtok: float
+    output_per_mtok: float
+
+
+@dataclass(frozen=True)
+class SpendSettings:
+    max_spend_usd: float
+    prices: Mapping[str, Price]  # keyed by pinned model snapshot
+    est_output_tokens_per_policy: int = 100
+    chars_per_token: float = 4.0
+    batch_discount: float = 1.0  # multiplier on list price; 1.0 = assume no discount
+
+    def price_for(self, snapshot: str) -> Price:
+        try:
+            return self.prices[snapshot]
+        except KeyError:
+            raise MissingPriceError(
+                f"no price configured for model snapshot {snapshot!r}"
+            ) from None
+
+
+def usage_cost(usage: Mapping, price: Price, discount: float) -> float:
+    tokens_in = usage.get("input_tokens", 0) or 0
+    tokens_out = usage.get("output_tokens", 0) or 0
+    return (tokens_in * price.input_per_mtok + tokens_out * price.output_per_mtok) / 1e6 * discount
+
+
+def estimate_job_cost(job: RenderedJob, settings: SpendSettings) -> float:
+    price = settings.price_for(job.model_snapshot)
+    usage = {
+        "input_tokens": math.ceil(len(job.prompt) / settings.chars_per_token),
+        "output_tokens": settings.est_output_tokens_per_policy * len(job.policy_ids),
+    }
+    return usage_cost(usage, price, settings.batch_discount)

@@ -1,0 +1,34 @@
+"""Load personas, policies, criteria and evidence packets from an inputs directory."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import yaml
+
+from llm_panel.application.build_jobs import StudyInputs
+from llm_panel.domain.models import Criterion, Persona, Policy
+
+
+def _yaml(path: Path):
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or []
+
+
+def load_inputs(inputs_dir: Path | str) -> StudyInputs:
+    root = Path(inputs_dir)
+    personas = {
+        f.stem: tuple(
+            Persona(id=p["id"], source=f.stem, description=p["description"]) for p in _yaml(f)
+        )
+        for f in sorted((root / "personas").glob("*.yaml"))
+    }
+    evidence = {
+        f.stem: f.read_text(encoding="utf-8").strip()
+        for f in sorted((root / "evidence").glob("*.txt"))
+    }
+    return StudyInputs(
+        personas=personas,
+        policies=tuple(Policy(**p) for p in _yaml(root / "policies.yaml")),
+        criteria=tuple(Criterion(**c) for c in _yaml(root / "criteria.yaml")),
+        evidence=evidence,
+    )

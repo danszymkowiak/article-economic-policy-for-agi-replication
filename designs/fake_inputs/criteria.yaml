@@ -1,0 +1,2 @@
+- {id: crit_1, name: Fake Criterion One, description: "How well the policy does one.", group: fake}
+- {id: crit_2, name: Fake Criterion Two, description: "How well the policy does two.", group: fake}

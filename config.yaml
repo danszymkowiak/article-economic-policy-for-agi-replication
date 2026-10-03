@@ -1,0 +1,14 @@
+# Runtime configuration (no secrets). Credentials come from environment variables.
+max_spend_usd: 15          # hard ceiling; values above 15 are rejected on load
+approved_providers: [fake] # add a provider only after the user has confirmed paid use of it
+batch_discount: 1.0        # multiplier on list price; 1.0 = conservatively assume no discount
+est_output_tokens_per_policy: 100
+chars_per_token: 4.0
+paths:
+  raw_store: results/raw/rows.jsonl
+  ledger: results/batches.jsonl
+  inputs_dir: designs/fake_inputs   # TODO: point at the real inputs once reconstructed
+# USD per million tokens by pinned snapshot. TODO: real snapshots/prices per provider.
+prices:
+  fake-model-2026-01-01: {input: 1.0, output: 5.0}
+  fake-model-2026-02-01: {input: 1.0, output: 5.0}

@@ -1,0 +1,4 @@
+# FAKE placeholder policies for pipeline tests. The real 11 policies are reconstructed later.
+- {id: pol_a, name: Fake Policy Alpha, description: "Alpha does a thing.", blinded_description: "A mechanism that does a thing."}
+- {id: pol_b, name: Fake Policy Beta, description: "Beta does another thing.", blinded_description: "A mechanism that does another thing."}
+- {id: pol_c, name: Fake Policy Gamma, description: "Gamma does a third thing.", blinded_description: "A mechanism that does a third thing."}

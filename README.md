@@ -43,3 +43,17 @@ A snapshot of the article, retrieved on 2026-10-03, is kept for posterity in
 page may change or disappear; the snapshot is the reference for this replication.
 It is the raw HTML of the page, so external assets such as images and styles are not
 included.
+
+## Running the pipeline (fake provider only so far)
+
+```bash
+uv run llm-panel plan --design designs/example_fake.yaml --dry-run   # counts and estimated cost; read-only
+uv run llm-panel submit --design designs/example_fake.yaml --confirm # refuses without --confirm or over the ceiling
+uv run llm-panel collect                                             # validate, store, retry malformed once
+uv run llm-panel status                                              # spend versus the 15 USD ceiling
+```
+
+`config.yaml` holds the ceiling (`max_spend_usd`, rejected above 15), approved providers and
+per-snapshot prices. Spend checks use actual stored usage plus the estimated cost of batches
+still in flight plus the new job set. Running this against the example design writes under
+`results/`; use a scratch copy of `config.yaml` for experiments.

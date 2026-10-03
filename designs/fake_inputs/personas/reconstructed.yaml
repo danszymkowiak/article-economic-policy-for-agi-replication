@@ -1,0 +1,3 @@
+- {id: econ_01, description: "A fake centrist economist."}
+- {id: econ_02, description: "A fake left-leaning economist."}
+- {id: econ_03, description: "A fake right-leaning economist."}
