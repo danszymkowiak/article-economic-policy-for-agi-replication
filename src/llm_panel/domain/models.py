@@ -6,6 +6,8 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass, fields
 
+from llm_panel.domain.hashing import job_id as _job_id
+
 ORDERS = ("fixed", "reversed", "shuffled")
 AGGREGATIONS = ("mean", "median", "trimmed_mean")
 PROMPT_FORMATS = ("all_policies", "one_policy")
@@ -90,6 +92,10 @@ class RenderedJob:
     def __post_init__(self) -> None:
         if len(self.policy_ids) != len(self.policy_labels):
             raise ValueError("policy_ids and policy_labels must have the same length")
+
+    @property
+    def job_id(self) -> str:
+        return _job_id(self.prompt, self.model_snapshot, self.temperature, self.seed)
 
     def to_dict(self) -> dict:
         return asdict(self)
