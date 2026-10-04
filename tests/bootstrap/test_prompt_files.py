@@ -168,9 +168,9 @@ def test_manifest_mismatches_reports_an_edited_file(tmp_path):
     assert manifest_mismatches(m, tmp_path) == ["a.txt"]
 
 
-def test_manifest_is_marked_reviewed_by_the_user():
+def test_manifest_is_marked_frozen_after_review_by_the_user():
     manifest = yaml.safe_load((PROMPTS / "manifest.yaml").read_text())
-    assert manifest["status"] == "reviewed-by-user"
+    assert manifest["status"] == "frozen"
     assert str(manifest["reviewed"]) == "2026-10-04"
 
 

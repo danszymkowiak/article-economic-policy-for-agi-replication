@@ -1,9 +1,10 @@
 # Preregistration: stability of the "Economic Policy for AGI" panel ratings
 
-**STATUS: DRAFT. NOT FROZEN.** This file becomes binding only when the user tags it frozen
-(e.g. git tag `prereg-v1`). No paid API calls may be made while this status is DRAFT, except
-labeled non-inference runs (smoketest, pilot) the user has approved. Anything marked `TODO` is a
-decision still to be made before freezing; section 12 lists them all.
+**STATUS: FROZEN (2026-10-04), binding from the git tag `prereg-v1`, which the user places.**
+Before the tag this file is still a draft and no paid API calls may be made, except labeled
+non-inference runs (smoketest, pilot) the user has approved. After the tag, changes are recorded
+only in section 13 (Amendments) with date and rationale, and analyses affected are labeled post-hoc.
+Section 9a (the Claude subagent arm) is frozen with the rest.
 
 Design basis: the SSRN paper (Jacobs and Imas, 15 Sep 2026, `docs/economic-policy-for-agi-ssrn.pdf`)
 and its essay version (`docs/economic-policy-for-agi.html`). The design follows
@@ -92,8 +93,8 @@ Items marked (inf) are our inference from the paper, not stated by it. Stand-ins
   the gap. John Cochrane is named in the paper's text but is not in Table 7; we use Table 7.
   Results are reported only in aggregate, never per named economist, and no rationale text
   attributed to a named person is published.
-- **Model:** one cheap pinned study model on OpenCode Zen, provider-default temperature (TODO:
-  model id; the temperature is recorded and measured in the pilot).
+- **Model:** one cheap pinned study model on OpenCode Zen, provider-default temperature: `glm-5.3-flash`
+  (a Zen alias, so the model id each response reports is logged; the temperature is recorded).
 - **Aggregation:** unweighted mean over personas; composites are unweighted means of sub-criteria
   (checked against the published composites in the baseline-comparison task).
 
@@ -104,7 +105,7 @@ thin to separate effects from noise. All cells use the same 51 personas (paired)
 randomised and cells and repeats are interleaved over time.
 
 **Block R, noise floor (Q1).** B repeated k_R times; **R-T**: B at temperature 0 and one higher
-level (TODO: level); **B'**: one more B repeat at the very end, as a provider-drift control.
+level (0.0 and 1.0); **B'**: one more B repeat at the very end, as a provider-drift control.
 
 **Block Q, small variations (Q2), k_Q repeats each, nothing else changed:**
 
@@ -237,6 +238,8 @@ confirmed the wording; `tests/bootstrap/test_prompt_files.py` fails if a file an
 | `designs/inputs/description_paraphrases/para_1.yaml` | Q2a paraphrase of the Table 3 definitions (designs/inputs/policies.yaml) | `6e3f059abe3062ed86fa8edf5457c34c097dc087d111a01889e8b312b8e372e9` |
 | `designs/inputs/description_paraphrases/para_2.yaml` | Q2b paraphrase of the Table 3 definitions (designs/inputs/policies.yaml) | `8ad9f3f14524efa686a867e1457790e3bc3f58587bf2b8d0d9dd69878ad1a143` |
 | `designs/inputs/description_paraphrases/para_3.yaml` | Q2c paraphrase of the Table 3 definitions (designs/inputs/policies.yaml) | `506f86b37e8ba451a438e3fa70e27335c373ee09b6a3882d8f07666baa422dfd` |
+| `.claude/agents/rater.md` | Claude arm harness (s9a): rater agent type (system prompt, Read and Write tools only, model haiku) | `7a924873e1c1d53b114f2f4b9d272054cf2d26e57790b1283910bbe7de2abdb7` |
+| `subagent_arm/arm.py` | Claude arm harness (s9a): driver code holding the agent prompt wrapper (agent_prompt), the line-to-JSON conversion (lines_to_json), the tool-use rule and the one-retry ingest | `42532cedb214f3ebaef34832d85356f3f9cb908901404386ef2a0ca828ffb108` |
 
 ## 8. Stopping rules and budget
 
@@ -245,8 +248,8 @@ confirmed the wording; `tests/bootstrap/test_prompt_files.py` fails if a file an
   with the user before any paid call on a new provider.
 - Repeats: B gets k_R repeats and B' one; D2 gets 51 repeats (11 x 51 = 561 calls, one B
   repeat's worth, so it works as an independent noise estimator); each R-T cell, each Q cell and
-  D1, D2b and D3 get k_Q repeats. k_R and k_Q are not frozen: they are set after the pilot from
-  its measured cost, with an indicative floor of k_R >= 5 and k_Q >= 3. Call counts per unit are
+  D1, D2b and D3 get k_Q repeats. k_R = 5 and k_Q = 3 (the floors, frozen
+  2026-10-04 by the user). Call counts per unit are
   in section 5.
 - Priority order if the budget binds (fixed now): R with B', Q1, Q2a-c, Q4, Q3a-c, R-T, D2, D2b,
   D1, D3.
@@ -262,7 +265,7 @@ confirmed the wording; `tests/bootstrap/test_prompt_files.py` fails if a file an
 The smallest plausible change that moves a policy from top to bottom, searched separately. It lives
 in its own directory (`adversarial/`), is reported in its own section labeled "adversarial", and is
 not pooled with the main analysis. It is a worst-case search by design, not an estimate of
-stability. Procedure and budget (DRAFT, TASK-22; for user review, fixed at freezing):
+stability. Procedure and budget (TASK-22; reviewed and accepted by the user, frozen with this file):
 
 - **Catalogue** `adv-catalogue-v1` (`adversarial/catalogue.py`), fixed before any adversarial
   data; any change is a new version, and the code refuses a config naming another. Fourteen
@@ -297,7 +300,7 @@ stability. Procedure and budget (DRAFT, TASK-22; for user review, fixed at freez
   0.0015 USD per call, 55 calls per candidate) the budget covers the noise rerun, depth 1 and a full depth 2 (about 2.40
   USD in all).
 
-## 9a. Claude cross-model arm (separate, labeled; DRAFT, TASK-35)
+## 9a. Claude cross-model arm (separate, labeled; TASK-35)
 
 Purpose: a second model on the baseline only, so the report can show how much of the variation in
 section 6 is due to the choice of model and how that compares with run-to-run noise. It is not a
@@ -335,8 +338,12 @@ path and is not run (no second model approved).
   The task text is otherwise exactly B's prompt; the wrapper tells the agent to ignore its JSON
   reply instruction. With lines, 20 of 20 first attempts passed (pilot, 2026-10-04).
 - **Tool use:** a valid run shows 3 tool uses (Read, Write and the harness hand-back); any other
-  count is discarded, logged and retried once. A restricted `rater` agent type (Read and Write
-  only, Haiku; `.claude/agents/rater.md`) is used when available.
+  count is discarded, logged and retried once. The restricted `rater` agent type (Read and Write
+  only, Haiku; `.claude/agents/rater.md`) is used for every run. The agent definition and the
+  driver code that holds the agent prompt wrapper and the line conversion are pinned by hash
+  (`subagent_arm/manifest.yaml`, below); a change after the tag is an amendment and the arm is
+  then labeled post-hoc. Measured on 20 pilot agents: 20 of 20 valid first attempts, all with 3
+  tool uses.
 - **Validation and logging:** replies go through the same JSON schema check as the main arm;
   malformed ones are retried once, then logged as failures. Every run is logged, including
   failures and discards, with a null temperature and seed.
@@ -419,6 +426,10 @@ path and is not run (no second model approved).
 - 2026-10-04 (user, TASK-34): keep the conservative guard (estimate from the cap) and raise the
   ceiling in stages, in the section 8 priority order; the code ceiling changes only when the user
   edits `config.yaml` explicitly, and the account budget is topped up by the user between stages.
+- 2026-10-04 (user, TASK-35 and freeze): the Claude arm runs one full pass (561 agents) plus two
+  more passes over UBC only with all 51 personas (663 agents in all; section 9a); its harness
+  (rater agent definition, driver code) is pinned by hash. k_R = 5 and k_Q = 3 are frozen. The
+  prereg is frozen at the git tag `prereg-v1`, placed by the user.
 
 ## 11. Limitations
 
@@ -441,9 +452,9 @@ path and is not run (no second model approved).
   rankings are conditional on the provider serving one model throughout.
 - Budget caps the number of models, repeats and cells.
 
-## 12. Open TODOs before freezing
+## 12. Pre-freeze checklist (all settled at freezing, 2026-10-04)
 
-1. Model id for the study (and for D3, if run).
+1. Model id for the study: `glm-5.3-flash` on OpenCode Zen (D3 not run: no second model approved).
 2. Temperature levels for R-T: set 2026-10-04 to 0.0 and 1.0 (`designs/study.yaml`; decisions log).
 3. k_R and k_Q: set 2026-10-04 to the floors, k_R = 5 and k_Q = 3 (decisions log).
 4. Paraphrase texts for Q2a-c and Q3a-c: written, hashed in `prompts/manifest.yaml`, reviewed by
@@ -452,8 +463,8 @@ path and is not run (no second model approved).
 5. `max_tokens` cap: set 2026-10-04 to 400 tokens per rating, 5,200 for a 13-rating call
    (`config.yaml`; decisions log).
 6. Persona bootstrap resample count (secondary analysis): set 2026-10-04 to 2,000, seeded.
-7. Adversarial-arm procedure and budget: drafted in section 9 (TASK-22); open: user review of
-   reviewed and accepted 2026-10-04 (decisions log); open only if the user reopens it.
+7. Adversarial-arm procedure and budget: drafted in section 9 (TASK-22); reviewed and accepted by the user
+   2026-10-04 (decisions log).
 8. Design file: the one-at-a-time expander exists (`domain/oat_design.py`, TASK-32; the fractional
    expander is not used). The study design file `designs/study.yaml` exists (k_R 5, k_Q 3, D3
    omitted: no second model is approved); regenerate and diff against the frozen copy before the
@@ -465,5 +476,5 @@ path and is not run (no second model approved).
 
 ## 13. Amendments
 
-None while DRAFT. After freezing, changes are recorded here with date and rationale, and analyses
+None. After freezing, changes are recorded here with date and rationale, and analyses
 affected are labeled as post-hoc.

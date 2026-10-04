@@ -1,0 +1,10 @@
+# Pins the Claude subagent arm's harness (prereg s9a, frozen with the prereg, tag prereg-v1).
+# tests/subagent_arm/test_manifest.py fails if a listed file changes. A later change needs a
+# section 13 amendment and the arm's results are then labeled post-hoc.
+files:
+- path: .claude/agents/rater.md
+  sha256: 7a924873e1c1d53b114f2f4b9d272054cf2d26e57790b1283910bbe7de2abdb7
+  role: rater agent type (system prompt, Read and Write tools only, model haiku)
+- path: subagent_arm/arm.py
+  sha256: 42532cedb214f3ebaef34832d85356f3f9cb908901404386ef2a0ca828ffb108
+  role: driver code holding the agent prompt wrapper (agent_prompt), the line-to-JSON conversion (lines_to_json), the tool-use rule and the one-retry ingest

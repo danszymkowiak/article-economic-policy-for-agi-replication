@@ -1,9 +1,9 @@
 # Reviewed by the user 2026-10-04, not frozen (TASK-16). sha256 of every prompt template and
 # description paraphrase. tests/bootstrap/test_prompt_files.py fails if a listed file changes
 # without this manifest being regenerated. The user reviewed every file and the equivalence
-# records below as drafted (hashes unchanged by the review). Freezing = status becomes frozen
-# when the prereg is tagged.
-status: reviewed-by-user
+# records below as drafted (hashes unchanged by the review). Frozen with the prereg
+# (tag prereg-v1).
+status: frozen
 reviewed: '2026-10-04'
 files:
 - path: prompts/joint/baseline.txt
