@@ -4,10 +4,11 @@ title: 'Additional providers: OpenAI, Gemini, open-weights'
 status: To Do
 assignee: []
 created_date: '2026-10-03 06:03'
+updated_date: '2026-10-04 07:17'
 labels:
   - phase2
 dependencies:
-  - TASK-12
+  - TASK-11
 ordinal: 13000
 ---
 
@@ -23,3 +24,9 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 - [ ] #2 Each adapter pins model snapshots and reports usage for spend tracking
 - [ ] #3 Tests run against fakes or recorded responses, with no paid calls
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-10-04: no longer waits on the pilot; only the second-model cell (D3) needs it, and TASK-23 now depends on it.
+<!-- SECTION:NOTES:END -->

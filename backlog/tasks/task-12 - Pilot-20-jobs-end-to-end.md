@@ -4,11 +4,15 @@ title: 'Pilot: 20 jobs end to end'
 status: To Do
 assignee: []
 created_date: '2026-10-03 06:03'
-updated_date: '2026-10-03 11:24'
+updated_date: '2026-10-04 07:17'
 labels:
   - phase2
 dependencies:
   - TASK-11
+  - TASK-16
+  - TASK-31
+  - TASK-32
+  - TASK-33
 ordinal: 12000
 ---
 
@@ -33,4 +37,6 @@ Carried over from TODO.md: revisit cost-estimate assumptions with real usage (no
 From the TASK-26 live smoketest (glm-5.3-flash via Zen): a reasoning-capable model can exhaust max_tokens on hidden reasoning and return empty text; 100 tokens/policy truncated JSON, 250/policy still failed 3 of 18 jobs. Calibrate est_output_tokens_per_policy (which is also the max_tokens cap) from real usage, and decide how to handle reasoning models (cap vs reasoning effort). job_id excludes max_tokens, so changing the cap will not rerun jobs that finished as failed: decide whether the cap belongs in the job hash.
 
 Calibration data point from TASK-26 (glm-5.3-flash, 6 policies per call): a cap of 600 tokens/policy gave 18/18 valid jobs with max observed output 2322 tokens per job (about 390 per policy); 250/policy lost 3 of 18, 100/policy truncated everything. Use roughly 600/policy as the starting cap for glm-class models, then recalibrate on the real prompts.
+
+2026-10-04: dependencies re-chained so the pilot follows the templates, named personas, design expander and per-policy evidence wiring it must exercise (v2.1 design).
 <!-- SECTION:NOTES:END -->

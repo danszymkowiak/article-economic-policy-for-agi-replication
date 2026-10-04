@@ -4,9 +4,11 @@ title: Baseline comparison to published tables
 status: To Do
 assignee: []
 created_date: '2026-10-03 06:03'
+updated_date: '2026-10-04 07:17'
 labels:
   - phase4
 dependencies:
+  - TASK-12
   - TASK-17
 ordinal: 18000
 ---
@@ -23,3 +25,9 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 - [ ] #2 Agreement is reported as rank correlation, not exact match
 - [ ] #3 Report states that any gap may come from the reconstruction as well as from instability
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-10-04: depends on the pilot (analysis is developed on pilot and smoketest data) as well as the evidence packets.
+<!-- SECTION:NOTES:END -->

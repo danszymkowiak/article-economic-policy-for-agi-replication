@@ -4,11 +4,12 @@ title: Freeze prereg and run full design
 status: To Do
 assignee: []
 created_date: '2026-10-03 06:03'
-updated_date: '2026-10-03 08:08'
+updated_date: '2026-10-04 07:17'
 labels:
   - phase5
 dependencies:
   - TASK-22
+  - TASK-13
 ordinal: 23000
 ---
 
@@ -29,4 +30,6 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 
 <!-- SECTION:NOTES:BEGIN -->
 Carried over from TODO.md: prereg TODOs to decide before tagging frozen: factor levels (models, paraphrases, order, aggregation), temperature levels, repeats, fraction run count and seed, bootstrap resample count, variance-decomposition method, recommendation-survival rule, budget-binding priority order, adversarial-arm procedure (also TASK-22). Raw results are gitignored (results/raw/*); decide redistribution at write-up after checking provider terms.
+
+2026-10-04: also waits on TASK-13 (additional providers) for the D3 second-model cell.
 <!-- SECTION:NOTES:END -->
