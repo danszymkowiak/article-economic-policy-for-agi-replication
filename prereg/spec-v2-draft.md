@@ -1,8 +1,9 @@
-# Study design spec v2.1 (PROPOSAL after red-team; not frozen)
+# Study design spec v2.1 (folded into prereg.md on 2026-10-04)
 
-Supersedes the design sections of `prereg.md` and the R1/R3/R4 rows of `reconstruction.md` once
-accepted. Basis: the SSRN paper (Jacobs and Imas, 15 Sep 2026, `docs/economic-policy-for-agi-ssrn.pdf`).
-Section 10 logs how each red-team finding was resolved.
+**STATUS: FOLDED.** The design below was accepted by the user and now lives in `prereg.md`, which
+governs; `reconstruction.md` holds the stand-ins. This file is kept as the record of the proposal
+and as the home of the red-team resolution log (section 10). Basis: the SSRN paper (Jacobs and
+Imas, 15 Sep 2026, `docs/economic-policy-for-agi-ssrn.pdf`).
 
 ## 1. Questions
 

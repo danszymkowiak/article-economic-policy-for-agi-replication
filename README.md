@@ -14,14 +14,16 @@ re-implementation from the public description rather than a strict replication. 
 is a preregistered sensitivity analysis that reports the full range of outcomes, plus a
 separate, clearly labeled adversarial arm.
 
-1. **Baseline**: reconstruct the setup from the essay (all 11 policies in one prompt) and
-   compare against the published tables by rank correlation.
-2. **Factors** (fractional factorial): model, persona source (reconstructed synthetic panel,
-   none; IGM panels are a possible later extension), prompt wording, blinded policy labels, evidence
-   packet (reconstructed, balanced, none), presentation order, score aggregation, repeats.
-3. **Measures**: Kendall's tau between configurations with bootstrap intervals; variance
-   share from persona vs prompt vs model vs repeat noise; whether the three-stage
-   recommendation (UI/EITC, then NIT, then UBC) survives.
+1. **Baseline**: reconstruct the setup from the paper (51 named economist personas each rate one
+   policy at a time, with per-policy evidence packets from pinned Wikipedia text) and compare
+   against the published tables by rank correlation, as a supporting check only.
+2. **Two questions**: how stable are the ratings under repeated identical calls (a block of
+   repeats of the baseline), and how far do they move under small input changes, chiefly policy
+   names replaced by their definitions, paraphrased wording, and no evidence packet. Each
+   variation changes one thing from the baseline; larger design changes (joint scoring, no
+   persona, synthetic personas, a second model) are reported separately.
+3. **Measures**: counts of flipped recommendations and tiers, and of score shifts of at least
+   5 points, against the repeat-to-repeat rate; rank metrics (Kendall's tau, rank shifts) alongside.
 4. **Adversarial arm**: the smallest plausible change that moves a policy from top to bottom.
 5. **Preregistration**: the analysis plan in `prereg/` is frozen and tagged before any paid
    run, and every run is logged, failures included.

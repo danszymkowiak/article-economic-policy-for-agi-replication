@@ -1,96 +1,83 @@
-# Reconstruction of the setup from the public essay
+# Reconstruction of the setup from the public paper and essay
 
 **STATUS: DRAFT.** Companion to `prereg.md`; frozen together with it. This study is a
 **re-implementation from the public description, not a replication**. The authors released no
-prompts, persona data, survey responses or evidence packet. Everything below is either taken
-from the essay (marked *essay*) or is our own stand-in (marked *stand-in*). No stand-in is the
-authors' original, and write-ups must say so wherever one is used.
+prompts, persona data, survey responses or literature text. Everything below is either taken from
+the paper or essay (marked *paper*, *essay*) or is our own stand-in (marked *stand-in*). No
+stand-in is the authors' original, and write-ups must say so wherever one is used.
 
-Source: "Economic policy for AGI", Jacobs and Imas, DeepMind Institute, 2026-09-16
-(snapshot in `docs/economic-policy-for-agi.html`, retrieved 2026-10-03).
+Sources:
+- *paper*: "Economic Policy for AGI", Jacobs and Imas, 15 Sep 2026 (SSRN version in
+  `docs/economic-policy-for-agi-ssrn.pdf`, added 2026-10-04). It has the methods, the full tables
+  and the persona roster, and governs where it differs from the essay.
+- *essay*: the DeepMind Institute essay of 2026-09-16 (snapshot in
+  `docs/economic-policy-for-agi.html`, retrieved 2026-10-03). Same numbers; it alone reports the
+  Political Support, Administrative Capacity and Speed scores.
 
-## 1. What the essay tells us (essay)
+## 1. What the paper and essay tell us
 
-| Item | What the essay says |
+| Item | What they say |
 |---|---|
-| Raters | 51 AI agent raters, each built from one of 51 real economists' survey answers, "capturing a diversity of economic and political attitudes". Tables say "N = 51 EDSL personas" |
-| Method | "Pioneered by John Horton"; persona prompts built with EDSL; agents "rate" interventions "based on the available evidence and their own deliberative process" |
-| Scale | 0 to 100 per sub-criterion; composite score per dimension; score tiers (High >= 70, Moderate 55-69, Mixed 42-54 or 40-54, Low < 42 or < 40) |
-| Policies | 11 (section 2) |
-| Criteria | 4 dimensions, 15 sub-criteria (section 3) |
-| Published targets | One table per dimension with sub-criterion scores to one decimal and a composite (used only for the baseline comparison, task "Baseline comparison to published tables") |
+| Raters | 51 simulated economist personas modelled on named U.S. panelists of the Clark Center (formerly IGM) panel; the roster of 51 names is in the paper's Appendix A, Table 7 (*paper*). EDSL builds each persona from biographical traits, institutional affiliations, research histories and the person's actual IGM survey responses (*paper*) |
+| Input per rating | each agent receives a policy description, relevant economic literature and a structured scoring rubric (*paper*, Figure 2); 51 personas x 25 policy proposals = 1,275 structured evaluations returning a 0-100 score and a rationale |
+| Aggregation | panel means over the 51 personas (*paper*) |
+| Scale | 0 to 100 per criterion; composites per dimension; score tiers (High >= 70, Moderate 55-69, Mixed 42-54 or 40-54, Low < 42 or < 40) (*essay*) |
+| Public support | measured by a separate survey of 2,019 Americans (net approval), not rated by agents (*paper*) |
+| Not stated | model, temperature, number of runs, prompt text, literature text, whether the literature was identical across personas; "it is impossible to perfectly replicate results, even with identical prompting" (*paper*) |
+| Published targets | Table 4 and Appendix B (12 panel numbers per policy plus net approval); the essay's tables add the Political Support and Administrative Capacity and Speed columns |
 
-## 2. Policies (essay, definitions paraphrased from the essay's taxonomy table)
+## 2. Policies (*paper* Table 3; essay uses near-identical definitions)
 
-Panel A, labour-market and wage interventions: Active Labour Market Policies and Retraining;
-Wage Insurance; Earned Income Tax Credit (EITC); Federal Jobs Guarantee; Unemployment
-Insurance (UI). Panel B, universal floors, services and structural assets: Negative Income Tax
-(NIT); Universal Basic Income (UBI); Sovereign AI Dividend (the result tables call it "Sovereign
-AI Fund / Dividend"); Universal Basic Capital (UBC); Universal Basic Services (UBS); Industrial
-Policy (the tables say "Directed Industrial Policy").
+Eleven redistributive policies. Panel A, targeted and work-conditioned: EITC; Unemployment
+Insurance (UI); Active Labour-Market Policies (ALMP); Wage Insurance; Directed Industrial Policy;
+Federal Jobs Guarantee (FJG). Panel B, universal floors, services and ownership: Universal Basic
+Income (UBI); Negative Income Tax (NIT); Universal Basic Services (UBS); Universal Basic Capital
+(UBC); Sovereign AI Fund / Dividend (SAWF).
 
-Choice: use the taxonomy-table names and definitions as the *named* labels. The essay uses two
-names for three policies; we use the taxonomy-table names. Status: decided.
+Choice: the Table 3 names and definitions are the *named* labels. The paper also scores 14 revenue
+and governance mechanisms (25 proposals in total) on a different rubric; they are out of scope.
+Status: decided.
 
-## 3. Criteria (essay)
+## 3. Criteria (*paper* Table 1, Table 4 and Appendix B; essay for two columns)
 
-| Dimension | Sub-criteria |
+| Dimension | Criteria rated by the panel |
 |---|---|
-| Welfare and Resilience | Standards of Living; Meaning and Human Value; Macroeconomic Stabilisation |
-| Agency and Voice | Economic Participation; Ownership of Gains; Democratic Voice |
-| Durability across scenarios | Mild Disruption; Broad Displacement; AGI Transformation |
-| Feasibility and Efficiency | Political Support; Economic Feasibility; Popular Support; Administrative Capacity; Speed; Readiness |
+| Welfare and Macroeconomic Resilience | Standards of Living; Meaning and Human Value; Macroeconomic Stabilisation |
+| Economic Agency and Democratic Empowerment | Economic Agency and Mobility; Ownership of Gains; Democratic Voice |
+| Feasibility and Implementation | Economic Feasibility; Implementation Readiness (daggered); Political Support and Administrative Capacity and Speed (essay columns only) |
+| Durability Across Scenarios | Mild Disruption; Moderate Disruption; Full Transformation |
 
-15 sub-criteria. The essay gives one-line definitions for each (table footnotes and the
-dimension definitions); the criterion descriptions in our inputs are those lines, lightly
-reworded to stand alone. Status: decided.
+Popular Support is survey data in the paper and is not rated by us. The operational definitions
+follow paper Table 1 and the scenario definitions follow Figure 1. The essay's naming differs
+(Economic Participation, Broad Displacement, AGI Transformation, Speed and Readiness as separate
+columns); the paper's names are used.
 
-Note: the essay says Speed and Readiness are "author-coded policy operational maturity", so
-they may not have been rated by the agents. We rate all 15 with the agents, and treat the
-Speed and Readiness comparison with the published scores as lower-confidence. Status: decided.
+Readiness carries a † on every Appendix B profile but the paper has no footnote for it; the essay
+calls Speed and Readiness "author-coded". We rate Readiness with the agents and treat its
+comparison with the published numbers as lower-confidence. Status: decided.
+
+`designs/inputs/criteria.yaml` still holds the earlier 15-criterion list built from the essay's
+footnotes and must be rewritten to match this section (open task).
 
 ## 4. Choices we must make ourselves (stand-ins)
 
 | # | Choice | Decision | Basis | Status |
 |---|---|---|---|---|
-| R1 | Unit of one call | one call per persona x criterion, all 11 policies in one prompt, scored 0-100 with a short rationale | `prereg.md` section 2; the essay does not say how many policies per prompt | decided |
-| R2 | Persona representation | a `traits` dictionary per persona, rendered as `Your traits: {...}` after the instruction "You are answering questions as if you were a human. Do not break character." | EDSL's own default persona rendering, checked in section 5 | decided |
-| R3 | The 51 baseline personas | 51 synthetic trait dictionaries written by us, spread over field, ideology and views on redistribution, AI and labour; labelled a stand-in everywhere. the persona-source factor has two levels, this panel and no persona; the IGM Clark Center and IGM Europe levels were dropped on 2026-10-04 because their data is not sourced | the survey of 51 economists is unpublished; user decision 2026-10-03 | decided |
-| R4 | Evidence packet | **superseded 2026-10-04:** one verbatim, evidence-only packet per policy, taken from pinned English Wikipedia revisions by two independent LLM extraction passes (union), see section 4b; the "none" level remains; the earlier written "balanced" packet is dropped (a Q4b alternative is not currently planned) | the paper says agents are "prompted with extensive literature reviews" (unpublished); user decisions 2026-10-04 | decided |
-| R5 | Rating prompt wording | our own; the baseline is one fixed wording, paraphrases come from the prompt-templates task | not published | decided (wording drafted later) |
-| R6 | Policy order in a prompt | fixed in the baseline | not published | decided |
-| R7 | "Deliberation" | single structured call per prompt, no multi-turn deliberation or subagents | project rule; the essay's "deliberative process" is not specified | decided |
-| R8 | Composite score | unweighted mean of sub-criteria in a dimension | the essay shows composites but not the weights; we check that the published composites equal the mean of the published sub-criteria in the baseline-comparison task | decided, to be verified |
-| R9 | Temperature | recorded for every run; levels set in `prereg.md` | not published | open in prereg |
-| R10 | Repeats | several seeds per cell with otherwise identical prompts, to measure sampling stability; seed-stability cells use fixed order (random order is seeded by the same seed and would change the prompt) | user requirement 2026-10-03 | count TODO in prereg |
+| R1 | Unit of one call | one call per persona x policy, all criteria returned in one JSON object, policies scored independently (51 x 11 = 561 calls per configuration-repeat) | paper Figure 2 (51 x 25 evaluations "across multiple dimensions"); "all criteria in one JSON" is our reading | decided |
+| R2 | Persona representation | a traits dictionary rendered in EDSL's format as `Your traits: {...}` after "You are answering questions as if you were a human. Do not break character." (section 5) | EDSL's default rendering | decided |
+| R3 | The 51 baseline personas | the 51 named economists of paper Appendix A Table 7, with traits limited to name, institution and primary field; the model's memorised knowledge supplies the rest. John Cochrane is named in the paper's text but is not in Table 7, so he is excluded | user decision 2026-10-04 (match the paper); the biographies and IGM responses the paper used are not available | decided; builder to write |
+| R3b | Synthetic personas | our 51 synthetic trait personas (`personas/reconstructed.yaml`, section 4a) are kept as variation D2b only | earlier design | decided |
+| R4 | Evidence packet | one verbatim, evidence-only packet per policy from pinned English Wikipedia revisions, two LLM extraction passes (union), section 4b; the "none" level is the Q4 variation | the paper says agents are "prompted with extensive literature reviews" but not what they said; user decisions 2026-10-04 | decided |
+| R5 | Rating prompt wording | our own; the baseline is one fixed wording, paraphrases for the Q3 cells | not published | open: templates under `prompts/` predate this design and need rework |
+| R6 | Order | the baseline presents one policy per call, so policy order does not arise; criteria order within the JSON is fixed | not published | decided |
+| R7 | "Deliberation" | single structured call per rating, no multi-turn deliberation or subagents | project rule; the paper's "deliberative" scoring is not specified | decided |
+| R8 | Composite score | unweighted mean of the sub-criteria in a dimension | the paper shows composites in the essay but not the weights; spot checks (EITC welfare 68.8; EITC feasibility 79.8) match the unweighted mean; remaining composites checked in the baseline-comparison task | decided, to be verified |
+| R9 | Temperature | recorded for every run; provider default for B, plus temperature 0 and one higher level in R-T | not published | levels TODO in prereg |
+| R10 | Repeats | k_R repeats of B for the noise floor, k_Q per variation cell, set from the pilot's cost | user requirement 2026-10-03 | counts TODO in prereg |
+| R11 | Popular Support | not rated; the paper uses survey net approval | paper Table 4 | decided |
+| R12 | Implementation Readiness | rated by the agents; comparison lower-confidence | paper Table 4 (daggered, unexplained) | decided |
 
-> Note 2026-10-04: R1, R3 and the criteria sections below predate the SSRN paper and are being
-> superseded by `prereg/spec-v2-draft.md` (one call per persona x policy; named personas; Table 1
-> criteria). Until that task is done, the spec is authoritative where they differ.
-
-### 4b. Evidence packets (built 2026-10-04, TASK-17)
-
-Source: English Wikipedia, 13 articles at pinned revision ids (`evidence/mapping.yaml`,
-`evidence/raw/manifest.json` with fetch times and sha256). The policy-to-article mapping and the
-include/exclude rule (`evidence/extraction_prompt.md`, sha256 `8ba97f22...ce3`) were fixed before any
-article text was read for content. UBC has no article of its own (it redirects to Asset-based
-egalitarianism, which yielded no evidence) so it rests on Baby bonds; Sovereign AI Fund / Dividend
-uses Sovereign wealth fund and Alaska Permanent Fund.
-
-Extraction: for each article, two independent passes by a fresh Claude Code subagent
-(`claude-sonnet-5-5`) that was told to read only the article text. The isolation was instructed, not
-enforced. Each span must be an exact substring of the pinned text (0 of all spans rejected, 26
-passes). The packet is the union of the two passes; overlapping spans are merged to the covering
-source slice. Passes agreed on 66% (UI) to 100% of characters (UBS, Industrial policy); Wage
-insurance 0% (one pass found one line about a 1995 Canadian project, the other found nothing; the
-line is kept because the rule is union). Per-article agreement is in each packet header.
-
-Known limits: two passes by one model do not prove completeness; verbatim sentences lose some
-context; evidence is uneven across policies because the sources are (Wage insurance is almost
-empty, Alaska is the largest); packets are CC BY-SA 4.0 and shared alike. Evidence token count per
-packet is recorded and its association with scores is reported in the analysis.
-
-### 4a. The baseline persona panel (stand-in, built 2026-10-04)
+### 4a. The synthetic persona panel (stand-in, built 2026-10-04; now variation D2b)
 
 `personas/reconstructed.yaml`, built with `llm-panel build-personas synthetic --n 51 --seed 2026`
 before any result existed; the provenance block in the file records the method, seed and trait
@@ -99,15 +86,34 @@ view on AI and labour (4), view on the role of government (3), seniority (4) and
 (8: US, UK, Germany, France, Canada, India, Brazil, Japan). Each dimension is balanced to within
 one persona and assigned independently. Consequences, stated so they are not read as findings:
 attitudes are not correlated with one another (real economists' views cluster), and the spread is
-flat (about as many very conservative as very liberal personas), which is wider than a real
-economist panel. The persona-source factor tests how much this choice matters.
+flat, which is wider than a real economist panel.
 
-IGM Clark Center US and IGM Europe levels are dropped from the design (user decision
-2026-10-04): the respondent data is not sourced, and the persona-source factor is therefore
-reconstructed panel versus no persona. A builder exists for a later extension
-(`llm-panel build-personas igm` on anonymous respondent records in a CSV; the input file's
-sha256, origin and retrieval date go into the provenance). Adding those levels after freezing
-would be a recorded amendment.
+IGM panel levels are dropped from the design (user decision 2026-10-04). A builder exists for a
+later extension (`llm-panel build-personas igm`); adding such levels after freezing would be a
+recorded amendment.
+
+### 4b. Evidence packets (built 2026-10-04, TASK-17)
+
+Source: English Wikipedia, 13 articles at pinned revision ids (`evidence/mapping.yaml`,
+`evidence/raw/manifest.json` with fetch times and sha256). The policy-to-article mapping and the
+include/exclude rule (`evidence/extraction_prompt.md`, sha256 `8ba97f22...ce3`) were written and
+approved before any article text was read for content (committed afterwards). UBC has no article of
+its own ("Universal basic capital" redirects to Asset-based egalitarianism, which yielded no
+evidence) so it rests on Baby bonds; Sovereign AI Fund / Dividend uses Sovereign wealth fund and
+Alaska Permanent Fund.
+
+Extraction: for each article, two independent passes by a fresh Claude Code subagent
+(`claude-sonnet-5-5`) told to read only the article text; the isolation was instructed, not
+enforced. Each span must be an exact substring of the pinned text (0 rejected across 26 passes).
+The packet is the union of the two passes; overlapping spans are merged to the covering source
+slice. Passes agreed on 66% (UI) to 100% of characters (UBS, Industrial policy); Wage insurance 0%
+(one pass found one line about a 1995 Canadian project, the other found nothing; the line is kept
+because the rule is union). Per-article agreement is in each packet header.
+
+Known limits: two passes by one model do not prove completeness; verbatim sentences lose some
+context; evidence is uneven across policies because the sources are (Wage insurance almost empty,
+Alaska largest); packets are CC BY-SA 4.0 and shared alike. Packet size is recorded
+(`evidence/packets/manifest.json`) and its association with scores is reported in the analysis.
 
 ## 5. EDSL reuse (checked 2026-10-03)
 
@@ -125,17 +131,18 @@ Decision: **reuse EDSL's persona format and wording, not its runtime.** Personas
 trait dictionaries (compatible with `edsl.Agent(traits=...)`), and our own pipeline renders and
 sends the prompt. EDSL is not a project dependency. Status: decided.
 
-## 5a. Essay versus the full paper (noted 2026-10-04)
+## 5a. Essay versus the paper (updated 2026-10-04)
 
-The SSRN abstract of the full paper (Jacobs and Imas, abstract_id 7470000) says it evaluates
-"twenty-four" interventions; the essay evaluates 11 policies. This study follows the essay's 11,
-the public description it re-implements. The 15 criterion descriptions in
-`designs/inputs/criteria.yaml` quote the essay's table footnotes; the full paper may define them
-differently. Status: open until the paper's definitions are checked.
+The paper (15 Sep 2026) and the essay (16 Sep) carry the same tables. The paper's abstract and
+Figure 2 give 11 household-facing policies plus 14 revenue and governance mechanisms; this study
+follows the 11. The SSRN web abstract's "twenty-four" interventions does not appear in the PDF we
+have, and is unexplained. Differences that matter: the paper defines the criteria in Table 1 and
+the scenarios in Figure 1 (used here), treats popular support as survey data, and names the
+personas; the essay reports two feasibility columns the paper's Table 4 omits. Status: decided.
 
 ## 6. What stays unknowable
 
-The authors' exact prompts, persona traits, evidence text, model(s), temperature and any
-aggregation beyond the published tables cannot be recovered from the essay. Agreement with the
-published tables therefore measures how well a plausible reconstruction reproduces them, not
-whether we reproduced the authors' procedure.
+The authors' exact prompts, the biographies and survey responses behind each persona, the
+literature text, the model(s), temperature, number of runs and any aggregation beyond the published
+tables cannot be recovered. Agreement with the published tables therefore measures how well a
+plausible reconstruction reproduces them, not whether we reproduced the authors' procedure.
