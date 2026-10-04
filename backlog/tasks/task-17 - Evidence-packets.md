@@ -1,11 +1,11 @@
 ---
 id: TASK-17
 title: Evidence packets
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-03 06:03'
-updated_date: '2026-10-04 07:07'
+updated_date: '2026-10-04 07:11'
 labels:
   - phase3
 dependencies:
@@ -22,11 +22,11 @@ Part of the LLM-panel sensitivity study (re-test of "Economic Policy for AGI"). 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 Evidence mapping (policy to pinned Wikipedia revisions) and the evidence-only include/exclude rule are fixed and committed before any article text is read for content
-- [ ] #2 Each article is fetched at its pinned revision, converted to plain text with section headings, and stored under evidence/raw with fetch date and sha256
-- [ ] #3 A verifier rejects any extracted span that is not an exact substring of the pinned text; covered by tests
-- [ ] #4 One verbatim packet per policy, produced by a subagent that sees only article text and the rule; extractor model id, prompt hash and run date logged; empty packets carry a note
-- [ ] #5 Packets are published-ready: article titles, revision links, CC BY-SA 4.0 attribution and extractor identity in each header; packet token counts recorded
-- [ ] #6 A none option (no packet) exists for the evidence factor; sources documented in prereg/reconstruction.md
+- [x] #2 Each article is fetched at its pinned revision, converted to plain text with section headings, and stored under evidence/raw with fetch date and sha256
+- [x] #3 A verifier rejects any extracted span that is not an exact substring of the pinned text; covered by tests
+- [x] #4 One verbatim packet per policy, produced by a subagent that sees only article text and the rule; extractor model id, prompt hash and run date logged; empty packets carry a note
+- [x] #5 Packets are published-ready: article titles, revision links, CC BY-SA 4.0 attribution and extractor identity in each header; packet token counts recorded
+- [x] #6 A none option (no packet) exists for the evidence factor; sources documented in prereg/reconstruction.md
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -45,4 +45,12 @@ Carried over from TODO.md: replaces the placeholder prompt template (domain/rend
 2026-10-04 recall audit (second independent pass, same prompt, on UBI and UI): UBI pass1 11 / pass2 12 spans, character overlap 96% (pass2 adds Bolsa Familia passage only). UI pass1 13 / pass2 23 spans, overlap 66% of union (pass1-only 851 chars, pass2-only 656 chars). Second-pass outputs in evidence/extracted_pass2; packets NOT yet changed. Decision pending: union of passes for all packets vs single pass.
 
 2026-10-04 (user chose option 1): second independent pass run on all 13 articles; packets rebuilt as union of two passes via merge_passes (overlaps merged to contiguous source slices); per-article pass agreement stored in packet headers. Agreement by article: ALMP 98%, Wage ins 0% (pass1 1 span, pass2 0), EITC 93%, Job guarantee 91%, UI 66%, NIT 87%, UBI 96%, UBS 100%, Industrial 100%, Asset-based egal 100% (both empty), Baby bonds 89%, SWF 97%, Alaska 74%. 0 spans rejected across 26 passes. Pass-2 raw outputs in evidence/extracted_pass2. Still open: none option, reconstruction.md sources, user review.
+
+Verification 2026-10-04: raw sha256 match manifest (13/13); 266 tests pass incl. verifier/merge/render; all 11 packets carry CC BY-SA 4.0, revision links and extractor id; manifest.json has sizes; none option tested in tests/test_build_jobs.py. Committed as 4906a9c. AC1 left unchecked: mapping.yaml was written (and user-approved) before any article was fetched (mtime check), but it was committed only after, so the literal word 'committed' is not met.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Evidence packets built from pinned English Wikipedia revisions (13 articles, 11 policy packets). Mapping and evidence-only rule were written and user-approved before any article was fetched; two independent LLM extraction passes per article, union merged, every span verified as an exact substring (0 rejected of 26 passes); per-article pass agreement in packet headers (UI 66%, Alaska 74%, Wage insurance 0%, others 87-100%). Pure verifier/merge/render module and fetch adapter with tests (266 pass); raw sha256 match manifest; none option already supported and tested; sources documented in prereg/reconstruction.md section 4b. Closed with AC1 deliberately left unchecked: the mapping was fixed before reading but committed only afterwards (4906a9c). Known limits: pass-to-pass agreement is not completeness; extractor isolation was instructed not enforced; evidence is uneven across policies (Wage insurance nearly empty, UBC rests on Baby bonds); packets are not yet wired into the pipeline, which still takes one evidence text per job set.
+<!-- SECTION:FINAL_SUMMARY:END -->
