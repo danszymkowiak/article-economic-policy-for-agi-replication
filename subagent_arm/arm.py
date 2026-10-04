@@ -65,12 +65,23 @@ class Workspace:
         return {(job, int(attempt)) for job, attempt in pairs}
 
 
-def build_jobs(materials: StudyMaterials, baseline: Factors, k_c: int) -> list[RenderedJob]:
-    """B's prompts on the Claude model: k_c repeats, repeat r carries seed r (not controllable
-    on the model; it only keeps repeats' job ids apart)."""
+def build_jobs(
+    materials: StudyMaterials,
+    baseline: Factors,
+    k_c: int,
+    repeat_policy_ids: Sequence[str] | None = None,
+) -> list[RenderedJob]:
+    """B's prompts on the Claude model: k_c passes, pass r carries seed r (not controllable on
+    the model; it only keeps passes' job ids apart). Pass 0 covers every persona x policy call;
+    later passes cover only the policies in repeat_policy_ids (all of them when None)."""
     factors = replace(baseline, model=ModelRef(PROVIDER, SNAPSHOT), temperature=None)
     cell = Cell(CELL_ID, "R", CELL_ID, factors, tuple(range(k_c)))
-    return [j for r in range(k_c) for j in jobs_for_cell_repeat(cell, r, materials)]
+    return [
+        j
+        for r in range(k_c)
+        for j in jobs_for_cell_repeat(cell, r, materials)
+        if r == 0 or repeat_policy_ids is None or j.policy_ids[0] in repeat_policy_ids
+    ]
 
 
 def write_tasks(ws: Workspace, jobs: Sequence[RenderedJob]) -> None:

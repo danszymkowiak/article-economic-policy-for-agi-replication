@@ -317,8 +317,16 @@ path and is not run (no second model approved).
   the exact rendered B prompt and nothing else (561 calls per repeat). Subagents must not use
   tools or read files; a run whose report shows any tool use is discarded and logged as a
   failure, so that no run can see published scores.
-- **Repeats:** k_C = 3 (the k_Q floor). Repeats run in full, in order; a partial repeat is
-  reported as such and not used in repeat-mean quantities. No other cells.
+- **Passes (changed 2026-10-04, user):** one pass over every persona x policy call (561 agents),
+  then two further passes over a single policy, Universal Basic Capital (UBC), with all 51
+  personas (51 agents per pass): 3 passes on UBC in all, 663 agents. The cost was measured in the
+  pilot (about 0.055 USD-equivalent per agent in Claude Code usage; 3 full passes, 1,683 agents,
+  is not affordable). UBC was chosen as the policy the paper's headline recommendations rest on
+  (clauses (a), (b) and (d) of section 6; its Table 4 cells are the most-cited). It is fixed now,
+  not from data. Each Table 4 cell is a mean over the 51 personas, so the repeated unit is a whole
+  policy with the full panel: Claude's repeat noise is measured on the 13 UBC panel means and on
+  persona-level SDs, not on all 143 policy x criterion cells. Passes run in full, in order; a
+  partial pass is reported as such and not used in repeat-mean quantities. No other cells.
 - **Reply format (changed after the pilot, 2026-10-04):** agents write one line per criterion,
   `criterion_id | score | rationale`, instead of hand-written JSON, because in the pilot 11 of 36
   first attempts at JSON failed the syntax check (mostly a stray closing brace) and 3 of 7 retries
@@ -332,23 +340,25 @@ path and is not run (no second model approved).
 - **Validation and logging:** replies go through the same JSON schema check as the main arm;
   malformed ones are retried once, then logged as failures. Every run is logged, including
   failures and discards, with a null temperature and seed.
-- **Comparison 1, stability** (descriptive, per model): repeat-to-repeat noise of the panel mean per
-  policy x criterion; persona-level SD across repeats; the persona-versus-run-noise variance
-  decomposition and n_eff; rank stability across repeats within each model (Kendall tau between
-  repeat means, recommendation clauses (a)-(d) per repeat). Then between models: the number of
-  policy x criterion panel means shifted from B by more than M = 5, shown beside each model's own
-  repeat noise, and the same recommendation clauses and ranks.
+- **Comparison 1, stability** (descriptive): for UBC only (the repeated policy), repeat-to-repeat
+  noise of the panel mean per criterion, persona-level SD across the three passes, and the
+  persona-versus-run-noise variance decomposition and n_eff. Rank stability across passes cannot be
+  computed on Claude (ranks need every policy repeated); instead recommendation clauses (a) and (b)
+  are evaluated per pass with that pass's UBC means against pass 1's means for the other policies.
+  Then between models: the number of policy x criterion panel means shifted from B by more than
+  M = 5 (all 143 cells from pass 1; the UBC cells also shown beside Claude's and B's repeat noise),
+  and the same recommendation clauses and ranks from pass 1.
 - **Comparison 2, distribution of responses** (descriptive): the distribution of single ratings
   per criterion (mean, SD, quantiles, share of round values and of the extreme 0-10 and 90-100
   bands), the spread of persona means, within-call correlation among criteria (halo), failure and
   discard rates, rationale length, and agreement with published Table 4 for each model.
-- **Reading:** B repeats (k_R = 5) give glm-5.3-flash's repeat noise; the Claude repeats give
-  Haiku's. A between-model shift is read against both. A difference between the models is a
+- **Reading:** B repeats (k_R = 5) give glm-5.3-flash's repeat noise; the Claude UBC repeats give
+  Haiku's, for UBC only (so the repeat-noise comparison is limited to UBC cells). A between-model shift is read against both. A difference between the models is a
   difference between two model-and-harness bundles (model, agentic wrapper, uncontrolled
   sampling), not a clean model effect; it shows that scores depend on which model is used, not
   that either is right. There is no inference language and no Holm correction here.
 - **Budget:** no spend through the ledger or the 15 USD ceiling; it uses Claude Code usage, so
-  the user is told the agent count (1,683 for k_C = 3) before the run starts and approves it.
+  the user is told the agent count (663: 561 + 2 x 51) before the run starts and approves it.
 
 ## 10. Decisions log
 
@@ -404,8 +414,8 @@ path and is not run (no second model approved).
   Claude's help, not an independent model family; the user's own review stands alongside it.
 - 2026-10-04 (user, TASK-35): the Claude subagent arm covers model variability only: a repeat of
   the baseline with Claude Haiku 4.5, compared with B on stability and on the distribution of
-  responses; no variation battery. Written up as section 9a; repeats k_C = 3 and the one-agent-
-  per-call design are the implementer's choices, for review.
+  responses; no variation battery. Written up as section 9a; the one-agent-per-call design is the implementer's choice, for review. Passes: see section 9a
+  (user, 2026-10-04: one full pass plus two more over UBC only).
 - 2026-10-04 (user, TASK-34): keep the conservative guard (estimate from the cap) and raise the
   ceiling in stages, in the section 8 priority order; the code ceiling changes only when the user
   edits `config.yaml` explicitly, and the account budget is topped up by the user between stages.

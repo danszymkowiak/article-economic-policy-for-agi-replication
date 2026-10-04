@@ -22,10 +22,13 @@ def project(tmp_path):
 
 
 def test_committed_config_is_the_arms_own_store_and_baseline_from_the_design():
-    config, baseline, k_c, ws = load_arm(REPO / "subagent_arm/config.subagent.yaml")
+    config, baseline, k_c, repeat_policies, ws = load_arm(
+        REPO / "subagent_arm/config.subagent.yaml"
+    )
     assert config.spend.max_spend_usd == 0 and not config.approved_providers
     assert config.raw_store == REPO / "subagent_arm/results/rows.jsonl"
     assert (baseline.persona_source, baseline.evidence, k_c) == ("named", "wikipedia", 3)
+    assert repeat_policies == ("ubc",)
     assert ws.root == REPO / "subagent_arm/work"
 
 

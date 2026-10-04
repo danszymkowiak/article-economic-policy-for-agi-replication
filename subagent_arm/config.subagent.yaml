@@ -15,5 +15,6 @@ paths:
     wikipedia: ../evidence/packets
 subagent_arm:
   design: ../designs/study.yaml   # the baseline factors come from the study design's baseline
-  k_c: 3                          # repeats of B on Claude (prereg s9a)
+  k_c: 3                          # passes of B on Claude (prereg s9a): pass 1 over everything,
+  repeat_policies: [ubc]          # passes 2-3 over these policies only (51 personas each)
   work_dir: work

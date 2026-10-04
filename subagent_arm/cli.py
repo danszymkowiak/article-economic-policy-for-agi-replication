@@ -30,7 +30,7 @@ DEFAULT_CONFIG = "subagent_arm/config.subagent.yaml"
 HEADER = "CLAUDE SUBAGENT ARM — not pooled with the main analysis"
 
 
-def load_arm(path: Path | str) -> tuple[Config, Factors, int, Workspace]:
+def load_arm(path: Path | str) -> tuple[Config, Factors, int, tuple[str, ...] | None, Workspace]:
     path = Path(path)
     config = load_config(path)
     home = path.parent.resolve()
@@ -42,12 +42,15 @@ def load_arm(path: Path | str) -> tuple[Config, Factors, int, Workspace]:
     k_c = int(block.get("k_c", 3))
     if k_c < 1:
         raise ValueError("k_c must be >= 1")
+    repeat_policies = tuple(block["repeat_policies"]) if block.get("repeat_policies") else None
     baseline = load_oat_design(home / block["design"]).baseline
-    return config, baseline, k_c, Workspace(home / block.get("work_dir", "work"))
+    return config, baseline, k_c, repeat_policies, Workspace(home / block.get("work_dir", "work"))
 
 
-def _jobs(config: Config, baseline: Factors, k_c: int) -> list[RenderedJob]:
-    return build_jobs(load_study_materials(config), baseline, k_c)
+def _jobs(
+    config: Config, baseline: Factors, k_c: int, repeat_policies: tuple[str, ...] | None
+) -> list[RenderedJob]:
+    return build_jobs(load_study_materials(config), baseline, k_c, repeat_policies)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -66,7 +69,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        config, baseline, k_c, ws = load_arm(args.config)
+        config, baseline, k_c, repeat_policies, ws = load_arm(args.config)
     except ValueError as exc:
         print(f"refused: {exc}", file=sys.stderr)
         return REFUSED
@@ -78,7 +81,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             ws.discard(job_id, int(attempt))
         print(f"recorded {len(args.pairs)} discards")
         return 0
-    jobs = _jobs(config, baseline, k_c)
+    jobs = _jobs(config, baseline, k_c, repeat_policies)
     if args.command == "prepare":
         write_tasks(ws, jobs)
         print(f"{HEADER}\nwrote {len(jobs)} task files under {ws.root / 'tasks'} (k_c={k_c})")

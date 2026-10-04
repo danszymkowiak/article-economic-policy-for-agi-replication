@@ -38,6 +38,16 @@ def jobs(materials):
     return build_jobs(materials, BASELINE, k_c=2)
 
 
+def test_repeats_beyond_the_first_cover_only_the_repeat_policies(materials):
+    jobs = build_jobs(materials, BASELINE, k_c=3, repeat_policy_ids=("ubc",))
+    assert len(jobs) == 51 * 11 + 2 * 51
+    first = [j for j in jobs if j.repeat == 0]
+    assert len(first) == 51 * 11
+    assert {j.policy_ids for j in jobs if j.repeat > 0} == {("ubc",)}
+    assert {j.repeat for j in jobs if j.repeat > 0} == {1, 2}
+    assert len({j.job_id for j in jobs}) == len(jobs)
+
+
 def answer_text(job, score=50.0):
     """What an agent writes: one `criterion | score | rationale` line per criterion."""
     return "\n".join(f"{c} | {score:g} | because" for c in job.criterion_ids) + "\n"
