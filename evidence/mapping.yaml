@@ -1,0 +1,50 @@
+# DRAFT for user review; not frozen. Fixed BEFORE any article text is read for content.
+# Source: English Wikipedia, pinned by revision id (looked up 2026-10-04 via the MediaWiki API).
+# Revision ids and sizes below are the only thing read so far; no article content has been read.
+policies:
+  - policy: Active Labour Market Policies (ALMP)
+    articles: [{title: Active labour market policies, revid: 1373293302, bytes: 28732}]
+  - policy: Wage Insurance
+    articles: [{title: Wage insurance, revid: 1329687372, bytes: 5363}]
+  - policy: Earned Income Tax Credit (EITC)
+    articles: [{title: Earned income tax credit, revid: 1377392244, bytes: 60243}]
+  - policy: Federal Jobs Guarantee (FJG)
+    articles: [{title: Job guarantee, revid: 1377738806, bytes: 43513}]
+  - policy: Unemployment Insurance (UI)
+    articles: [{title: Unemployment benefits, revid: 1377220481, bytes: 98931}]
+  - policy: Negative Income Tax (NIT)
+    articles: [{title: Negative income tax, revid: 1373988585, bytes: 22730}]
+  - policy: Universal Basic Income (UBI)
+    articles: [{title: Universal basic income, revid: 1374005394, bytes: 131648}]
+  - policy: Universal Basic Services (UBS)
+    articles: [{title: Universal basic services, revid: 1374476042, bytes: 12126}]
+  - policy: Directed Industrial Policy
+    articles: [{title: Industrial policy, revid: 1361158483, bytes: 30002}]
+  # No article exists for these two; stand-ins are chosen now, by definition match, not by content.
+  - policy: Universal Basic Capital (UBC)
+    note: "'Universal basic capital' redirects to Asset-based egalitarianism; Baby bonds added as the closest state-endowed-capital programme."
+    articles:
+      - {title: Asset-based egalitarianism, revid: 1358419220, bytes: 5942}
+      - {title: Baby bonds, revid: 1375619645, bytes: 23588}
+  - policy: Sovereign AI Fund / Dividend (SAWF)
+    note: "No AI-specific article. Sovereign wealth fund plus Alaska Permanent Fund (the essay's own worked example)."
+    articles:
+      - {title: Sovereign wealth fund, revid: 1376639342, bytes: 71867}
+      - {title: Alaska Permanent Fund, revid: 1364448229, bytes: 37592}
+
+extraction:
+  extractor: a fresh Claude Code subagent that sees ONLY the article text and the rule below
+    (no paper, no Table 4, no study design); extractor model id, prompt hash and run date are
+    logged in the packet header.
+  output: verbatim spans (section heading, exact text), no rewriting, no merging, no ellipses.
+  verification: a script checks every span is an exact substring of the fetched text at the pinned
+    revision; spans failing the check are rejected, not repaired.
+  include: >-
+    Empirical results: studies, pilots, experiments, measured effects, programme outcomes,
+    statistics and figures, and criticisms that cite data or observed outcomes.
+  exclude: >-
+    Definitions, history and origins, philosophy and ethical argument, proposals and advocacy,
+    theory with no data, opinions with no cited evidence, navigation and "see also" text.
+  empty_ok: a policy with no qualifying text gets an empty packet with a note saying so.
+  attribution: each packet carries article titles, revision links, fetch date, CC BY-SA 4.0
+    licence, and the extractor identity.

@@ -1,0 +1,119 @@
+[
+  {
+    "policy": "Active Labour Market Policies (ALMP)",
+    "title": "Active labour market policies",
+    "revid": 1373293302,
+    "file": "evidence/raw/1373293302.txt",
+    "sha256": "0241e6772732090af0ce55d0845ec2c930edc81080688165621b0ee83cfad999",
+    "fetched_at": "2026-10-04T06:59:01+00:00",
+    "chars": 19973
+  },
+  {
+    "policy": "Wage Insurance",
+    "title": "Wage insurance",
+    "revid": 1329687372,
+    "file": "evidence/raw/1329687372.txt",
+    "sha256": "6033dc66a48c1948ef94bc11a43f95f4a0123386c655a85ecea726c593ff4be6",
+    "fetched_at": "2026-10-04T06:59:02+00:00",
+    "chars": 4011
+  },
+  {
+    "policy": "Earned Income Tax Credit (EITC)",
+    "title": "Earned income tax credit",
+    "revid": 1377392244,
+    "file": "evidence/raw/1377392244.txt",
+    "sha256": "6e242785b178806d44e6e37bebf6242dabab8cc56e23cbd1ab40b5fffa68f677",
+    "fetched_at": "2026-10-04T06:59:02+00:00",
+    "chars": 32094
+  },
+  {
+    "policy": "Federal Jobs Guarantee (FJG)",
+    "title": "Job guarantee",
+    "revid": 1377738806,
+    "file": "evidence/raw/1377738806.txt",
+    "sha256": "4894c84da0647096e81faa6b10674daa9c7c8b1457ce3f3ebe66a80b415d7bca",
+    "fetched_at": "2026-10-04T06:59:03+00:00",
+    "chars": 17874
+  },
+  {
+    "policy": "Unemployment Insurance (UI)",
+    "title": "Unemployment benefits",
+    "revid": 1377220481,
+    "file": "evidence/raw/1377220481.txt",
+    "sha256": "888c8db3f91c1f33e7d9de482b782b60f3c8865fe01c837c5389a8423dc1e9a0",
+    "fetched_at": "2026-10-04T06:59:04+00:00",
+    "chars": 65428
+  },
+  {
+    "policy": "Negative Income Tax (NIT)",
+    "title": "Negative income tax",
+    "revid": 1373988585,
+    "file": "evidence/raw/1373988585.txt",
+    "sha256": "c4a65266fe611177214dea284e2efbd47ca7639a8fb03d23b5c481f60f386ca8",
+    "fetched_at": "2026-10-04T06:59:05+00:00",
+    "chars": 19179
+  },
+  {
+    "policy": "Universal Basic Income (UBI)",
+    "title": "Universal basic income",
+    "revid": 1374005394,
+    "file": "evidence/raw/1374005394.txt",
+    "sha256": "24ce18409532fe10736f577f30fe71e4d3d48d9681dc3091af06b280154c5253",
+    "fetched_at": "2026-10-04T06:59:06+00:00",
+    "chars": 41726
+  },
+  {
+    "policy": "Universal Basic Services (UBS)",
+    "title": "Universal basic services",
+    "revid": 1374476042,
+    "file": "evidence/raw/1374476042.txt",
+    "sha256": "9c614e9b82d0bb437ff8c4fe7e60a35ff84fc383f2b5ece29bf159dc246f0a4c",
+    "fetched_at": "2026-10-04T06:59:07+00:00",
+    "chars": 7302
+  },
+  {
+    "policy": "Directed Industrial Policy",
+    "title": "Industrial policy",
+    "revid": 1361158483,
+    "file": "evidence/raw/1361158483.txt",
+    "sha256": "8a730ebbd7b5a733d2e66fd572b12f208c4fad73ec597b232a57ecbd3f22dcdc",
+    "fetched_at": "2026-10-04T06:59:08+00:00",
+    "chars": 17873
+  },
+  {
+    "policy": "Universal Basic Capital (UBC)",
+    "title": "Asset-based egalitarianism",
+    "revid": 1358419220,
+    "file": "evidence/raw/1358419220.txt",
+    "sha256": "9a0be81cc46d2bb01cb122c6252aabc9dfea73a2567e047878998678db62fe5e",
+    "fetched_at": "2026-10-04T06:59:08+00:00",
+    "chars": 3633
+  },
+  {
+    "policy": "Universal Basic Capital (UBC)",
+    "title": "Baby bonds",
+    "revid": 1375619645,
+    "file": "evidence/raw/1375619645.txt",
+    "sha256": "402767bd611148306ea49fecccaccf6c90c0c98284949e193781c0bb26d91ba6",
+    "fetched_at": "2026-10-04T06:59:09+00:00",
+    "chars": 11407
+  },
+  {
+    "policy": "Sovereign AI Fund / Dividend (SAWF)",
+    "title": "Sovereign wealth fund",
+    "revid": 1376639342,
+    "file": "evidence/raw/1376639342.txt",
+    "sha256": "8b66ecc3946e840b088eb2d9a9f5528fa67215b5d5706960e7f615834932a839",
+    "fetched_at": "2026-10-04T06:59:10+00:00",
+    "chars": 22317
+  },
+  {
+    "policy": "Sovereign AI Fund / Dividend (SAWF)",
+    "title": "Alaska Permanent Fund",
+    "revid": 1364448229,
+    "file": "evidence/raw/1364448229.txt",
+    "sha256": "a500d622bcff4eac5f86bec167f5a98589535421d39521db552bd31dc396ce65",
+    "fetched_at": "2026-10-04T06:59:11+00:00",
+    "chars": 16641
+  }
+]

@@ -56,13 +56,39 @@ Speed and Readiness comparison with the published scores as lower-confidence. St
 | R1 | Unit of one call | one call per persona x criterion, all 11 policies in one prompt, scored 0-100 with a short rationale | `prereg.md` section 2; the essay does not say how many policies per prompt | decided |
 | R2 | Persona representation | a `traits` dictionary per persona, rendered as `Your traits: {...}` after the instruction "You are answering questions as if you were a human. Do not break character." | EDSL's own default persona rendering, checked in section 5 | decided |
 | R3 | The 51 baseline personas | 51 synthetic trait dictionaries written by us, spread over field, ideology and views on redistribution, AI and labour; labelled a stand-in everywhere. the persona-source factor has two levels, this panel and no persona; the IGM Clark Center and IGM Europe levels were dropped on 2026-10-04 because their data is not sourced | the survey of 51 economists is unpublished; user decision 2026-10-03 | decided |
-| R4 | Evidence packet | neutral, balanced summaries of the evidence the essay cites (UI in Denmark, EITC, retraining, Alaska fund), written without the essay's conclusions to avoid circularity; the "balanced" and "none" levels remain | the essay says agents rate "based on the available evidence" but the packet is unpublished; user decision 2026-10-03 | decided |
+| R4 | Evidence packet | **superseded 2026-10-04:** one verbatim, evidence-only packet per policy, taken from pinned English Wikipedia revisions by two independent LLM extraction passes (union), see section 4b; the "none" level remains; the earlier written "balanced" packet is dropped (a Q4b alternative is not currently planned) | the paper says agents are "prompted with extensive literature reviews" (unpublished); user decisions 2026-10-04 | decided |
 | R5 | Rating prompt wording | our own; the baseline is one fixed wording, paraphrases come from the prompt-templates task | not published | decided (wording drafted later) |
 | R6 | Policy order in a prompt | fixed in the baseline | not published | decided |
 | R7 | "Deliberation" | single structured call per prompt, no multi-turn deliberation or subagents | project rule; the essay's "deliberative process" is not specified | decided |
 | R8 | Composite score | unweighted mean of sub-criteria in a dimension | the essay shows composites but not the weights; we check that the published composites equal the mean of the published sub-criteria in the baseline-comparison task | decided, to be verified |
 | R9 | Temperature | recorded for every run; levels set in `prereg.md` | not published | open in prereg |
 | R10 | Repeats | several seeds per cell with otherwise identical prompts, to measure sampling stability; seed-stability cells use fixed order (random order is seeded by the same seed and would change the prompt) | user requirement 2026-10-03 | count TODO in prereg |
+
+> Note 2026-10-04: R1, R3 and the criteria sections below predate the SSRN paper and are being
+> superseded by `prereg/spec-v2-draft.md` (one call per persona x policy; named personas; Table 1
+> criteria). Until that task is done, the spec is authoritative where they differ.
+
+### 4b. Evidence packets (built 2026-10-04, TASK-17)
+
+Source: English Wikipedia, 13 articles at pinned revision ids (`evidence/mapping.yaml`,
+`evidence/raw/manifest.json` with fetch times and sha256). The policy-to-article mapping and the
+include/exclude rule (`evidence/extraction_prompt.md`, sha256 `8ba97f22...ce3`) were fixed before any
+article text was read for content. UBC has no article of its own (it redirects to Asset-based
+egalitarianism, which yielded no evidence) so it rests on Baby bonds; Sovereign AI Fund / Dividend
+uses Sovereign wealth fund and Alaska Permanent Fund.
+
+Extraction: for each article, two independent passes by a fresh Claude Code subagent
+(`claude-sonnet-5-5`) that was told to read only the article text. The isolation was instructed, not
+enforced. Each span must be an exact substring of the pinned text (0 of all spans rejected, 26
+passes). The packet is the union of the two passes; overlapping spans are merged to the covering
+source slice. Passes agreed on 66% (UI) to 100% of characters (UBS, Industrial policy); Wage
+insurance 0% (one pass found one line about a 1995 Canadian project, the other found nothing; the
+line is kept because the rule is union). Per-article agreement is in each packet header.
+
+Known limits: two passes by one model do not prove completeness; verbatim sentences lose some
+context; evidence is uneven across policies because the sources are (Wage insurance is almost
+empty, Alaska is the largest); packets are CC BY-SA 4.0 and shared alike. Evidence token count per
+packet is recorded and its association with scores is reported in the analysis.
 
 ### 4a. The baseline persona panel (stand-in, built 2026-10-04)
 

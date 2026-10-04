@@ -1,0 +1,71 @@
+{
+ "note": "approx tokens = characters/4, includes the attribution header",
+ "packets": [
+  {
+   "packet": "almp.md",
+   "chars": 6277,
+   "approx_tokens_chars_div_4": 1569,
+   "spans": 11
+  },
+  {
+   "packet": "directed_industrial_policy.md",
+   "chars": 2262,
+   "approx_tokens_chars_div_4": 565,
+   "spans": 4
+  },
+  {
+   "packet": "eitc.md",
+   "chars": 3875,
+   "approx_tokens_chars_div_4": 968,
+   "spans": 10
+  },
+  {
+   "packet": "fjg.md",
+   "chars": 3432,
+   "approx_tokens_chars_div_4": 858,
+   "spans": 13
+  },
+  {
+   "packet": "nit.md",
+   "chars": 4819,
+   "approx_tokens_chars_div_4": 1204,
+   "spans": 6
+  },
+  {
+   "packet": "sawf.md",
+   "chars": 7319,
+   "approx_tokens_chars_div_4": 1829,
+   "spans": 24
+  },
+  {
+   "packet": "ubc.md",
+   "chars": 4319,
+   "approx_tokens_chars_div_4": 1079,
+   "spans": 11
+  },
+  {
+   "packet": "ubi.md",
+   "chars": 5221,
+   "approx_tokens_chars_div_4": 1305,
+   "spans": 12
+  },
+  {
+   "packet": "ubs.md",
+   "chars": 1105,
+   "approx_tokens_chars_div_4": 276,
+   "spans": 3
+  },
+  {
+   "packet": "ui.md",
+   "chars": 5910,
+   "approx_tokens_chars_div_4": 1477,
+   "spans": 18
+  },
+  {
+   "packet": "wage_insurance.md",
+   "chars": 706,
+   "approx_tokens_chars_div_4": 176,
+   "spans": 1
+  }
+ ]
+}
