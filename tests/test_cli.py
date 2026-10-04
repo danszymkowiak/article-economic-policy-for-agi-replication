@@ -1,3 +1,4 @@
+import json
 import shutil
 from pathlib import Path
 
@@ -433,3 +434,36 @@ def test_timed_out_request_is_charged_at_estimate_and_counts_toward_status(env):
 
     price = cfg.spend.price_for(row.model_snapshot)
     assert spend.actual >= usage_cost(row.usage, price, 1.0) > 0
+
+
+def test_reconcile_command_salvages_partial_batch(env, capsys):
+    from llm_panel.application.spend import open_intents, pending_batches
+
+    class PartialBatchClient:
+        provider = "fake"
+        closed = []
+
+        def __init__(self, answered):
+            self._answered = answered
+
+        def answered_job_ids(self, batch_id):
+            return self._answered
+
+        def close_batch(self, batch_id):
+            self.closed.append(batch_id)
+
+    flaky = FlakySubmit(fail_on=0)
+    env.run("submit", "--confirm", *env.design(), client=flaky)
+    capsys.readouterr()
+    lines = env.ledger()._path.read_text().splitlines(keepends=True)
+    env.ledger()._path.write_text(lines[0])  # crash: intent only
+    intent = json.loads(lines[0])
+    answered = {intent["jobs"][0]["job_id"]}
+    client = PartialBatchClient(answered)
+    rc = env.run("reconcile", "--intent-id", intent["intent_id"], "--batch-id", "zen-x",
+                 client=client)  # fmt: skip
+    assert rc == 0 and client.closed == ["zen-x"]
+    assert open_intents(env.ledger()) == []
+    (batch,) = pending_batches(env.ledger())
+    assert [j["job_id"] for j in batch["jobs"]] == list(answered)
+    assert "reconciled" in capsys.readouterr().out

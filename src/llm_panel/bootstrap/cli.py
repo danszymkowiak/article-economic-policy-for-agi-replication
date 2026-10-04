@@ -53,6 +53,7 @@ from llm_panel.application.recommendations import (
 from llm_panel.application.recommendations import (
     render_noise_csv as render_recommendation_noise_csv,
 )
+from llm_panel.application.reconcile import ReconcileError, reconcile_intent
 from llm_panel.application.smoketest import ratings_from_store
 from llm_panel.application.spend import SpendCeilingError
 from llm_panel.application.status import get_status
@@ -178,6 +179,13 @@ def build_parser() -> argparse.ArgumentParser:
     sub_submit.add_argument("--cells", type=_cell_ids, metavar="IDS", help=CELLS_HELP)
 
     sub.add_parser("collect", help="fetch finished batches, validate, store, retry once")
+    rec = sub.add_parser(
+        "reconcile",
+        help="resolve a crashed mid-submit intent against its local batch file (no provider calls)",
+    )
+    rec.add_argument("--intent-id", required=True)
+    rec.add_argument("--batch-id", required=True, help="batch file the crashed submit was filling")
+    rec.add_argument("--provider", default="opencode")
     sub.add_parser("status", help="show spend versus ceiling and row counts")
     build = sub.add_parser("build-personas", help="build a persona source file with provenance")
     kinds = build.add_subparsers(dest="kind", required=True)
@@ -263,7 +271,7 @@ def main(
     # submit and collect hold an exclusive lock so overlapping cron runs cannot double-spend
     lock = (
         exclusive_lock(config.ledger.with_suffix(".lock"))
-        if args.command in ("submit", "collect")
+        if args.command in ("submit", "collect", "reconcile")
         else contextlib.nullcontext()
     )
     try:
@@ -277,6 +285,7 @@ def main(
         MissingPriceError,
         ExternalSpendError,
         LockHeld,
+        ReconcileError,
         ProviderConfigError,
     ) as exc:
         print(f"REFUSED: {exc}", file=sys.stderr)
@@ -455,6 +464,17 @@ def _run(args, config, store, ledger, factory, settings, now) -> int:
             f"ok={r.ok} invalid={r.invalid} failed={r.failed} retried={r.retried} "
             f"deferred={r.deferred}"
         )
+        return 0
+    if args.command == "reconcile":
+        client = factory(args.provider)
+        if not hasattr(client, "answered_job_ids"):
+            raise SystemExit(f"error: provider {args.provider} keeps no local batch files")
+        n = reconcile_intent(
+            ledger, args.intent_id, args.batch_id, client.answered_job_ids(args.batch_id),
+            settings, now, close=lambda: client.close_batch(args.batch_id),
+        )  # fmt: skip
+        print(f"reconciled intent {args.intent_id}: {n} job(s) salvaged into {args.batch_id}; "
+              "run collect to ingest them")  # fmt: skip
         return 0
     if args.command == "check":
         ratings, ok, total = ratings_from_store(store)

@@ -98,11 +98,24 @@ class ZenClient:
             self._write(fh, {"_done": True})
         return batch_id
 
-    def fetch_results(self, batch_id: str) -> BatchResult:
+    def answered_job_ids(self, batch_id: str) -> set[str]:
+        """Job ids with a recorded response in a batch file, finished or not (crash salvage)."""
+        return {r["job_id"] for r in self._records(batch_id) if "job_id" in r}
+
+    def close_batch(self, batch_id: str) -> None:
+        """Mark a batch file complete when its writer died; no-op if already closed."""
+        if not any(r.get("_done") for r in self._records(batch_id)):
+            with (self._state_dir / f"{batch_id}.jsonl").open("a", encoding="utf-8") as fh:
+                self._write(fh, {"_done": True})
+
+    def _records(self, batch_id: str) -> list[dict]:
         path = self._state_dir / f"{batch_id}.jsonl"
         if not path.exists():
             raise KeyError(f"unknown batch {batch_id}")
-        records = [json.loads(line) for line in path.read_text("utf-8").splitlines() if line]
+        return [json.loads(line) for line in path.read_text("utf-8").splitlines() if line]
+
+    def fetch_results(self, batch_id: str) -> BatchResult:
+        records = self._records(batch_id)
         done = any(r.get("_done") for r in records)
         responses = tuple(ModelResponse(**r) for r in records if "job_id" in r)
         return BatchResult(done=done, responses=responses if done else ())
