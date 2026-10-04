@@ -80,6 +80,9 @@ def _pearson(x: Sequence[float], y: Sequence[float]) -> float | None:
     return sxy / math.sqrt(sxx * syy)
 
 
+pearson = _pearson  # public name (TASK-21); None when undefined
+
+
 def spearman(x: Sequence[float], y: Sequence[float]) -> float | None:
     """Spearman rho (Pearson on average ranks); None when undefined."""
     return _pearson(average_ranks(x), average_ranks(y))

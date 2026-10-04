@@ -33,6 +33,18 @@ from llm_panel.application.rank_stability import (
 from llm_panel.application.rank_stability import (
     render_markdown as render_rank_markdown,
 )
+from llm_panel.application.recommendations import (
+    render_blinding_csv,
+    render_clauses_csv,
+    render_consistency_csv,
+    run_recommendations,
+)
+from llm_panel.application.recommendations import (
+    render_markdown as render_recommendations_markdown,
+)
+from llm_panel.application.recommendations import (
+    render_noise_csv as render_recommendation_noise_csv,
+)
 from llm_panel.application.smoketest import ratings_from_store
 from llm_panel.application.spend import SpendCeilingError
 from llm_panel.application.status import get_status
@@ -66,7 +78,7 @@ from llm_panel.bootstrap.providers import (
     default_registry,
     make_client_factory,
 )
-from llm_panel.bootstrap.published_loader import load_published
+from llm_panel.bootstrap.published_loader import NET_APPROVAL, load_published
 from llm_panel.bootstrap.smoketest_loader import load_expectations
 from llm_panel.domain.analysis_rank import DEFAULT_RESAMPLES
 from llm_panel.domain.design import to_run_specs
@@ -180,6 +192,17 @@ def build_parser() -> argparse.ArgumentParser:
         "variance", help="variance decomposition: persona share, n_eff, factors versus noise"
     )
     variance.add_argument("--out", default="analysis/variance", help="report directory")
+    recommendations = analyses.add_parser(
+        "recommendations", help="recommendation clauses, three-stage sequence, blinding contrast"
+    )
+    recommendations.add_argument(
+        "--published",
+        default="analysis/published/paper_table4.csv",
+        help="published table; only its public net approval (fixed survey input) is used",
+    )
+    recommendations.add_argument(
+        "--out", default="analysis/recommendations", help="report directory"
+    )
     return parser
 
 
@@ -309,7 +332,32 @@ def _analyze_variance(args, config_dir: Path, raw_store: Path, store) -> int:
     return 0
 
 
-ANALYSES = {"baseline": _analyze_baseline, "ranks": _analyze_ranks, "variance": _analyze_variance}
+def _analyze_recommendations(args, config_dir: Path, raw_store: Path, store) -> int:
+    approvals = load_published(config_dir / args.published).scores.get(NET_APPROVAL)
+    report = run_recommendations(store, net_approval=approvals)
+    out = config_dir / args.out
+    out.mkdir(parents=True, exist_ok=True)
+    label = _store_label(raw_store, config_dir)
+    files = {
+        "recommendations.md": render_recommendations_markdown(report, label),
+        "recommendation_clauses.csv": render_clauses_csv(report),
+        "recommendation_consistency.csv": render_consistency_csv(report),
+        "recommendation_blinding.csv": render_blinding_csv(report),
+        "recommendation_noise.csv": render_recommendation_noise_csv(report),
+    }
+    for name, text in files.items():
+        (out / name).write_text(text, encoding="utf-8")
+    print(f"wrote recommendations.md and four CSVs to {out} "
+          f"({len(report.cell_order)} cells from {label})")  # fmt: skip
+    return 0
+
+
+ANALYSES = {
+    "baseline": _analyze_baseline,
+    "ranks": _analyze_ranks,
+    "variance": _analyze_variance,
+    "recommendations": _analyze_recommendations,
+}
 
 
 def _run(args, config, store, ledger, factory, settings, now) -> int:
