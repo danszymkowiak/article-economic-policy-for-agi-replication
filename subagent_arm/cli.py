@@ -57,7 +57,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     sub.add_parser("prepare", help="write one task file per job")
     nxt = sub.add_parser("next", help="print the next agent prompts as JSON lines")
     nxt.add_argument("--limit", type=int, default=25)
-    disc = sub.add_parser("discard", help="mark runs that used tools beyond one Read and one Write")
+    disc = sub.add_parser(
+        "discard", help="mark runs that used tools beyond one Read, one Write and the hand-back"
+    )
     disc.add_argument("pairs", nargs="+", help="JOB_ID:ATTEMPT")
     sub.add_parser("ingest", help="fold answer files into the arm's store")
     sub.add_parser("status", help="counts by state")

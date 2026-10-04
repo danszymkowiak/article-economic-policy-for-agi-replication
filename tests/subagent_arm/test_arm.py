@@ -19,6 +19,7 @@ from subagent_arm.arm import (
     agent_prompt,
     build_jobs,
     ingest,
+    lines_to_json,
     pending,
     write_tasks,
 )
@@ -38,8 +39,8 @@ def jobs(materials):
 
 
 def answer_text(job, score=50.0):
-    ratings = [{"criterion": c, "score": score, "rationale": "r"} for c in job.criterion_ids]
-    return json.dumps({"ratings": ratings})
+    """What an agent writes: one `criterion | score | rationale` line per criterion."""
+    return "\n".join(f"{c} | {score:g} | because" for c in job.criterion_ids) + "\n"
 
 
 def test_jobs_are_b_on_the_claude_model_one_per_persona_policy_repeat(jobs):
@@ -73,9 +74,10 @@ def test_agent_prompt_names_one_task_file_one_answer_file_and_forbids_the_rest(t
     text = agent_prompt(ws, jobs[0], attempt=1)
     assert str(ws.task_path(jobs[0].job_id)) in text
     assert str(ws.answer_path(jobs[0].job_id, 1)) in text
+    assert "criterion_id | score | rationale" in text  # line format, converted on ingest
     assert "do not read any other file" in text.lower()
     assert jobs[0].persona_id not in text and "ubc" not in text.lower()  # nothing about the job
-    assert EXPECTED_TOOL_USES == 2
+    assert EXPECTED_TOOL_USES == 3
 
 
 def test_ingest_stores_valid_answers_and_leaves_missing_ones_pending(tmp_path, jobs):
@@ -87,6 +89,8 @@ def test_ingest_stores_valid_answers_and_leaves_missing_ones_pending(tmp_path, j
     assert (result.ok, result.invalid, result.failed, result.waiting) == (1, 0, 0, 2)
     (row,) = list(store.iter_rows())
     assert row.status == STATUS_OK and row.attempt == 1 and row.request["cell_id"] == "B"
+    assert row.response["raw"] == answer_text(sample[0])  # the agent's own lines are kept
+    assert json.loads(row.response["text"])["ratings"][0]["criterion"] == "standards_of_living"
     assert row.temperature is None and row.provider == PROVIDER
     assert [(j.job_id, a) for j, a in pending(store, sample)] == [
         (sample[1].job_id, 1),
@@ -132,3 +136,16 @@ def test_ingest_never_duplicates_finished_jobs(tmp_path, jobs):
     ingest(store, ws, [job], now=lambda: "t")
     ingest(store, ws, [job], now=lambda: "t")
     assert len(list(store.iter_rows())) == 1
+
+
+def test_lines_to_json_keeps_pipes_in_rationales_and_rejects_bad_lines():
+    ok = lines_to_json("a | 71.5 | uses a | pipe\n\nb | 3 | fine\n")
+    assert json.loads(ok) == {
+        "ratings": [
+            {"criterion": "a", "score": 71.5, "rationale": "uses a | pipe"},
+            {"criterion": "b", "score": 3, "rationale": "fine"},
+        ]
+    }
+    for bad in ("a | high | r", "a | 5", "just words", ""):
+        with pytest.raises(ValueError):
+            lines_to_json(bad)

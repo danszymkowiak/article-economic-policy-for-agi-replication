@@ -12,7 +12,7 @@ difference between two model-and-harness bundles, not a clean model effect.
 uv run python -m subagent_arm prepare            # one task file per job under work/tasks
 uv run python -m subagent_arm next --limit 25    # JSON lines: job_id, attempt, agent prompt
 # the session spawns one haiku subagent per line, then reports runs that used more than one Read
-# and one Write (the agent result shows its tool-use count):
+# and one Write (the agent result shows 3 tool uses: Read, Write and the harness hand-back):
 uv run python -m subagent_arm discard JOB_ID:ATTEMPT ...
 uv run python -m subagent_arm ingest             # answers -> results/rows.jsonl
 uv run python -m subagent_arm status

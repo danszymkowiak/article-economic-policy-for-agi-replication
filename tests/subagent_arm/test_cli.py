@@ -52,7 +52,7 @@ def test_prepare_next_discard_ingest_status_round_trip(project, capsys):
     assert first["attempt"] == 1 and "Read the file" in first["prompt"]
     answers = work / "answers"
     answers.mkdir()
-    (answers / f"{first['job_id']}.a1.json").write_text("not json", encoding="utf-8")
+    (answers / f"{first['job_id']}.a1.txt").write_text("not json", encoding="utf-8")
     assert main([*cfg, "discard", f"{second['job_id']}:1"]) == 0
     capsys.readouterr()
     assert main([*cfg, "ingest"]) == 0

@@ -9,6 +9,7 @@ discards for tool use). The agents themselves are launched by the Claude Code se
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
 from pathlib import Path
@@ -29,7 +30,9 @@ from llm_panel.ports import ResultStore
 PROVIDER = "claude-code"
 SNAPSHOT = "claude-haiku-4-5"  # alias of claude-haiku-4-5-20251001; the snapshot is not reported
 CELL_ID = "B"  # the arm's own store holds the baseline cell only
-EXPECTED_TOOL_USES = 2  # Read the task file, Write the answer file; anything else is a discard
+EXPECTED_TOOL_USES = (
+    3  # Read the task, Write the answer, plus the harness hand-back call (pilot: 3/3)
+)
 BATCH_ID = "subagent"
 
 
@@ -43,7 +46,7 @@ class Workspace:
         return self.root / "tasks" / f"{job_id}.txt"
 
     def answer_path(self, job_id: str, attempt: int) -> Path:
-        return self.root / "answers" / f"{job_id}.a{attempt}.json"
+        return self.root / "answers" / f"{job_id}.a{attempt}.txt"
 
     @property
     def discards_path(self) -> Path:
@@ -81,14 +84,40 @@ def write_tasks(ws: Workspace, jobs: Sequence[RenderedJob]) -> None:
 
 def agent_prompt(ws: Workspace, job: RenderedJob, attempt: int) -> str:
     """The whole prompt the driver gives a subagent: where to read and where to write, nothing
-    about the job itself."""
+    about the job itself. Only the reply format differs from the task text (prereg s9a): plain
+    lines instead of hand-written JSON, converted deterministically by `ingest`."""
     return (
         f"Read the file {ws.task_path(job.job_id)}. It is a self-contained task: do exactly what "
-        "it says. Then write your reply, the JSON object only and nothing else, to the file "
-        f"{ws.answer_path(job.job_id, attempt)} using the Write tool. Do not read any other file, "
-        "do not run commands, do not search, and do not use any other tool. When the file is "
-        "written, reply with the single word: done"
+        "it says, except for the reply format at its end: ignore the JSON instruction there. "
+        "Instead write one line per criterion, exactly in the form\n"
+        "criterion_id | score | rationale\n"
+        "(the criterion id as listed, a number from 0 to 100, one sentence), and nothing else. "
+        f"Write those lines to the file {ws.answer_path(job.job_id, attempt)} using the Write "
+        "tool. Do not read any other file, do not run commands, do not search, and do not use "
+        "any other tool. When the file is written, reply with the single word: done"
     )
+
+
+def lines_to_json(text: str) -> str:
+    """Convert `criterion_id | score | rationale` lines to the study's JSON reply. A rationale may
+    contain '|'. Raises ValueError for a line that is not in the form or has a non-numeric score;
+    range and completeness are checked afterwards by the study's own validator."""
+    ratings = []
+    for line in text.splitlines():
+        if not line.strip():
+            continue
+        parts = [p.strip() for p in line.split("|", 2)]
+        if len(parts) != 3 or not parts[0]:
+            raise ValueError(f"not a 'criterion | score | rationale' line: {line[:60]!r}")
+        try:
+            score = float(parts[1])
+        except ValueError:
+            raise ValueError(f"score is not a number: {parts[1][:30]!r}") from None
+        ratings.append({"criterion": parts[0], "score": int(score) if score.is_integer() else score,
+                        "rationale": parts[2]})  # fmt: skip
+    if not ratings:
+        raise ValueError("no rating lines")
+    return json.dumps({"ratings": ratings})
 
 
 def _rows_by_job(store: ResultStore) -> dict[str, StoredRow]:
@@ -124,11 +153,17 @@ class IngestResult:
     waiting: int  # no answer file yet
 
 
-def _row(job, attempt, status, now, *, text=None, error=None) -> StoredRow:
+def _response(text: str | None, raw: str | None) -> dict | None:
+    if text is None and raw is None:
+        return None
+    return {"text": text or "", "raw": raw}
+
+
+def _row(job, attempt, status, now, *, text=None, raw=None, error=None) -> StoredRow:
     return StoredRow(
         job_id=job.job_id, status=status, attempt=attempt, provider=PROVIDER,
         model_snapshot=SNAPSHOT, temperature=None, seed=job.seed, timestamp=now(),
-        request=job.to_dict(), response=None if text is None else {"text": text}, usage={},
+        request=job.to_dict(), response=_response(text, raw), usage={},
         batch_id=f"{BATCH_ID}-{attempt}", error=error,
     )  # fmt: skip
 
@@ -142,24 +177,25 @@ def ingest(
     counts = {"ok": 0, "invalid": 0, "failed": 0, "waiting": 0}
     for job, attempt in pending(store, jobs):
         path = ws.answer_path(job.job_id, attempt)
+        raw = text = None
         if (job.job_id, attempt) in discarded:
-            text, error = None, "discarded: the agent used tools beyond one Read and one Write"
+            error = "discarded: the agent used tools beyond one Read, one Write and the hand-back"
         elif path.exists():
-            text, error = path.read_text(encoding="utf-8"), None
+            raw, error = path.read_text(encoding="utf-8"), None
             try:
+                text = lines_to_json(raw)
                 parse_ratings(job, text)
-            except InvalidResponse as exc:
+            except (ValueError, InvalidResponse) as exc:
                 error = str(exc)
         else:
             counts["waiting"] += 1
             continue
         if error is None:
-            store.append(_row(job, attempt, STATUS_OK, now, text=text))
+            store.append(_row(job, attempt, STATUS_OK, now, text=text, raw=raw))
             counts["ok"] += 1
             continue
         terminal = attempt >= MAX_ATTEMPTS
         status = STATUS_FAILED if terminal else STATUS_INVALID
-        kept = None if error.startswith("discarded") else text
-        store.append(_row(job, attempt, status, now, text=kept, error=error))
+        store.append(_row(job, attempt, status, now, text=None, raw=raw, error=error))
         counts["failed" if terminal else "invalid"] += 1
     return IngestResult(**counts)
