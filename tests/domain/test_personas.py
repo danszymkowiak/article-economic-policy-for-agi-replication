@@ -5,6 +5,7 @@ import pytest
 from llm_panel.domain.personas import (
     TRAIT_SPACE,
     build_igm_panel,
+    build_named_panel,
     build_synthetic_panel,
     render_traits,
 )
@@ -81,3 +82,60 @@ def test_igm_builder_refuses_identifying_fields(key):
 def test_igm_builder_refuses_empty_input():
     with pytest.raises(ValueError, match="no records"):
         build_igm_panel([], source="igm_us", origin="o", retrieved="d", input_sha256="h")
+
+
+def _roster(n=51):
+    return [
+        {"name": f"Person {i}", "institution": f"Inst {i}", "primary_field": f"Field {i} (X)"}
+        for i in range(1, n + 1)
+    ]
+
+
+def _named(records):
+    return build_named_panel(records, source="named", retrieved="2026-10-04", input_sha256="h")
+
+
+def test_named_panel_has_three_traits_in_roster_order_and_provenance():
+    panel = _named(_roster())
+    assert [p.id for p in panel.personas][:2] == ["named_01", "named_02"]
+    assert panel.personas[-1].id == "named_51"
+    assert panel.traits[0] == {
+        "name": "Person 1", "institution": "Inst 1", "primary_field": "Field 1 (X)",
+    }  # fmt: skip
+    prov = panel.provenance
+    assert prov["kind"] == "named" and prov["stand_in"] is False and prov["n"] == 51
+    assert prov["retrieved"] == "2026-10-04" and prov["input_sha256"] == "h"
+    assert "Table 7" in prov["origin"] and "7470000" in prov["origin"]
+    assert "Cochrane" in prov["notes"] and "excluded" in prov["notes"]
+
+
+def test_named_persona_text_is_exactly_the_three_traits():
+    panel = _named(_roster())
+    for p, t in zip(panel.personas, panel.traits, strict=True):
+        assert p.description == (
+            f"Your traits: {{'name': '{t['name']}', 'institution': '{t['institution']}', "
+            f"'primary_field': '{t['primary_field']}'}}"
+        )  # nothing beyond the three traits: no opinions, no reported results
+
+
+@pytest.mark.parametrize("n", [0, 50, 52])
+def test_named_builder_requires_exactly_51(n):
+    with pytest.raises(ValueError, match="51"):
+        _named(_roster(n))
+
+
+def test_named_builder_refuses_duplicate_names():
+    records = _roster()
+    records[1] = dict(records[1], name=records[0]["name"])
+    with pytest.raises(ValueError, match="unique"):
+        _named(records)
+
+
+def test_named_builder_refuses_missing_or_extra_columns():
+    records = _roster()
+    records[3] = {"name": "x", "institution": "y"}
+    with pytest.raises(ValueError, match="primary_field"):
+        _named(records)
+    records = [dict(r, stance="pro") for r in _roster()]
+    with pytest.raises(ValueError, match="stance"):
+        _named(records)

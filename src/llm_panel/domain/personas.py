@@ -117,3 +117,51 @@ def build_igm_panel(
         "notes": "Public expert-panel data, not the authors' personas.",
     }
     return _panel(source, source, traits, provenance)
+
+
+NAMED_TRAITS = ("name", "institution", "primary_field")
+NAMED_PANEL_SIZE = 51
+
+
+def build_named_panel(
+    records: Sequence[Mapping[str, str]],
+    *,
+    source: str,
+    retrieved: str,
+    input_sha256: str,
+) -> PersonaPanel:
+    """The paper's 51 named economists (Appendix A, Table 7), in table order.
+
+    Persona content is limited to the three traits the paper publishes; nothing about any
+    economist's views or results is added.
+    """
+    if len(records) != NAMED_PANEL_SIZE:
+        raise ValueError(f"roster must have exactly {NAMED_PANEL_SIZE} names, got {len(records)}")
+    for record in records:
+        if set(record) != set(NAMED_TRAITS):
+            missing = sorted(set(NAMED_TRAITS) - set(record))
+            extra = sorted(set(record) - set(NAMED_TRAITS))
+            raise ValueError(
+                f"roster columns must be {list(NAMED_TRAITS)}; missing {missing}, extra {extra}"
+            )
+    names = [r["name"] for r in records]
+    if len(set(names)) != len(names):
+        raise ValueError("roster names must be unique")
+    traits = [{k: record[k] for k in NAMED_TRAITS} for record in records]
+    provenance = {
+        "source": source,
+        "kind": "named",
+        "stand_in": False,
+        "n": len(traits),
+        "origin": "Jacobs and Imas, Economic Policy for AGI (SSRN 7470000), Appendix A, Table 7",
+        "table": "Table 7. Simulated Economist Panel Roster (N = 51)",
+        "retrieved": retrieved,
+        "input_sha256": input_sha256,
+        "method": "one persona per Table 7 row, in table order; traits are name, institution "
+        "and primary field exactly as printed",
+        "notes": "John Cochrane is named in the paper text but absent from Table 7; he is "
+        "excluded, so the roster follows the table. Table 7 status marks (alumni, hiatus) "
+        "were dropped: they are not traits. Persona text carries only the three published "
+        "traits, no reported results or opinions.",
+    }
+    return _panel(source, source, traits, provenance)

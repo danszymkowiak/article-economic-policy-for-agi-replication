@@ -1,5 +1,6 @@
 import csv
 import hashlib
+from pathlib import Path
 
 import yaml
 
@@ -80,3 +81,35 @@ def test_build_personas_igm_refuses_identifying_columns(tmp_path, capsys):
                  "--out", str(out)])  # fmt: skip
     assert code == 2 and "identif" in capsys.readouterr().err
     assert not (out / "personas" / "igm_us.yaml").exists()
+
+
+def _named_cli(tmp_path, roster, out):
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text("max_spend_usd: 1\n")
+    return main(["--config", str(cfg), "build-personas", "named", "--roster", str(roster),
+                 "--source", "named", "--retrieved", "2026-10-04", "--out", str(out)])  # fmt: skip
+
+
+def test_named_builder_regenerates_the_committed_file_deterministically(tmp_path):
+    roster = Path(__file__).parents[2] / "personas" / "sources" / "table7_roster.csv"
+    committed = Path(__file__).parents[2] / "personas" / "named.yaml"
+    out = _inputs(tmp_path)
+    assert _named_cli(tmp_path, roster, out) == 0
+    assert (out / "personas" / "named.yaml").read_text("utf-8") == committed.read_text("utf-8")
+    doc = yaml.safe_load(committed.read_text("utf-8"))
+    assert len(doc["personas"]) == 51
+    assert len({p["traits"]["name"] for p in doc["personas"]}) == 51
+    assert not any("Cochrane" in p["traits"]["name"] for p in doc["personas"])
+    assert "Cochrane" in doc["provenance"]["notes"]
+    assert doc["provenance"]["input_sha256"] == hashlib.sha256(roster.read_bytes()).hexdigest()
+    assert all(set(p["traits"]) == {"name", "institution", "primary_field"}
+               for p in doc["personas"])  # fmt: skip
+
+
+def test_named_builder_refuses_a_short_roster(tmp_path, capsys):
+    out = _inputs(tmp_path)
+    src = tmp_path / "roster.csv"
+    src.write_text("name,institution,primary_field\nA,B,C\n", "utf-8")
+    assert _named_cli(tmp_path, src, out) == 2
+    assert "51" in capsys.readouterr().err
+    assert not (out / "personas" / "named.yaml").exists()

@@ -37,7 +37,11 @@ from llm_panel.bootstrap.providers import (
 )
 from llm_panel.bootstrap.smoketest_loader import load_expectations
 from llm_panel.domain.design import to_run_specs
-from llm_panel.domain.personas import build_igm_panel, build_synthetic_panel
+from llm_panel.domain.personas import (
+    build_igm_panel,
+    build_named_panel,
+    build_synthetic_panel,
+)
 from llm_panel.domain.pricing import HARD_CEILING_USD, MissingPriceError
 from llm_panel.domain.smoketest import evaluate
 from llm_panel.ports import ProviderConfigError
@@ -97,7 +101,11 @@ def build_parser() -> argparse.ArgumentParser:
     igm.add_argument("--source", required=True, help="e.g. igm_us or igm_europe")
     igm.add_argument("--origin", required=True)
     igm.add_argument("--retrieved", required=True)
-    for p in (synth, igm):
+    named = kinds.add_parser("named", help="the paper's named economists (Table 7 roster CSV)")
+    named.add_argument("--roster", required=True)
+    named.add_argument("--source", default="named")
+    named.add_argument("--retrieved", required=True)
+    for p in (synth, igm, named):
         p.add_argument("--out", required=True, help="inputs directory")
     check = sub.add_parser("check", help="check smoketest expectations against the store")
     check.add_argument("--expectations", required=True)
@@ -148,13 +156,18 @@ def _build_personas(args) -> int:
     try:
         if args.kind == "synthetic":
             panel = build_synthetic_panel(args.n, args.seed, args.source)
+        elif args.kind == "named":
+            records, digest = read_records(args.roster)
+            panel = build_named_panel(
+                records, source=args.source, retrieved=args.retrieved, input_sha256=digest
+            )
         else:
             records, digest = read_records(args.records)
             panel = build_igm_panel(
                 records, source=args.source, origin=args.origin, retrieved=args.retrieved,
                 input_sha256=digest,
             )  # fmt: skip
-    except ValueError as exc:  # e.g. identifying fields or no records
+    except ValueError as exc:  # e.g. identifying fields, no records, bad roster
         print(f"REFUSED: {exc}", file=sys.stderr)
         return REFUSED
     try:
