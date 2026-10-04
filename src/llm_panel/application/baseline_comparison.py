@@ -7,7 +7,7 @@ import csv
 import io
 import math
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import PurePath
 
 from llm_panel.domain.analysis_baseline import (
@@ -21,11 +21,18 @@ from llm_panel.domain.analysis_baseline import (
     repeat_mean_panel,
 )
 from llm_panel.domain.models import RenderedJob
-from llm_panel.domain.results import STATUS_FAILED, STATUS_INVALID, STATUS_OK
+from llm_panel.domain.results import (
+    STATUS_DEFERRED,
+    STATUS_DUPLICATE,
+    STATUS_FAILED,
+    STATUS_INVALID,
+    STATUS_OK,
+)
 from llm_panel.domain.validation import InvalidResponse, parse_ratings
 from llm_panel.ports import ResultStore
 
 BASELINE_CELL = "B"
+ESSAY_COMPOSITES = ("welfare_resilience", "agency_voice", "scenario_durability")
 DIMENSIONS = ("welfare_resilience", "agency_voice", "feasibility", "scenario_durability")
 
 
@@ -33,6 +40,22 @@ DIMENSIONS = ("welfare_resilience", "agency_voice", "feasibility", "scenario_dur
 class CellCounts:
     ok_jobs: int
     not_ok_jobs: int  # failed, awaiting retry, or stored ok but no longer parsing
+    failed_jobs: int = 0  # of those, terminally failed
+    deferred_jobs: int = 0  # retry withheld (e.g. spend ceiling), not ok and not failed
+    duplicate_rows: int = 0  # usage-only rows: the job already finished via another batch
+
+    def cells(self) -> str:
+        """The count columns of a report table row, matching COUNT_HEADER."""
+        return (f"{self.ok_jobs} | {self.not_ok_jobs} (failed {self.failed_jobs}) "
+                f"| {self.deferred_jobs} | {self.duplicate_rows}")  # fmt: skip
+
+
+COUNT_HEADER = "ok jobs | not ok | deferred | duplicate rows"
+COUNT_NOTE = (
+    "Counts: not ok = failed, awaiting retry, or stored ok but no longer parsing (failed = "
+    "terminal failures among them); deferred = retry withheld, rerun later; duplicate rows = "
+    "usage-only rows for jobs already finished (not outcomes)."
+)
 
 
 @dataclass(frozen=True)
@@ -44,6 +67,8 @@ class BaselineComparison:
     agreements: list[Agreement]
     provenance: tuple[str, ...]
     policy_order: tuple[str, ...]
+    r8_check: list[Agreement] = field(default_factory=list)  # Table 4 means vs essay composites
+    essay_agreements: list[Agreement] = field(default_factory=list)  # ours vs essay composites
 
 
 def cell_observations(store: ResultStore) -> dict[str, tuple[list[Observation], CellCounts]]:
@@ -52,6 +77,9 @@ def cell_observations(store: ResultStore) -> dict[str, tuple[list[Observation], 
     do not."""
     ok: dict[str, set[str]] = defaultdict(set)
     attempted: dict[str, set[str]] = defaultdict(set)
+    failed: dict[str, set[str]] = defaultdict(set)
+    deferred: dict[str, set[str]] = defaultdict(set)
+    duplicates: dict[str, int] = defaultdict(int)
     observations: dict[str, list[Observation]] = defaultdict(list)
     for row in store.iter_rows():
         cell_id = (row.request or {}).get("cell_id")
@@ -59,6 +87,12 @@ def cell_observations(store: ResultStore) -> dict[str, tuple[list[Observation], 
             continue
         if row.status in (STATUS_OK, STATUS_INVALID, STATUS_FAILED):
             attempted[cell_id].add(row.job_id)
+        if row.status == STATUS_FAILED:
+            failed[cell_id].add(row.job_id)
+        elif row.status == STATUS_DEFERRED:
+            deferred[cell_id].add(row.job_id)
+        elif row.status == STATUS_DUPLICATE:
+            duplicates[cell_id] += 1
         if row.status != STATUS_OK or row.job_id in ok[cell_id]:
             continue
         job = RenderedJob.from_dict(row.request)
@@ -72,8 +106,17 @@ def cell_observations(store: ResultStore) -> dict[str, tuple[list[Observation], 
             for r in ratings
         ]
     return {
-        cell: (observations[cell], CellCounts(len(ok[cell]), len(attempted[cell] - ok[cell])))
-        for cell in attempted
+        cell: (
+            observations[cell],
+            CellCounts(
+                len(ok[cell]),
+                len(attempted[cell] - ok[cell]),
+                len(failed[cell] - ok[cell]),
+                len(deferred[cell] - ok[cell] - failed[cell]),
+                duplicates[cell],
+            ),
+        )
+        for cell in attempted | deferred.keys() | duplicates.keys()
     }
 
 
@@ -85,16 +128,26 @@ def baseline_observations(
 
 
 def run_baseline_comparison(
-    store: ResultStore, published: PublishedTable, cell_id: str = BASELINE_CELL
+    store: ResultStore,
+    published: PublishedTable,
+    cell_id: str = BASELINE_CELL,
+    essay: PublishedTable | None = None,
 ) -> BaselineComparison:
     observations, counts = baseline_observations(store, cell_id)
     panel = repeat_mean_panel(observations)
     ours = composite_scores(panel.scores)
     theirs = composite_scores(published.scores)
+    r8_check: list[Agreement] = []
+    essay_agreements: list[Agreement] = []
+    if essay is not None:
+        shared = tuple(c for c in ESSAY_COMPOSITES if c in essay.scores)
+        r8_check = compare(theirs, essay.scores, shared)
+        essay_agreements = compare(ours, essay.scores, shared)
     return BaselineComparison(
         panel=panel, counts=counts, ours=ours, published=theirs,
         agreements=compare(ours, theirs, tuple(COMPOSITES)),
         provenance=published.provenance, policy_order=published.policy_order,
+        r8_check=r8_check, essay_agreements=essay_agreements,
     )  # fmt: skip
 
 
@@ -118,9 +171,11 @@ def render_markdown(result: BaselineComparison, store_path: str) -> str:
         ]
     p, c = result.panel, result.counts
     lines += [
-        f"- Store: `{store_path}`; cell B ok jobs {c.ok_jobs}, not ok {c.not_ok_jobs}.",
+        f"- Store: `{store_path}`; cell B ok jobs {c.ok_jobs}, not ok {c.not_ok_jobs} "
+        f"(failed {c.failed_jobs}), deferred {c.deferred_jobs}, duplicate rows {c.duplicate_rows}.",
         f"- Repeats {p.n_repeats}; persona x policy pairs complete in every repeat {p.n_pairs} "
         f"(dropped {p.dropped_pairs}). Scores are repeat means of the unweighted panel mean.",
+        f"- {COUNT_NOTE}",
         "- Published source:",
         *[f"  {line}" for line in result.provenance],
         "",
@@ -171,7 +226,39 @@ def render_markdown(result: BaselineComparison, store_path: str) -> str:
             for d in DIMENSIONS
         ]
         lines.append(f"| {policy} | " + " | ".join(cells) + " |")
+    if result.essay_agreements:
+        lines += _essay_section(result)
     return "\n".join(lines) + "\n"
+
+
+def _essay_section(result: BaselineComparison) -> list[str]:
+    lines = [
+        "",
+        "## Essay composite tables (reconstruction R8)",
+        "",
+        "The essay prints a composite per policy for Welfare, Agency and Durability. First check "
+        "(R8): the unweighted mean of the published Table 4 columns against the essay's composite. "
+        "Second: our baseline B against the same essay composites.",
+        "",
+        "| Composite | Policies | R8: max abs. diff | R8: Spearman | B vs essay: Spearman "
+        "| B vs essay: Kendall tau-b | B vs essay: mean abs. diff |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for r8, ours in zip(result.r8_check, result.essay_agreements, strict=True):
+        worst = max((abs(d) for d in r8.differences.values()), default=math.nan)
+        lines.append(
+            f"| {r8.composite} | {ours.n_policies} | {_num(worst, 2)} | {_num(r8.spearman)} "
+            f"| {_num(ours.spearman)} | {_num(ours.kendall_tau_b)} "
+            f"| {_num(ours.mean_abs_diff, 1)} |"
+        )
+    lines += [
+        "",
+        "- Feasibility is not compared: the essay's composite averages six columns, including "
+        "Popular Support (survey data) and Admin. Capacity and Speed as two columns, which our "
+        "panel does not rate separately; it is transcribed for reference only.",
+        "- R8 differences below 0.1 are rounding of the printed one-decimal values.",
+    ]
+    return lines
 
 
 def _csv(header: list[str], rows: list[list]) -> str:

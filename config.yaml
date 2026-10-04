@@ -2,7 +2,7 @@
 max_spend_usd: 15          # hard ceiling; values above 15 are rejected on load
 approved_providers: [fake, opencode] # opencode: user-approved 2026-10-03 for the free big-pickle smoketest only
 batch_discount: 1.0        # multiplier on list price; 1.0 = conservatively assume no discount
-est_output_tokens_per_policy: 600  # per rating; x ratings per call is also the max_tokens cap; 600 gave 18/18 valid for glm-5.3-flash (one rating per call)
+est_output_tokens_per_policy: 400  # per rating; x ratings per call is also the max_tokens cap (13 -> 5200). Pilot (20 calls, 13 ratings): output tokens per call min 1614, median ~2626, max 3471, so 5200 is 1.5x the max
 chars_per_token: 4.0
 # every config's ledger counts toward the global 15 USD hard cap (this config's own is skipped)
 counts_spend_from: ["config*.yaml", "adversarial/config*.yaml"]

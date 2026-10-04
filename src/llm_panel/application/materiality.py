@@ -7,16 +7,19 @@ import csv
 import io
 import math
 import statistics
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from llm_panel.application.baseline_comparison import (
     BASELINE_CELL,
+    COUNT_HEADER,
+    COUNT_NOTE,
     CellCounts,
     cell_observations,
     is_study_store,
 )
 from llm_panel.application.rank_stability import report_order
 from llm_panel.application.variance import FACTORS, rated_criteria
+from llm_panel.domain.analysis_baseline import TABLE4_CRITERIA
 from llm_panel.domain.analysis_materiality import (
     MARGINS,
     MATERIALITY_M,
@@ -33,7 +36,8 @@ class MaterialityReport:
     counts: dict[str, CellCounts]
     cells: dict[str, CellArray]
     cell_order: list[str]
-    results: list[Materiality]  # every cell but B; empty when the store holds no cell B ratings
+    results: list[Materiality]  # primary: the Table 4 criteria; every cell but B
+    extra_results: list[Materiality]  # descriptive: the added criteria only (prereg s10)
 
 
 def run_materiality(store: ResultStore) -> MaterialityReport:
@@ -46,12 +50,22 @@ def run_materiality(store: ResultStore) -> MaterialityReport:
         if obs
     }
     order = report_order(arrays)
-    results = []
+    results, extra_results = [], []
     if BASELINE_CELL in arrays:
-        b = arrays[BASELINE_CELL]
-        results = [materiality(b, arrays[c]) for c in order if c != BASELINE_CELL]
+        primary = {c: _restrict(a, keep_table4=True) for c, a in arrays.items()}
+        extras = {c: _restrict(a, keep_table4=False) for c, a in arrays.items()}
+        results = [materiality(primary[BASELINE_CELL], primary[c])
+                   for c in order if c != BASELINE_CELL]  # fmt: skip
+        if extras[BASELINE_CELL].criteria:
+            extra_results = [materiality(extras[BASELINE_CELL], extras[c])
+                             for c in order if c != BASELINE_CELL]  # fmt: skip
     counts = {cell: c for cell, (_, c) in by_cell.items()}
-    return MaterialityReport(counts, arrays, order, results)
+    return MaterialityReport(counts, arrays, order, results, extra_results)
+
+
+def _restrict(a: CellArray, *, keep_table4: bool) -> CellArray:
+    keep = [i for i, c in enumerate(a.criteria) if (c in TABLE4_CRITERIA) == keep_table4]
+    return replace(a, criteria=tuple(a.criteria[i] for i in keep), scores=a.scores[:, keep])
 
 
 def _num(value: float, digits: int = 2) -> str:
@@ -80,13 +94,14 @@ def render_markdown(report: MaterialityReport, store_path: str) -> str:
     lines += [
         "## Data",
         "",
-        "| Cell | ok jobs | not ok | repeats |",
-        "|---|---|---|---|",
+        f"| Cell | {COUNT_HEADER} | repeats |",
+        "|---|---|---|---|---|---|",
     ]
     for cell in report.cell_order:
         cnt = report.counts[cell]
-        lines.append(f"| {cell} | {cnt.ok_jobs} | {cnt.not_ok_jobs} "
+        lines.append(f"| {cell} | {cnt.cells()} "
                      f"| {len(report.cells[cell].repeats)} |")  # fmt: skip
+    lines += ["", f"_{COUNT_NOTE}_"]
     lines += [
         "",
         f"## Policy x criterion means shifted by more than M = {m:g} points (primary)",
@@ -120,6 +135,21 @@ def render_markdown(report: MaterialityReport, store_path: str) -> str:
         parts = [f"{u.policy_id} x {u.criterion} {u.shift:+.1f} ({_num(u.noise_multiple, 1)} SE)"
                  for u in beyond]  # fmt: skip
         lines.append(f"- {r.cell_id}: " + "; ".join(parts) + ".")
+    if report.extra_results:
+        lines += [
+            "",
+            f"## Added criteria (descriptive, not in the primary count), M = {m:g}",
+            "",
+            "Political Support and Administrative Capacity and Speed are not Table 4 columns "
+            "(prereg s10, 2026-10-04): counted here separately and never added to the primary "
+            "count above.",
+            "",
+            f"| Cell | units | beyond M = {m:g} | beyond {m_lo:g} | beyond {m_hi:g} |",
+            "|---|---|---|---|---|",
+        ]
+        for r in report.extra_results:
+            lines.append(f"| {r.cell_id} | {r.n_units} | {r.counts[m]} | {r.counts[m_lo]} "
+                         f"| {r.counts[m_hi]} |")  # fmt: skip
     lines += [
         "",
         "## How to read this",
@@ -153,29 +183,32 @@ def _cell(value: float) -> str:
 
 def render_counts_csv(report: MaterialityReport) -> str:
     rows = []
-    for r in report.results:
+    for r in (*report.results, *report.extra_results):
         for m in MARGINS:
             band = r.band[m]
             rows.append([
-                r.cell_id, FACTORS.get(r.cell_id, ""), r.pairing, r.k_b, r.k_cell, f"{m:g}",
-                m == MATERIALITY_M, r.counts[m], r.n_units, _cell(r.noise_se),
+                "table4" if r in report.results else "added", r.cell_id,
+                FACTORS.get(r.cell_id, ""), r.pairing, r.k_b, r.k_cell, f"{m:g}",
+                m == MATERIALITY_M and r in report.results, r.counts[m], r.n_units,
+                _cell(r.noise_se),
                 _cell(m / r.noise_se if r.noise_se > 0 else math.nan), r.noise_source,
                 min(band) if band else "", statistics.median(band) if band else "",
                 max(band) if band else "", len(band),
             ])  # fmt: skip
-    header = ["cell_id", "factor", "pairing", "k_b", "k_cell", "m", "primary", "count",
-              "n_units", "noise_se", "m_noise_multiple", "noise_source", "band_min",
+    header = ["criteria_set", "cell_id", "factor", "pairing", "k_b", "k_cell", "m", "primary",
+              "count", "n_units", "noise_se", "m_noise_multiple", "noise_source", "band_min",
               "band_median", "band_max", "n_splits"]  # fmt: skip
     return _csv(header, rows)
 
 
 def render_units_csv(report: MaterialityReport) -> str:
     rows = [
-        [r.cell_id, u.policy_id, u.criterion, _cell(u.b_mean), _cell(u.cell_mean),
+        ["table4" if r in report.results else "added", r.cell_id, u.policy_id, u.criterion,
+         _cell(u.b_mean), _cell(u.cell_mean),
          _cell(u.shift), _cell(u.noise_multiple), *(u.beyond(m) for m in MARGINS)]
-        for r in report.results
+        for r in (*report.results, *report.extra_results)
         for u in r.units
     ]  # fmt: skip
-    header = ["cell_id", "policy_id", "criterion", "b_mean", "cell_mean", "shift",
+    header = ["criteria_set", "cell_id", "policy_id", "criterion", "b_mean", "cell_mean", "shift",
               "noise_multiple", *(f"beyond_{m:g}" for m in MARGINS)]  # fmt: skip
     return _csv(header, rows)

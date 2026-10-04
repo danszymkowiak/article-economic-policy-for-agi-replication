@@ -1,0 +1,24 @@
+# STUDY design (DRAFT until the prereg is frozen). One-at-a-time design, prereg s5 and s8.
+# Settings chosen by the implementer on 2026-10-04 with the user's delegation (TASK-34 AC6):
+#   k_r 5, k_q 3        the indicative floors; at the pilot's ~0.0015 USD per call the full plan
+#                       is about 39 USD, so it runs in stages under the 15 USD ceiling
+#   rt_temperatures     0.0 and 1.0: the pilot did not establish the provider default, so the
+#                       two natural bounds; with temperature null (default) as B
+#   D3 omitted          no second study model is approved (TASK-13); reported as not run
+order_seed: 20261004
+base_seed: 0
+design: one_at_a_time
+baseline:
+  model: {provider: opencode, snapshot: glm-5.3-flash}  # Zen alias; responses log the reported id
+  temperature: null       # provider default
+  persona_source: named
+  evidence: wikipedia
+n_personas: 51
+k_r: 5
+k_q: 3
+d2_repeats: 51
+rt_temperatures: [0.0, 1.0]
+d_cells:
+  D1: {}
+  D2: {}
+  D2b: {persona_source: reconstructed}

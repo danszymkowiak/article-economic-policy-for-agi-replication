@@ -239,7 +239,7 @@ ADV_CONFIG = REPO / "adversarial" / "config.adversarial.yaml"
 
 def test_committed_config_has_its_own_store_ceiling_and_counts_global_spend():
     cfg, settings = load_arm_config(ADV_CONFIG)
-    assert cfg.spend.max_spend_usd == 1.5
+    assert cfg.spend.max_spend_usd == 2.5
     assert cfg.raw_store.resolve().is_relative_to((REPO / "adversarial" / "results").resolve())
     assert cfg.ledger.resolve().is_relative_to((REPO / "adversarial" / "results").resolve())
     matched = {Path(p).resolve() for pat in cfg.counts_spend_from for p in glob.glob(str(pat))}

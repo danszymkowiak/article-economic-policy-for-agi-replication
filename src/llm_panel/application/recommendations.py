@@ -13,6 +13,8 @@ from dataclasses import dataclass
 
 from llm_panel.application.baseline_comparison import (
     BASELINE_CELL,
+    COUNT_HEADER,
+    COUNT_NOTE,
     CellCounts,
     cell_observations,
     is_study_store,
@@ -151,15 +153,14 @@ def render_markdown(report: RecommendationReport, store_path: str) -> str:
     lines += [
         "## Data",
         "",
-        "| Cell | ok jobs | not ok | repeats | pairing with B |",
-        "|---|---|---|---|---|",
+        f"| Cell | {COUNT_HEADER} | repeats | pairing with B |",
+        "|---|---|---|---|---|---|---|",
     ]
     for cell in report.cell_order:
         cnt, res = report.counts[cell], results[cell]
         pairing = "(reference)" if cell == BASELINE_CELL else res.pairing
-        lines.append(
-            f"| {cell} | {cnt.ok_jobs} | {cnt.not_ok_jobs} | {res.n_repeats} | {pairing} |"
-        )
+        lines.append(f"| {cell} | {cnt.cells()} | {res.n_repeats} | {pairing} |")
+    lines += ["", f"_{COUNT_NOTE}_"]
     lines += [
         "",
         "## Clauses (prereg s6)",

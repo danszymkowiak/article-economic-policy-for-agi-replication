@@ -24,6 +24,7 @@ from llm_panel.domain.results import StoredRow
 
 REPO = Path(__file__).parents[1]
 PUBLISHED = load_published(REPO / "analysis" / "published" / "paper_table4.csv")
+ESSAY = load_published(REPO / "analysis" / "published" / "essay_composites.csv")
 CRITERIA = (*TABLE4_CRITERIA, "political_support", "admin_capacity_speed")
 
 
@@ -128,3 +129,42 @@ def test_cli_analyze_baseline_writes_report(tmp_path, store, capsys):
     assert (out / "baseline_agreement.csv").exists()
     assert (out / "baseline_policy_scores.csv").exists()
     assert "baseline_comparison.md" in capsys.readouterr().out
+
+
+ESSAY_COMPOSITES = ("welfare_resilience", "agency_voice", "scenario_durability")
+
+
+def test_r8_unweighted_means_of_table4_reproduce_the_essay_composites(store):
+    result = run_baseline_comparison(store, PUBLISHED, essay=ESSAY)
+    assert [a.composite for a in result.r8_check] == list(ESSAY_COMPOSITES)
+    for a in result.r8_check:
+        assert a.n_policies == 11
+        assert max(abs(d) for d in a.differences.values()) < 0.1  # rounding of the printed values
+        assert a.spearman == pytest.approx(1.0)
+
+
+def test_our_baseline_is_compared_with_the_essay_composites(store):
+    result = run_baseline_comparison(store, PUBLISHED, essay=ESSAY)
+    assert [a.composite for a in result.essay_agreements] == list(ESSAY_COMPOSITES)
+    assert all(a.n_policies == 11 for a in result.essay_agreements)
+    text = render_markdown(result, "results/raw/rows.jsonl")
+    assert "Essay composite tables" in text and "reconstruction R8" in text
+    assert "Feasibility is not compared" in text
+
+
+def test_without_essay_nothing_extra_is_reported(store):
+    result = run_baseline_comparison(store, PUBLISHED)
+    assert result.r8_check == [] and result.essay_agreements == []
+    assert "Essay composite tables" not in render_markdown(result, "results/raw/rows.jsonl")
+
+
+def test_counts_split_failed_deferred_and_duplicate(store):
+    store.append(_row("p4", "ubc", lambda c: 0.0, status="deferred"))
+    store.append(_row("p5", "ubc", lambda c: 0.0, status="duplicate"))
+    store.append(_row("p5", "ubc", lambda c: 0.0, status="duplicate"))
+    _, counts = baseline_observations(store)
+    assert counts.ok_jobs == 44 and counts.not_ok_jobs == 2
+    assert counts.failed_jobs == 1  # the failed job; the malformed ok row is not "failed"
+    assert counts.deferred_jobs == 1 and counts.duplicate_rows == 2
+    text = render_markdown(run_baseline_comparison(store, PUBLISHED), "results/raw/rows.jsonl")
+    assert "failed 1" in text and "deferred 1" in text and "duplicate rows 2" in text

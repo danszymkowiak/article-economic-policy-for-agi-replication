@@ -1,11 +1,11 @@
 # ADVERSARIAL ARM configuration (prereg s9; TASK-22). NOT POOLED WITH THE MAIN ANALYSIS.
-# Own store and ledger under adversarial/results/, own ceiling (1.50 USD), and its spend counts
+# Own store and ledger under adversarial/results/, own ceiling (2.50 USD), and its spend counts
 # toward the global 15 USD hard cap: this config counts every root config's ledger, and every root
 # config counts this one (counts_spend_from: adversarial/config*.yaml).
 # Use: uv run python -m adversarial plan | submit --confirm | collect | report
 # DRAFT: no paid runs before the prereg is frozen. Paid use needs the provider added to
 # approved_providers by the user; until then submit refuses opencode jobs.
-max_spend_usd: 1.50
+max_spend_usd: 2.50
 approved_providers: [fake]
 batch_discount: 1.0
 est_output_tokens_per_policy: 600  # as config.yaml (per rating; also the max_tokens cap)

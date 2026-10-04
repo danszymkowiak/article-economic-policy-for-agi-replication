@@ -186,6 +186,11 @@ def build_parser() -> argparse.ArgumentParser:
         default="analysis/published/paper_table4.csv",
         help="transcribed published scores (relative to the config's folder)",
     )
+    baseline.add_argument(
+        "--essay",
+        default="analysis/published/essay_composites.csv",
+        help="the essay's composite tables (R8 check); skipped when the file is absent",
+    )
     baseline.add_argument("--out", default="analysis/baseline", help="report directory")
     ranks = analyses.add_parser("ranks", help="rank stability of every cell versus B")
     ranks.add_argument("--out", default="analysis/ranks", help="report directory")
@@ -294,7 +299,9 @@ def _store_label(raw_store: Path, config_dir: Path) -> str:
 
 def _analyze_baseline(args, config_dir: Path, raw_store: Path, store) -> int:
     published = load_published(config_dir / args.published)
-    result = run_baseline_comparison(store, published)
+    essay_path = config_dir / args.essay
+    essay = load_published(essay_path) if essay_path.exists() else None
+    result = run_baseline_comparison(store, published, essay=essay)
     out = config_dir / args.out
     out.mkdir(parents=True, exist_ok=True)
     label = _store_label(raw_store, config_dir)

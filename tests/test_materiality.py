@@ -2,6 +2,7 @@
 
 import csv
 import io
+import shutil
 
 import numpy as np
 import pytest
@@ -14,6 +15,7 @@ from llm_panel.application.materiality import (
     run_materiality,
 )
 from llm_panel.bootstrap.cli import main
+from llm_panel.domain.analysis_baseline import TABLE4_CRITERIA
 from tests.test_variance import CRITERIA, PERSONAS, POLICIES, _row
 
 UP = (3, 0)  # policy index, criterion index shifted up by 10 in Q1
@@ -50,7 +52,7 @@ def test_run_materiality_counts_the_planted_unit_only(store):
     assert report.cell_order == ["B", "Q1", "Q4"]
     by_cell = {m.cell_id: m for m in report.results}
     q1, q4 = by_cell["Q1"], by_cell["Q4"]
-    assert q1.n_units == len(POLICIES) * len(CRITERIA)
+    assert q1.n_units == len(POLICIES) * len(TABLE4_CRITERIA)
     assert q1.counts[5.0] == 1 and q4.counts[5.0] == 0
     (unit,) = [u for u in q1.units if u.beyond(5.0)]
     assert (unit.policy_id, unit.criterion) == (POLICIES[UP[0]], CRITERIA[UP[1]])
@@ -77,6 +79,9 @@ def test_markdown_without_cell_b(tmp_path):
 def test_csvs(store):
     report = run_materiality(store)
     counts = list(csv.DictReader(io.StringIO(render_counts_csv(report))))
+    assert {r["criteria_set"] for r in counts} == {"table4", "added"}
+    assert not any(r["primary"] == "True" for r in counts if r["criteria_set"] == "added")
+    counts = [r for r in counts if r["criteria_set"] == "table4"]
     assert [(r["cell_id"], r["m"]) for r in counts] == [
         (c, m) for c in ("Q1", "Q4") for m in ("3", "5", "8")
     ]
@@ -85,6 +90,9 @@ def test_csvs(store):
     assert {"n_units", "noise_se", "band_min", "band_max", "n_splits"} <= set(counts[0])
     units = list(csv.DictReader(io.StringIO(render_units_csv(report))))
     assert len(units) == 2 * len(POLICIES) * len(CRITERIA)
+    assert sum(u["criteria_set"] == "table4" for u in units) == 2 * len(POLICIES) * len(
+        TABLE4_CRITERIA
+    )
     assert {"shift", "noise_multiple", "beyond_5"} <= set(units[0])
 
 
@@ -103,3 +111,22 @@ def test_cli_analyze_materiality_writes_report(store_dir, capsys):
     assert "NON-INFERENCE" in (out / "materiality.md").read_text()
     assert (out / "materiality_counts.csv").exists() and (out / "materiality_units.csv").exists()
     assert "materiality.md" in capsys.readouterr().out
+
+
+def test_primary_count_is_the_table4_criteria_and_extras_are_separate(store_dir, tmp_path):
+    """Prereg s10 (TASK-34): the 2 added criteria never enter the primary count."""
+    shutil.copy(store_dir / "rows.jsonl", tmp_path / "rows.jsonl")
+    s = JsonlResultStore(tmp_path / "rows.jsonl")
+    extra = CRITERIA.index("political_support")
+    for repeat in range(2):  # plant +10 on an extra criterion in Q4, policy 0
+        for pid in PERSONAS:
+            scores = [50.0] * len(CRITERIA)
+            scores[extra] = 90.0
+            s.append(_row("Q4", pid, POLICIES[0], scores, repeat=repeat + 10))
+    report = run_materiality(s)
+    q4 = {m.cell_id: m for m in report.results}["Q4"]
+    assert all(u.criterion in TABLE4_CRITERIA for u in q4.units)
+    extras = {m.cell_id: m for m in report.extra_results}["Q4"]
+    assert {u.criterion for u in extras.units} == set(CRITERIA) - set(TABLE4_CRITERIA)
+    md = render_markdown(report, "results/raw/rows.jsonl")
+    assert "Added criteria (descriptive" in md

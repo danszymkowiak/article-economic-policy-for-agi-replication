@@ -1,0 +1,17 @@
+# Composite scores printed in the essay's four composite tables (docs/economic-policy-for-agi.html), transcribed 2026-10-04.
+# Welfare and resilience, Agency and democratic empowerment, Durability across scenarios and Feasibility and implementation.
+# Column ids are our composite ids (scenario_durability is the paper's Composite Durability Score). The essay's
+# feasibility composite is the mean of SIX columns including Popular Support (survey data) and Admin. Capacity and Speed
+# as two columns, so it is stored for reference (feasibility_essay_six) and is not reproducible from our panel columns.
+policy_id,welfare_resilience,agency_voice,scenario_durability,feasibility_essay_six
+nit,69.8,53.7,69.6,50.2
+eitc,68.8,47.2,51.0,79.8
+ui,66.7,43.7,62.0,54.3
+ubc,62.0,76.3,74.2,33.1
+ubs,60.7,41.9,75.0,34.5
+sawf,53.7,55.2,63.5,38.4
+ubi,51.2,53.1,57.7,35.5
+directed_industrial_policy,49.1,52.1,51.4,41.2
+wage_insurance,47.4,44.7,35.9,48.2
+fjg,44.4,46.2,35.0,28.4
+almp,36.9,37.0,23.0,48.0

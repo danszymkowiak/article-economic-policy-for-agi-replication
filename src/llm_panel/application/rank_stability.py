@@ -11,6 +11,8 @@ from dataclasses import dataclass
 
 from llm_panel.application.baseline_comparison import (
     BASELINE_CELL,
+    COUNT_HEADER,
+    COUNT_NOTE,
     CellCounts,
     cell_observations,
     is_study_store,
@@ -102,16 +104,17 @@ def render_markdown(report: RankStabilityReport, store_path: str) -> str:
     lines += [
         "## Data",
         "",
-        "| Cell | ok jobs | not ok | repeats | personas | pairing with B |",
-        "|---|---|---|---|---|---|",
+        f"| Cell | {COUNT_HEADER} | repeats | personas | pairing with B |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for cell in report.cell_order:
         arr, cnt = report.cells[cell], report.counts[cell]
         lines.append(
-            f"| {cell} | {cnt.ok_jobs} | {cnt.not_ok_jobs} | {len(arr.repeats)} "
+            f"| {cell} | {cnt.cells()} | {len(arr.repeats)} "
             f"| {len(arr.persona_ids) if arr.has_personas else 0} "
             f"| {'(reference)' if cell == BASELINE_CELL else pairing.get(cell, '')} |"
         )
+    lines += ["", f"_{COUNT_NOTE}_"]
     placeholder = (
         " This count is a **placeholder**: prereg s12 item 6 (persona bootstrap resample count) "
         "is still open." if res.resamples == DEFAULT_RESAMPLES else

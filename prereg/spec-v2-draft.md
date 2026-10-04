@@ -137,7 +137,7 @@ from Table 4; the published data pass them, so the baseline is not a test of the
 with the continuous margin (score gap to the next policy) per clause:
 (a) UBC rank 1 on Full Transformation durability (published margin 15.5);
 (b) UBC rank 1 on Ownership of Gains (margin 40.0);
-(c) NIT in the top 3 on Moderate durability (published rank 2; margin to rank 4 is 3.8);
+(c) NIT in the top 3 on Moderate durability (published rank 2; margin to UI at rank 4 is 3.9);
 (d) UI and EITC both in the top 4 on Mild durability (published ranks 3 and 4; EITC margin 5.9) and
 both below UBC on Full Transformation durability.
 The paper's Mild-scenario recommendation also names employer-led retraining; ALMP scores 42.5 on

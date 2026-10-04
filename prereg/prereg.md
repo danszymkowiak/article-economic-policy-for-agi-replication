@@ -154,11 +154,14 @@ does repeats measure sampling noise and are not reproducible by seed.
 **Primary, per Q cell and for each R-T cell versus B, compared with the same quantities in R:**
 
 1. **Flip counts:** (a) the four recommendation clauses below, flipped or not in each single run
-   and in the repeat-mean; (b) tier changes among the paper's tiers for the composites in Table 4.
-2. **Materiality shifts:** the number of policy x criterion panel means whose |shift| from B
-   exceeds **M = 5 points** (about one-sixth of a tier width and far above the paper's one-decimal
+   and in the repeat-mean. (Tier changes are not a metric: the paper defines no usable tiers, and
+   the essay's cut-offs are inconsistent, e.g. Mixed 42-54 or 40-54.)
+2. **Materiality shifts:** the number of policy x criterion panel means, over the 11 Table 4
+   criteria, whose |shift| from B exceeds **M = 5 points** (about one-sixth of a tier width and far above the paper's one-decimal
    precision; set now, not from data), with the repeat-noise multiple. Sensitivity to M (3 and 8)
-   is shown descriptively and is not used to pick M.
+   is shown descriptively and is not used to pick M. The two added criteria (Political Support,
+   Administrative Capacity and Speed) are counted separately and descriptively, never in the primary
+   count.
 
 **Rank metrics, reported for every cell (the paper makes its recommendations by rank order) but
 secondary to flips:** Kendall tau on the three durability composites and each dimension composite
@@ -176,7 +179,7 @@ with its continuous margin (score gap to the next policy):
 
 - (a) UBC rank 1 on Full Transformation durability (published margin 15.5);
 - (b) UBC rank 1 on Ownership of Gains (margin 40.0);
-- (c) NIT in the top 3 on Moderate durability (published rank 2; margin to rank 4 is 3.8);
+- (c) NIT in the top 3 on Moderate durability (published rank 2; margin to UI at rank 4 is 3.9);
 - (d) UI and EITC both in the top 4 on Mild durability (published ranks 3 and 4; EITC margin 5.9)
   and both below UBC on Full Transformation durability.
 
@@ -186,7 +189,9 @@ reported as such. Also reported, recomputed per cell: the paper's r(public net a
 Transformation durability) = -0.57 (recomputed -0.569 from Table 4; approvals are fixed survey
 inputs) and r(Readiness, Full Transformation durability) = -0.51.
 
-**Secondary descriptives:** persona-level SD across repeats and the effective number of raters;
+**Secondary descriptives:** persona-level SD across repeats and the effective number of raters
+(primary ICC: per policy x criterion cell; the per-criterion agreement across policies is
+secondary);
 within-call correlation among criteria (halo); variance decomposition with persona x policy crossed
 random effects and cells as fixed effects.
 
@@ -269,14 +274,14 @@ stability. Procedure and budget (DRAFT, TASK-22; for user review, fixed at freez
 - **Reporting**: every candidate tried is reported, with its target rank, rank drop and edit size,
   not only the winner; their number is the multiple-comparisons denominator. The report
   (`adversarial/report.md`) is headed "ADVERSARIAL ARM — not pooled with the main analysis".
-- **Budget**: 1.50 USD (`adversarial/config.adversarial.yaml`), with its own store and ledger
+- **Budget**: 2.50 USD (`adversarial/config.adversarial.yaml`), with its own store and ledger
   under `adversarial/results/`. It counts toward the global 15 USD cap in both directions
   (`counts_spend_from`). Candidates are submitted whole, in search order, through the study's
   `--confirm` and ceiling guards. A candidate whose estimate does not fit waits (no cheaper later
   candidate is sent ahead of it) until collected spend frees room; when nothing fits and nothing
   is in flight, the search stops as budget exhausted. At the pilot's measured cost (about
-  0.0015 USD per call, 55 calls per candidate) the budget covers depth 1 but probably not all of
-  depth 2.
+  0.0015 USD per call, 55 calls per candidate) the budget covers the noise rerun, depth 1 and a full depth 2 (about 2.40
+  USD in all).
 
 ## 10. Decisions log
 
@@ -308,6 +313,32 @@ stability. Procedure and budget (DRAFT, TASK-22; for user review, fixed at freez
   labels; the definition already describes the policy. (c) The per-call output-token estimate
   and the `max_tokens` cap scale with ratings per call (13 for a persona x policy call), so the
   estimate is an upper bound until the pilot calibrates it.
+- 2026-10-04 (user, TASK-34): tier-change metric (old s6 item 1b) dropped; effective number of
+  raters uses the per policy x criterion ICC as primary; the primary materiality count covers the
+  11 Table 4 criteria, with the 2 added criteria a separate descriptive count; s6 clause (c) margin
+  corrected to 3.9 (NIT 69.8 minus UI 65.9 at rank 4).
+- 2026-10-04 (user, TASK-34): adversarial arm accepted as drafted (14-entry catalogue, 5-persona
+  search panel, Full Transformation composite, target rule, edit-size order); budget raised from
+  1.50 to 2.50 USD (full depth 2 at pilot prices is about 2.40), still inside the 15 USD global cap.
+- 2026-10-04 (implementer, TASK-34, user delegated the choice; for review): k_R = 5 and k_Q = 3
+  (the floors; the full plan is about 24,400 calls, roughly 37 USD actual at the pilot's 0.0015
+  USD per call, so it runs in stages). R-T temperatures 0.0 and 1.0 (the pilot did not establish
+  the provider default, so the two natural bounds). `max_tokens` 400 per rating (5,200 per
+  13-rating call, 1.5x the pilot maximum of 3,471 output tokens; median 2,626). Bootstrap
+  resamples 2,000 (conventional, seeded; secondary analysis only). D3 not run (no second model).
+  The code's cost estimate uses the cap as the output size, so it is about 2x actual (72.7 vs
+  about 37 USD for the full plan) and the ceiling guard is correspondingly conservative.
+- 2026-10-04 (implementer, TASK-34; user suggested using Claude): independent equivalence check of
+  the 3 instruction and 3 definition paraphrases by a fresh Claude instance that saw only the
+  originals and paraphrases (no checklist, prereg or results; not study data, no study spend).
+  All six PASS, no meaning changes or connotation shifts. Minor nuances noted, none acted on:
+  Q3a "proposed as one way" and Q3b "might use" vs the baseline's "could help"; Q2a SAWF "a publicly
+  owned wealth fund" adds ownership (the original says "public wealth fund"; user may tighten
+  before freezing); Q2c UBS "including" vs "such as". This is a Claude check of text written with
+  Claude's help, not an independent model family; the user's own review stands alongside it.
+- 2026-10-04 (user, TASK-34): keep the conservative guard (estimate from the cap) and raise the
+  ceiling in stages, in the section 8 priority order; the code ceiling changes only when the user
+  edits `config.yaml` explicitly, and the account budget is topped up by the user between stages.
 
 ## 11. Limitations
 
@@ -333,18 +364,21 @@ stability. Procedure and budget (DRAFT, TASK-22; for user review, fixed at freez
 ## 12. Open TODOs before freezing
 
 1. Model id for the study (and for D3, if run).
-2. Temperature levels for R-T; the default temperature is measured in the pilot.
-3. k_R and k_Q, from the pilot's cost and failure measurements.
-4. Paraphrase texts for Q2a-c and Q3a-c: partly done. Written, hashed in `prompts/manifest.yaml`
-   and reviewed by the user 2026-10-04 with the author's element checklists. Open: the
-   second-model equivalence check (section 7) and copying the hashes into this file at freezing.
-5. `max_tokens` cap, from the pilot.
-6. Persona bootstrap resample count (secondary analysis).
+2. Temperature levels for R-T: set 2026-10-04 to 0.0 and 1.0 (`designs/study.yaml`; decisions log).
+3. k_R and k_Q: set 2026-10-04 to the floors, k_R = 5 and k_Q = 3 (decisions log).
+4. Paraphrase texts for Q2a-c and Q3a-c: written, hashed in `prompts/manifest.yaml`, reviewed by
+   the user 2026-10-04, and independently checked (section 10). Open: copying the hashes into this
+   file at freezing.
+5. `max_tokens` cap: set 2026-10-04 to 400 tokens per rating, 5,200 for a 13-rating call
+   (`config.yaml`; decisions log).
+6. Persona bootstrap resample count (secondary analysis): set 2026-10-04 to 2,000, seeded.
 7. Adversarial-arm procedure and budget: drafted in section 9 (TASK-22); open: user review of
-   the catalogue, search panel size and the 1.50 USD budget.
+   reviewed and accepted 2026-10-04 (decisions log); open only if the user reopens it.
 8. Design file: the one-at-a-time expander exists (`domain/oat_design.py`, TASK-32; the fractional
-   expander is not used). Open: the study design file with the pilot's k_R and k_Q; regenerate and
-   diff against the frozen copy before the full run.
+   expander is not used). The study design file `designs/study.yaml` exists (k_R 5, k_Q 3, D3
+   omitted: no second model is approved); regenerate and diff against the frozen copy before the
+   full run. Equivalence check done 2026-10-04 (decisions log); still open: copying the
+   paraphrase hashes into this file at freezing.
 9. Pipeline changes: done. Named persona builder (TASK-31), templates and renderer (TASK-16), and
    job building (TASK-33): `plan` and `submit` read the one-at-a-time design file and build jobs
    in its recorded run order, with each policy's packet from `evidence/packets` (de-named for

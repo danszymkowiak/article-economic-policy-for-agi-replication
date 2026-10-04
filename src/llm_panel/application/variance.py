@@ -12,6 +12,8 @@ from dataclasses import dataclass
 
 from llm_panel.application.baseline_comparison import (
     BASELINE_CELL,
+    COUNT_HEADER,
+    COUNT_NOTE,
     CellCounts,
     cell_observations,
     is_study_store,
@@ -141,15 +143,16 @@ def render_markdown(report: VarianceReport, store_path: str) -> str:
     lines += [
         "## Data",
         "",
-        "| Cell | ok jobs | not ok | repeats | personas used | personas dropped | criteria |",
-        "|---|---|---|---|---|---|---|",
+        f"| Cell | {COUNT_HEADER} | repeats | personas used | personas dropped | criteria |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for cell in report.cell_order:
         d, cnt = report.decompositions[cell], report.counts[cell]
         lines.append(
-            f"| {cell} | {cnt.ok_jobs} | {cnt.not_ok_jobs} | {d.n_repeats} | {d.n_personas} "
+            f"| {cell} | {cnt.cells()} | {d.n_repeats} | {d.n_personas} "
             f"| {d.n_personas_dropped} | {d.n_criteria} |"
         )
+    lines += ["", f"_{COUNT_NOTE}_"]
     lines += [
         "",
         "Personas enter the within-cell decomposition only when complete in every rated policy x "
@@ -216,14 +219,15 @@ def render_markdown(report: VarianceReport, store_path: str) -> str:
         "## Effective number of independent raters",
         "",
         "Design-effect formula: **n_eff = n / (1 + (n - 1) icc)**, n = personas rated. Two "
-        "readings of icc, both from the decompositions above:",
+        "readings of icc, both from the decompositions above; the run-shared one is primary and "
+        "the agreement one secondary (prereg s6, s10):",
         "",
-        "- *Run-shared* (per policy x criterion cell; persona x repeat decomposition): icc_run = "
-        "sigma2_run / (sigma2_P + sigma2_run + sigma2_residual), the correlation of two personas' "
-        "ratings within one run. Its complement is the persona share plus the persona-specific "
-        "noise share. It needs two or more repeats.",
-        "- *Agreement* (per criterion; persona x policy x repeat decomposition): icc_agree = "
-        "(sigma2_policy + sigma2_policy x run) / (that + sigma2_persona x policy + "
+        "- *Run-shared, PRIMARY* (per policy x criterion cell; persona x repeat decomposition): "
+        "icc_run = sigma2_run / (sigma2_P + sigma2_run + sigma2_residual), the correlation of two "
+        "personas' ratings within one run. Its complement is the persona share plus the "
+        "persona-specific noise share. It needs two or more repeats.",
+        "- *Agreement, secondary* (per criterion; persona x policy x repeat decomposition): "
+        "icc_agree = (sigma2_policy + sigma2_policy x run) / (that + sigma2_persona x policy + "
         "sigma2_residual), the correlation of two personas' single-run ratings across policies. "
         "Its complement is the persona x policy (persona-specific view) share plus noise; near 1 "
         "means the panel behaves as one model (prereg H4).",
