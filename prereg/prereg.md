@@ -224,6 +224,20 @@ paper's Appendix B per-policy profiles.
   replaced under a pre-stated rule before any data run, never afterward.
 - **Drift.** The model id each response reports is tabulated per cell; B' tests for drift.
 
+**Prompt and paraphrase hashes** (sha256, copied from `prompts/manifest.yaml` on 2026-10-04 after the user
+confirmed the wording; `tests/bootstrap/test_prompt_files.py` fails if a file and the manifest disagree):
+
+| File | Role | sha256 |
+|---|---|---|
+| `prompts/joint/baseline.txt` | D1 joint scoring (all 11 policies, one criterion per call) | `686c1224cb45f57888e88149a1c9f0231129f14163531975b769c4057a2e4f04` |
+| `prompts/persona_policy/baseline.txt` | B baseline instruction wording (also used by Q1, Q2a-c, Q4) | `e1dcf123fba8fd358e1ea4bf16b424614ae49e545ae9ce3cfe6dcb4b3c6587e8` |
+| `prompts/persona_policy/para_1.txt` | Q3a instruction paraphrase of persona_policy/baseline.txt | `6e5611d02ffd54e9e147c8dd3dfe0c48423903f5dcaa321aaae3954dc10746ed` |
+| `prompts/persona_policy/para_2.txt` | Q3b instruction paraphrase of persona_policy/baseline.txt | `d49cd789bce35cd271477506b370b6a5372b6fa6ca2f1875e964c1a82394d0e6` |
+| `prompts/persona_policy/para_3.txt` | Q3c instruction paraphrase of persona_policy/baseline.txt | `18070f211d4d698d8c47d867f35f570dc18543f7d584b2d74ad79f339c8676fa` |
+| `designs/inputs/description_paraphrases/para_1.yaml` | Q2a paraphrase of the Table 3 definitions (designs/inputs/policies.yaml) | `6e3f059abe3062ed86fa8edf5457c34c097dc087d111a01889e8b312b8e372e9` |
+| `designs/inputs/description_paraphrases/para_2.yaml` | Q2b paraphrase of the Table 3 definitions (designs/inputs/policies.yaml) | `8ad9f3f14524efa686a867e1457790e3bc3f58587bf2b8d0d9dd69878ad1a143` |
+| `designs/inputs/description_paraphrases/para_3.yaml` | Q2c paraphrase of the Table 3 definitions (designs/inputs/policies.yaml) | `506f86b37e8ba451a438e3fa70e27335c373ee09b6a3882d8f07666baa422dfd` |
+
 ## 8. Stopping rules and budget
 
 - Hard spend ceiling: `max_spend_usd = 15`, enforced in code. `submit` requires `--confirm` and
@@ -333,8 +347,7 @@ stability. Procedure and budget (DRAFT, TASK-22; for user review, fixed at freez
   originals and paraphrases (no checklist, prereg or results; not study data, no study spend).
   All six PASS, no meaning changes or connotation shifts. Minor nuances noted, none acted on:
   Q3a "proposed as one way" and Q3b "might use" vs the baseline's "could help"; Q2a SAWF "a publicly
-  owned wealth fund" adds ownership (the original says "public wealth fund"; user may tighten
-  before freezing); Q2c UBS "including" vs "such as". This is a Claude check of text written with
+  owned wealth fund" adds ownership (the original says "public wealth fund"; the user kept it as written, 2026-10-04); Q2c UBS "including" vs "such as". This is a Claude check of text written with
   Claude's help, not an independent model family; the user's own review stands alongside it.
 - 2026-10-04 (user, TASK-34): keep the conservative guard (estimate from the cap) and raise the
   ceiling in stages, in the section 8 priority order; the code ceiling changes only when the user
@@ -367,8 +380,8 @@ stability. Procedure and budget (DRAFT, TASK-22; for user review, fixed at freez
 2. Temperature levels for R-T: set 2026-10-04 to 0.0 and 1.0 (`designs/study.yaml`; decisions log).
 3. k_R and k_Q: set 2026-10-04 to the floors, k_R = 5 and k_Q = 3 (decisions log).
 4. Paraphrase texts for Q2a-c and Q3a-c: written, hashed in `prompts/manifest.yaml`, reviewed by
-   the user 2026-10-04, and independently checked (section 10). Open: copying the hashes into this
-   file at freezing.
+   the user 2026-10-04, independently checked (section 10); hashes copied into section 7 on
+   2026-10-04 after the user confirmed the wording.
 5. `max_tokens` cap: set 2026-10-04 to 400 tokens per rating, 5,200 for a 13-rating call
    (`config.yaml`; decisions log).
 6. Persona bootstrap resample count (secondary analysis): set 2026-10-04 to 2,000, seeded.
@@ -377,8 +390,7 @@ stability. Procedure and budget (DRAFT, TASK-22; for user review, fixed at freez
 8. Design file: the one-at-a-time expander exists (`domain/oat_design.py`, TASK-32; the fractional
    expander is not used). The study design file `designs/study.yaml` exists (k_R 5, k_Q 3, D3
    omitted: no second model is approved); regenerate and diff against the frozen copy before the
-   full run. Equivalence check done 2026-10-04 (decisions log); still open: copying the
-   paraphrase hashes into this file at freezing.
+   full run. Equivalence check done 2026-10-04 (decisions log); paraphrase hashes are in section 7.
 9. Pipeline changes: done. Named persona builder (TASK-31), templates and renderer (TASK-16), and
    job building (TASK-33): `plan` and `submit` read the one-at-a-time design file and build jobs
    in its recorded run order, with each policy's packet from `evidence/packets` (de-named for

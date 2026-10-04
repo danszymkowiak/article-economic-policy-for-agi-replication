@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-04 12:59'
-updated_date: '2026-10-04 13:40'
+updated_date: '2026-10-04 13:43'
 labels:
   - phase3
 dependencies:
@@ -26,7 +26,7 @@ Write-up of the 2026-10-04 build session, paused by the user before freezing the
 - [x] #3 Choose the primary ICC for persona effective sample size (per policy x criterion cell vs per-criterion agreement across policies)
 - [x] #4 Decide whether materiality counts all 13 criteria or only the 11 in Table 4
 - [x] #5 Review adversarial arm choices (14-entry catalogue, 5-persona search panel, Full Transformation composite, target rule, edit-size definition) and budget: raise to ~2.50 USD or cut panel to 3 (1.50 covers depth 1 only at pilot prices)
-- [ ] #6 Set k_R, k_Q, R-T temperature levels, max_tokens cap and bootstrap resample count from the pilot; generate the study design file; run the second-model paraphrase equivalence check; copy paraphrase hashes into prereg at freezing
+- [x] #6 Set k_R, k_Q, R-T temperature levels, max_tokens cap and bootstrap resample count from the pilot; generate the study design file; run the second-model paraphrase equivalence check; copy paraphrase hashes into prereg at freezing
 - [x] #7 Add essay composite-table comparison (reconstruction R8) and split deferred/failed/duplicate row counts in analysis reports (small gaps left by TASK-18..21)
 - [ ] #8 Stage plan agreed (full plan exceeds 15 USD ceiling): choose stages and when the user raises the account budget and config ceiling
 <!-- AC:END -->
@@ -39,4 +39,6 @@ Write-up of the 2026-10-04 build session, paused by the user before freezing the
 AC4 code done (materiality primary = Table 4 criteria, added criteria in separate section/CSV column criteria_set; ICC labels primary/secondary in variance report). AC6 set: designs/study.yaml (k_R 5, k_Q 3, R-T 0.0/1.0, D3 omitted), config est_output_tokens_per_policy 400 (cap 5200), bootstrap 2000 in prereg. Not done: second-model paraphrase equivalence check (needs paid call + go-ahead), paraphrase hashes copy at freeze, AC7, AC8. Created TASK-35 (subagent arm).
 
 AC7 done: essay composite comparison (analysis/published/essay_composites.csv, R8 check + B vs essay for welfare/agency/durability; feasibility not comparable, six-column composite) in baseline report with --essay option; CellCounts split into failed/deferred/duplicate in all 5 reports. Paraphrase equivalence check done by a blind fresh Claude instance (6/6 PASS, notes in prereg s10). Stage plan decision: keep guard, raise ceiling in stages.
+
+AC6 closed: user confirmed paraphrase wording (SAWF 'publicly owned' kept); hashes copied into prereg s7. Manifest status flip to frozen happens at the user's tag (TASK-23).
 <!-- SECTION:NOTES:END -->
