@@ -1,9 +1,10 @@
-# DRAFT, not frozen (TASK-16). sha256 of every prompt template and description paraphrase.
-# tests/bootstrap/test_prompt_files.py fails if a listed file changes without this manifest
-# being regenerated. Freezing = the user reviews every file, then status becomes frozen and
-# the hashes are copied into prereg.md. The equivalence records below are the author's
-# checklist, not yet confirmed by the user.
-status: draft
+# Reviewed by the user 2026-10-04, not frozen (TASK-16). sha256 of every prompt template and
+# description paraphrase. tests/bootstrap/test_prompt_files.py fails if a listed file changes
+# without this manifest being regenerated. The user reviewed every file and the equivalence
+# records below as drafted (hashes unchanged by the review). Freezing = status becomes frozen
+# when the prereg is tagged.
+status: reviewed-by-user
+reviewed: '2026-10-04'
 files:
 - path: prompts/joint/baseline.txt
   sha256: 686c1224cb45f57888e88149a1c9f0231129f14163531975b769c4057a2e4f04
@@ -25,8 +26,8 @@ files:
     - 'unchanged: the ''Policy:'' and ''Criteria:'' headings, the placeholders and the JSON reply line'
     result: 'Author check (Claude, 2026-10-04): each element of the original is present and nothing is
       added; mechanical checks in tests/bootstrap/test_prompt_files.py (placeholder contract, same policy
-      ids, differs from baseline, no policy name or acronym in description-only prompts). Pending: user
-      review of every entry.'
+      ids, differs from baseline, no policy name or acronym in description-only prompts). Reviewed by the
+      user 2026-10-04.'
 - path: prompts/persona_policy/para_2.txt
   sha256: d49cd789bce35cd271477506b370b6a5372b6fa6ca2f1875e964c1a82394d0e6
   role: Q3b instruction paraphrase of persona_policy/baseline.txt
@@ -41,8 +42,8 @@ files:
     - 'unchanged: the ''Policy:'' and ''Criteria:'' headings, the placeholders and the JSON reply line'
     result: 'Author check (Claude, 2026-10-04): each element of the original is present and nothing is
       added; mechanical checks in tests/bootstrap/test_prompt_files.py (placeholder contract, same policy
-      ids, differs from baseline, no policy name or acronym in description-only prompts). Pending: user
-      review of every entry.'
+      ids, differs from baseline, no policy name or acronym in description-only prompts). Reviewed by the
+      user 2026-10-04.'
 - path: prompts/persona_policy/para_3.txt
   sha256: 18070f211d4d698d8c47d867f35f570dc18543f7d584b2d74ad79f339c8676fa
   role: Q3c instruction paraphrase of persona_policy/baseline.txt
@@ -57,8 +58,8 @@ files:
     - 'unchanged: the ''Policy:'' and ''Criteria:'' headings, the placeholders and the JSON reply line'
     result: 'Author check (Claude, 2026-10-04): each element of the original is present and nothing is
       added; mechanical checks in tests/bootstrap/test_prompt_files.py (placeholder contract, same policy
-      ids, differs from baseline, no policy name or acronym in description-only prompts). Pending: user
-      review of every entry.'
+      ids, differs from baseline, no policy name or acronym in description-only prompts). Reviewed by the
+      user 2026-10-04.'
 - path: designs/inputs/description_paraphrases/para_1.yaml
   sha256: 6e3f059abe3062ed86fa8edf5457c34c097dc087d111a01889e8b312b8e372e9
   role: Q2a paraphrase of the Table 3 definitions (designs/inputs/policies.yaml)
@@ -130,8 +131,8 @@ files:
       - distributes universal cash dividends to citizens
     result: 'Author check (Claude, 2026-10-04): each element of the original is present and nothing is
       added; mechanical checks in tests/bootstrap/test_prompt_files.py (placeholder contract, same policy
-      ids, differs from baseline, no policy name or acronym in description-only prompts). Pending: user
-      review of every entry.'
+      ids, differs from baseline, no policy name or acronym in description-only prompts). Reviewed by the
+      user 2026-10-04.'
 - path: designs/inputs/description_paraphrases/para_2.yaml
   sha256: 8ad9f3f14524efa686a867e1457790e3bc3f58587bf2b8d0d9dd69878ad1a143
   role: Q2b paraphrase of the Table 3 definitions (designs/inputs/policies.yaml)
@@ -203,8 +204,8 @@ files:
       - distributes universal cash dividends to citizens
     result: 'Author check (Claude, 2026-10-04): each element of the original is present and nothing is
       added; mechanical checks in tests/bootstrap/test_prompt_files.py (placeholder contract, same policy
-      ids, differs from baseline, no policy name or acronym in description-only prompts). Pending: user
-      review of every entry.'
+      ids, differs from baseline, no policy name or acronym in description-only prompts). Reviewed by the
+      user 2026-10-04.'
 - path: designs/inputs/description_paraphrases/para_3.yaml
   sha256: 506f86b37e8ba451a438e3fa70e27335c373ee09b6a3882d8f07666baa422dfd
   role: Q2c paraphrase of the Table 3 definitions (designs/inputs/policies.yaml)
@@ -276,5 +277,5 @@ files:
       - distributes universal cash dividends to citizens
     result: 'Author check (Claude, 2026-10-04): each element of the original is present and nothing is
       added; mechanical checks in tests/bootstrap/test_prompt_files.py (placeholder contract, same policy
-      ids, differs from baseline, no policy name or acronym in description-only prompts). Pending: user
-      review of every entry.'
+      ids, differs from baseline, no policy name or acronym in description-only prompts). Reviewed by the
+      user 2026-10-04.'

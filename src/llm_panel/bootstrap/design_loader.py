@@ -51,7 +51,7 @@ def load_design(path: Path | str) -> Design:
 
 OAT_REQUIRED = ("baseline", "k_r", "k_q", "rt_temperatures", "order_seed")
 BASELINE_KEYS = ("model", "persona_source", "evidence")
-D_KEYS = {"repeats", "persona_source", "model"}
+D_KEYS = {"persona_source", "model"}  # repeats are k_q for every D cell (prereg s8)
 
 
 def _model(data: dict) -> ModelRef:
@@ -67,14 +67,18 @@ def load_oat_design(path: Path | str) -> OatDesign:
     missing += [f"baseline.{k}" for k in BASELINE_KEYS if base and not base.get(k)]
     if missing:
         raise ValueError(f"design file {path} is missing: {', '.join(missing)}")
+    if "k_rt" in data:
+        raise ValueError(f"design file {path}: k_rt is not allowed; R-T cells get k_q repeats")
     temperature = base.get("temperature")  # absent or null = provider default
     d_cells = {}
     for name, d in (data.get("d_cells") or {}).items():
         unknown = set(d) - D_KEYS
         if unknown:
-            raise ValueError(f"d_cells.{name}: unknown keys {', '.join(sorted(unknown))}")
+            raise ValueError(
+                f"d_cells.{name}: unknown keys {', '.join(sorted(unknown))}"
+                " (repeats are k_q for every D cell)"
+            )
         d_cells[name] = DSettings(
-            repeats=int(d.get("repeats", 0)),
             persona_source=d.get("persona_source"),
             model=_model(d["model"]) if d.get("model") else None,
         )
@@ -87,7 +91,6 @@ def load_oat_design(path: Path | str) -> OatDesign:
         ),
         k_r=int(data["k_r"]),
         k_q=int(data["k_q"]),
-        k_rt=None if data.get("k_rt") is None else int(data["k_rt"]),
         rt_temperatures=tuple(float(t) for t in data["rt_temperatures"]),
         d_cells=d_cells,
         base_seed=int(data.get("base_seed", 0)),

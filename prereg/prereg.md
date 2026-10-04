@@ -65,16 +65,19 @@ Items marked (inf) are our inference from the paper, not stated by it. Stand-ins
 - **Unit of call (inf):** one persona x one policy, all criteria returned in one JSON object (score
   0-100 + one-sentence rationale each); policies are scored independently. The paper says 51 x 25 =
   1,275 evaluations "across multiple dimensions" (Figure 2), which supports a persona-by-policy
-  unit; "all criteria in one JSON" is our reading. 51 x 11 = 561 calls per configuration-repeat.
+  unit; "all criteria in one JSON" is our reading. 51 personas x 11 policies = 561 calls per
+  configuration-repeat; each call returns 13 ratings, so 561 x 13 = 7,293 ratings.
 - **Policies:** the paper's 11 redistributive policies, each shown by its Table 3 name and
   definition. The paper also scores 14 revenue and governance mechanisms on a different rubric;
   they are out of scope.
-- **Criteria:** the 13 panel criteria of the paper's Table 4 and Appendix B (Standards of Living,
-  Meaning, Macro Stabilisation; Economic Agency, Ownership, Democratic Voice; Economic Feasibility;
-  Implementation Readiness; Mild, Moderate, Full Transformation) plus Political Support and
-  Administrative Capacity and Speed (Table 1 criteria not reported in Table 4; compared with the
-  essay only). Popular Support is survey data in the paper and is not rated. Wording follows
-  paper Table 1 and Figure 1. Readiness carries an unexplained dagger on every Appendix B profile
+- **Criteria:** 13 rated criteria in total (user decision 2026-10-04): the 11 panel criteria of
+  the paper's Table 4 and Appendix B (Standards of Living, Meaning, Macro Stabilisation; Economic
+  Agency, Ownership, Democratic Voice; Economic Feasibility; Implementation Readiness; Mild,
+  Moderate, Full Transformation) plus Political Support and Administrative Capacity and Speed
+  (Table 1 criteria not reported in Table 4; compared with the essay only). They are in
+  `designs/inputs/criteria.yaml`. Popular Support is survey data in the paper and is not rated. Wording follows
+  paper Table 1 and Figure 1, except Implementation Readiness, which has no Table 1 definition:
+  its description is our wording. Readiness carries an unexplained dagger on every Appendix B profile
   (no footnote in the paper; the essay calls it "author-coded"): we rate it, and its published
   comparison is lower-confidence.
 - **Evidence (inf):** one fixed packet per policy, identical across personas, from pinned English
@@ -108,14 +111,39 @@ level (TODO: level); **B'**: one more B repeat at the very end, as a provider-dr
 | Cell | Change |
 |---|---|
 | Q1 description-only | policy name removed everywhere (prompt, evidence packet, labels use neutral codes P1..P11); the definition is the only identifier |
-| Q2a-c description wording | three meaning-preserving paraphrases of the Table 3 definitions |
-| Q3a-c instruction wording | three paraphrases of the instruction/rubric text |
+| Q2a-c description wording | three meaning-preserving paraphrases of the Table 3 definitions (`designs/inputs/description_paraphrases/para_1..3.yaml`) |
+| Q3a-c instruction wording | three paraphrases of the instruction/rubric text (`prompts/persona_policy/para_1..3.txt`; B uses `prompts/persona_policy/baseline.txt`) |
 | Q4 evidence | no packet (the "none" level) |
 
+Prompt wording is ours (`reconstruction.md` R5). Every template and paraphrase file is listed with
+its sha256 and an equivalence record in `prompts/manifest.yaml`, reviewed by the user 2026-10-04;
+the hashes are copied here at freezing.
+
 **Block D, design changes (reported separately, not "small variations"):** D1 joint scoring, all 11
-policies in one prompt per persona x criterion (612 calls per repeat); D2 no persona (11 policies x
-many repeats; also an independent noise estimator); D2b our synthetic trait panel in place of the
-named economists; D3 a second pinned model, if budget allows.
+policies in one prompt per persona x criterion (`prompts/joint/baseline.txt`; 51 personas x 13
+criteria = 663 calls per repeat, each returning 11 ratings: 663 x 11 = 7,293 ratings, the same as
+B); D2 no persona (one call per policy, 11 calls per repeat; also an independent noise estimator);
+D2b our synthetic trait panel in place of the named economists; D3 a second pinned model, if
+budget allows.
+
+**Call counts.** A persona x policy configuration-repeat is 51 x 11 = 561 calls (B, B', R-T, every
+Q cell, D2b, D3); a D1 repeat is 51 x 13 = 663 calls; a D2 repeat is 11 calls. With the repeat
+counts of section 8 (k_R for B, one B', k_Q for every other cell):
+
+| Unit | Cells | Calls |
+|---|---|---|
+| R | B, B' | 561 x (k_R + 1) |
+| R-T | 2 | 2 x 561 x k_Q = 1,122 k_Q |
+| Q1, Q4 | 1 each | 561 k_Q each |
+| Q2, Q3 | 3 each | 3 x 561 x k_Q = 1,683 k_Q each |
+| D1 | 1 | 663 k_Q |
+| D2 | 1 | 11 k_Q |
+| D2b, D3 | 1 each | 561 k_Q each |
+
+Full plan: 561 x (k_R + 1) + k_Q x (1,122 + 2 x 561 + 2 x 1,683 + 663 + 11 + 2 x 561) =
+561 x (k_R + 1) + 7,406 k_Q calls. At the indicative floor k_R = 5, k_Q = 3: 561 x 6 = 3,366 plus
+7,406 x 3 = 22,218, total 25,584 calls (D3's on a second model, priced separately). Cost per
+call is measured in the pilot; section 8 applies it.
 
 Temperature and seed are recorded for every run. Zen may ignore `seed`; the pilot checks, and if it
 does repeats measure sampling noise and are not reproducible by seed.
@@ -195,11 +223,16 @@ paper's Appendix B per-policy profiles.
 - Hard spend ceiling: `max_spend_usd = 15`, enforced in code. `submit` requires `--confirm` and
   refuses any job set whose estimated cost plus cumulative actual spend would exceed it. Confirm
   with the user before any paid call on a new provider.
-- k_R and k_Q are not frozen: they are set from the pilot's measured cost, with an indicative floor
-  of k_R >= 5 and k_Q >= 3.
-- Priority order if the budget binds (fixed now): R with B', Q1, Q2a-c, Q4, Q3a-c, R-T, D2, D1, D3.
-  A block runs only if its precomputed cost fits under the ceiling. Cells not run are reported as
-  not run. If too expensive, drop Q3, R-T and D3 first.
+- Repeats: B gets k_R repeats and B' one; each R-T cell, each Q cell and each D cell gets k_Q
+  repeats. k_R and k_Q are not frozen: they are set after the pilot from its measured cost, with an
+  indicative floor of k_R >= 5 and k_Q >= 3. Call counts per unit are in section 5.
+- Priority order if the budget binds (fixed now): R with B', Q1, Q2a-c, Q4, Q3a-c, R-T, D2, D2b,
+  D1, D3.
+- Stopping rule, applied to precomputed unit costs against the budget left under the ceiling
+  (ceiling minus actual spend). A unit runs whole or not at all. If the full plan exceeds the
+  budget, drop Q3, then R-T, then D3, in that order, until it fits. Then walk the priority order
+  and stop at the first unit that does not fit; no cheaper lower-priority unit is run after it.
+  Cells not run are reported as not run, with the reason.
 - No configurations are added, dropped or re-run based on how their results look.
 
 ## 9. Adversarial arm (separate, labeled)
@@ -218,6 +251,15 @@ the main analysis. Its search procedure and budget are TODO and must be fixed be
   extraction with attribution, published; union of two passes for all articles; the Wage insurance
   line kept under the union rule.
 - 2026-10-04 (user): IGM panel levels dropped; synthetic trait panel kept as variation D2b.
+- 2026-10-04 (user): 13 rated criteria (11 Table 4 columns plus Political Support and
+  Administrative Capacity and Speed); call counts recomputed (section 5). Implementation Readiness
+  has no Table 1 definition, so its wording is ours. The criteria, policy definitions, templates
+  and paraphrases were reviewed as drafted (`prompts/manifest.yaml`, hashes unchanged). D2b sits
+  right after D2 in the priority order; R-T and D cells get k_Q repeats each; the stopping rule
+  reads as stated in section 8.
+- 2026-10-04 (user): staged execution. The study runs in stages, and the user may raise the
+  account budget between stages. The code ceiling `max_spend_usd = 15` stays until the user
+  changes it explicitly in config.
 
 ## 11. Limitations
 
@@ -228,6 +270,8 @@ the main analysis. Its search procedure and budget are TODO and must be fixed be
 - One cheap model unless D3 runs; conclusions are conditional on it. One-at-a-time cannot show
   interactions. Criteria are scored together within a call, so criterion-level results are
   conditional on that.
+- Implementation Readiness has no definition in the paper's Table 1; its criterion text is our
+  wording, so its scores (already lower-confidence, section 4) rest partly on our phrasing.
 - Evidence packets are uneven across policies (Wage insurance nearly empty; UBC rests on Baby
   bonds) and two extraction passes by one model do not prove completeness.
 - No human economist anchor in this study.
@@ -243,14 +287,19 @@ the main analysis. Its search procedure and budget are TODO and must be fixed be
 1. Model id for the study (and for D3, if run).
 2. Temperature levels for R-T; the default temperature is measured in the pilot.
 3. k_R and k_Q, from the pilot's cost and failure measurements.
-4. Paraphrase texts for Q2a-c and Q3a-c, hashed, equivalence-checked.
+4. Paraphrase texts for Q2a-c and Q3a-c: partly done. Written, hashed in `prompts/manifest.yaml`
+   and reviewed by the user 2026-10-04 with the author's element checklists. Open: the
+   second-model equivalence check (section 7) and copying the hashes into this file at freezing.
 5. `max_tokens` cap, from the pilot.
 6. Persona bootstrap resample count (secondary analysis).
 7. Adversarial-arm procedure and budget.
-8. Design file: the expander must produce one-at-a-time cells (the existing fractional expander is
-   not used); regenerate and diff against the frozen copy before the full run.
-9. Pipeline changes for one persona x policy calls with per-policy evidence packets and the named
-   persona builder.
+8. Design file: the one-at-a-time expander exists (`domain/oat_design.py`, TASK-32; the fractional
+   expander is not used). Open: the study design file with the pilot's k_R and k_Q; regenerate and
+   diff against the frozen copy before the full run.
+9. Pipeline changes: partly done. Named persona builder (TASK-31), templates and renderer for
+   persona x policy and joint calls (TASK-16) exist, and the study config points at
+   `designs/inputs`. Open (TASK-33): job building from the new renderer with per-policy evidence
+   packets (names removed for Q1), and a response schema with one entry per criterion.
 
 ## 13. Amendments
 

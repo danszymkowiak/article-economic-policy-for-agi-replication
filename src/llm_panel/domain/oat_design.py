@@ -31,8 +31,7 @@ JOINT = "joint"  # D1: all policies in one prompt per persona x criterion
 NO_PERSONA = "none"
 NO_EVIDENCE = "none"
 
-# Prereg section 8, fixed before data. Section 8 omits D2b (added to section 5 later by the
-# 2026-10-04 decision); it is placed right after D2 pending the user's confirmation.
+# Prereg section 8, fixed before data (D2b right after D2, user decision 2026-10-04).
 PRIORITY_ORDER = ("R", "Q1", "Q2", "Q4", "Q3", "R-T", "D2", "D2b", "D1", "D3")
 # "If too expensive, drop Q3, R-T and D3 first." Read as: when the whole plan does not fit,
 # drop these units one at a time in the listed order until the rest fits; only then does the
@@ -80,9 +79,8 @@ class Factors:
 
 @dataclass(frozen=True)
 class DSettings:
-    """Block D cell settings from the design file; the prereg fixes no repeat counts for D."""
+    """Block D cell settings from the design file. Repeats are k_Q for every D cell (prereg s8)."""
 
-    repeats: int
     persona_source: str | None = None  # D2b only
     model: ModelRef | None = None  # D3 only
 
@@ -93,8 +91,7 @@ class OatDesign:
     k_r: int
     k_q: int
     rt_temperatures: tuple[float, ...]  # temperature 0 and one higher level
-    d_cells: Mapping[str, DSettings] = field(default_factory=dict)
-    k_rt: int | None = None  # the prereg leaves R-T repeats open; default k_q (compared like Q)
+    d_cells: Mapping[str, DSettings] = field(default_factory=dict)  # R-T and D cells get k_q
     base_seed: int = 0
     order_seed: int = 0
     n_personas: int = NAMED_PANEL_SIZE
@@ -119,8 +116,8 @@ def differing_factors(a: Factors, b: Factors) -> tuple[str, ...]:
 
 def _validate(design: OatDesign) -> None:
     base = design.baseline
-    if design.k_r < 1 or design.k_q < 1 or (design.k_rt is not None and design.k_rt < 1):
-        raise ValueError("k_r, k_q and k_rt must be >= 1")
+    if design.k_r < 1 or design.k_q < 1:
+        raise ValueError("k_r and k_q must be >= 1")
     if base.persona_source == NO_PERSONA or base.evidence == NO_EVIDENCE:
         raise ValueError("baseline needs a persona panel and an evidence packet")
     default = Factors(base.model, base.temperature, base.persona_source, base.evidence)
@@ -136,8 +133,6 @@ def _validate(design: OatDesign) -> None:
     for name, d in design.d_cells.items():
         if name not in D_CELLS:
             raise ValueError(f"unknown block D cell {name!r}; expected one of {D_CELLS}")
-        if d.repeats < 1:
-            raise ValueError(f"{name}: repeats must be >= 1")
         wants_persona, wants_model = name == "D2b", name == "D3"
         if (d.persona_source is not None) != wants_persona or (d.model is not None) != wants_model:
             raise ValueError(
@@ -157,14 +152,14 @@ def expand_cells(design: OatDesign) -> tuple[Cell, ...]:
         # Repeat r uses seed base_seed + r in every cell, so variations pair with B's repeats.
         return tuple(s0 + start + r for r in range(n))
 
-    k_q, k_rt = design.k_q, design.k_rt or design.k_q
+    k_q = design.k_q
     cells = [
         Cell("B", "R", "R", base, seeds(design.k_r)),
         # B' gets the next seed so its job ids differ from every B repeat (no dedupe skip).
         Cell(DRIFT_CELL, "R", "R", base, seeds(1, start=design.k_r)),
     ]
     for i, t in enumerate(sorted(design.rt_temperatures)):
-        cells.append(Cell(f"R-T{i}", "R", "R-T", replace(base, temperature=t), seeds(k_rt)))
+        cells.append(Cell(f"R-T{i}", "R", "R-T", replace(base, temperature=t), seeds(k_q)))
     q1 = replace(base, policy_identifier=DEFINITION_ONLY)
     cells.append(Cell("Q1", "Q", "Q1", q1, seeds(k_q)))
     for suffix, level in zip("abc", PARAPHRASE_LEVELS, strict=True):
@@ -184,7 +179,7 @@ def expand_cells(design: OatDesign) -> tuple[Cell, ...]:
             "D2b": replace(base, persona_source=d.persona_source),
             "D3": replace(base, model=d.model),
         }[name]
-        cells.append(Cell(name, "D", name, f, seeds(d.repeats)))
+        cells.append(Cell(name, "D", name, f, seeds(k_q)))
     return tuple(cells)
 
 

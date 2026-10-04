@@ -9,7 +9,7 @@ counts_spend_from: ["config*.yaml"]
 paths:
   raw_store: results/raw/rows.jsonl
   ledger: results/batches.jsonl
-  inputs_dir: designs/fake_inputs   # TODO: point at the real inputs once reconstructed
+  inputs_dir: designs/inputs   # study inputs (TASK-16); smoketest configs use their own
 # USD per million tokens by pinned snapshot. TODO: real snapshots/prices per provider.
 prices:
   fake-model-2026-01-01: {input: 1.0, output: 5.0}

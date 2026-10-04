@@ -33,10 +33,10 @@ def design(**kw):
         k_q=3,
         rt_temperatures=(0.0, 1.0),
         d_cells={
-            "D1": DSettings(repeats=3),
-            "D2": DSettings(repeats=20),
-            "D2b": DSettings(repeats=3, persona_source="synthetic"),
-            "D3": DSettings(repeats=3, model=ModelRef("fake", "fake-2")),
+            "D1": DSettings(),
+            "D2": DSettings(),
+            "D2b": DSettings(persona_source="synthetic"),
+            "D3": DSettings(model=ModelRef("fake", "fake-2")),
         },
         base_seed=100,
         order_seed=7,
@@ -64,13 +64,12 @@ def test_expands_every_prereg_cell_in_blocks_r_q_d():
     assert {c.block for c in cells.values() if c.cell_id.startswith("D")} == {"D"}
 
 
-def test_repeat_counts_follow_k_r_k_q_and_d_settings():
+def test_repeat_counts_follow_k_r_and_k_q():
+    # Prereg s8: B gets k_R, B' one; every Q, R-T and D cell gets k_Q.
     cells = by_id(expand_cells(design()))
     assert cells["B"].repeats == 5 and cells["B'"].repeats == 1
-    assert all(cells[q].repeats == 3 for q in cells if q.startswith("Q"))
-    assert cells["R-T0"].repeats == cells["R-T1"].repeats == 3  # k_rt defaults to k_q
-    assert cells["D2"].repeats == 20 and cells["D1"].repeats == 3
-    assert by_id(expand_cells(design(k_rt=4)))["R-T0"].repeats == 4
+    assert all(c.repeats == 3 for c in cells.values() if c.cell_id not in ("B", "B'"))
+    assert all(c.repeats == 4 for c in expand_cells(design(k_q=4)) if c.unit in ("R-T", "D2"))
 
 
 def test_b_prime_seed_differs_from_every_r_repeat_so_its_job_ids_are_new():
@@ -96,7 +95,7 @@ def test_cell_factor_values():
 
 
 def test_unconfigured_d_cells_are_not_expanded():
-    cells = by_id(expand_cells(design(d_cells={"D1": DSettings(repeats=2)})))
+    cells = by_id(expand_cells(design(d_cells={"D1": DSettings()})))
     assert "D1" in cells and not {"D2", "D2b", "D3"} & set(cells)
 
 
@@ -159,13 +158,12 @@ def test_paired_persona_check_rejects_wrong_panel_size():
         dict(baseline=replace(BASE, evidence="none")),
         dict(baseline=replace(BASE, persona_source="none")),
         dict(baseline=replace(BASE, description_wording="para_1")),
-        dict(d_cells={"D9": DSettings(repeats=1)}),
-        dict(d_cells={"D1": DSettings(repeats=0)}),
-        dict(d_cells={"D2b": DSettings(repeats=1)}),  # needs a persona source
-        dict(d_cells={"D2b": DSettings(repeats=1, persona_source="named")}),
-        dict(d_cells={"D3": DSettings(repeats=1)}),  # needs a model
-        dict(d_cells={"D3": DSettings(repeats=1, model=ModelRef("fake", "fake-1"))}),
-        dict(d_cells={"D1": DSettings(repeats=1, model=ModelRef("fake", "fake-2"))}),
+        dict(d_cells={"D9": DSettings()}),
+        dict(d_cells={"D2b": DSettings()}),  # needs a persona source
+        dict(d_cells={"D2b": DSettings(persona_source="named")}),
+        dict(d_cells={"D3": DSettings()}),  # needs a model
+        dict(d_cells={"D3": DSettings(model=ModelRef("fake", "fake-1"))}),
+        dict(d_cells={"D1": DSettings(model=ModelRef("fake", "fake-2"))}),
     ],
 )
 def test_invalid_designs_rejected(kw):

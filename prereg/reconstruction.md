@@ -56,8 +56,10 @@ Readiness carries a † on every Appendix B profile but the paper has no footnot
 calls Speed and Readiness "author-coded". We rate Readiness with the agents and treat its
 comparison with the published numbers as lower-confidence. Status: decided.
 
-`designs/inputs/criteria.yaml` still holds the earlier 15-criterion list built from the essay's
-footnotes and must be rewritten to match this section (open task).
+`designs/inputs/criteria.yaml` holds these 13 rated criteria (the 11 Table 4 columns plus Political
+Support and Administrative Capacity and Speed), with Table 1 names and descriptions and the Figure 1
+scenario definitions, reviewed by the user 2026-10-04. Implementation Readiness has no Table 1
+definition; its description is our wording, built from the paper's own phrases. Status: decided.
 
 ## 4. Choices we must make ourselves (stand-ins)
 
@@ -66,9 +68,9 @@ footnotes and must be rewritten to match this section (open task).
 | R1 | Unit of one call | one call per persona x policy, all criteria returned in one JSON object, policies scored independently (51 x 11 = 561 calls per configuration-repeat) | paper Figure 2 (51 x 25 evaluations "across multiple dimensions"); "all criteria in one JSON" is our reading | decided |
 | R2 | Persona representation | a traits dictionary rendered in EDSL's format as `Your traits: {...}` after "You are answering questions as if you were a human. Do not break character." (section 5) | EDSL's default rendering | decided |
 | R3 | The 51 baseline personas | the 51 named economists of paper Appendix A Table 7, with traits limited to name, institution and primary field; the model's memorised knowledge supplies the rest. John Cochrane is named in the paper's text but is not in Table 7, so he is excluded | user decision 2026-10-04 (match the paper); the biographies and IGM responses the paper used are not available | decided; builder to write |
-| R3b | Synthetic personas | our 51 synthetic trait personas (`personas/reconstructed.yaml`, section 4a) are kept as variation D2b only | earlier design | decided |
+| R3b | Synthetic personas | our 51 synthetic trait personas (`designs/inputs/personas/reconstructed.yaml`, section 4a) are kept as variation D2b only | earlier design | decided |
 | R4 | Evidence packet | one verbatim, evidence-only packet per policy from pinned English Wikipedia revisions, two LLM extraction passes (union), section 4b; the "none" level is the Q4 variation | the paper says agents are "prompted with extensive literature reviews" but not what they said; user decisions 2026-10-04 | decided |
-| R5 | Rating prompt wording | our own; the baseline is one fixed wording, paraphrases for the Q3 cells | not published | open: templates under `prompts/` predate this design and need rework |
+| R5 | Rating prompt wording | our own: baseline `prompts/persona_policy/baseline.txt` (B), instruction paraphrases `prompts/persona_policy/para_1..3.txt` (Q3a-c), joint template `prompts/joint/baseline.txt` (D1), definition paraphrases `designs/inputs/description_paraphrases/para_1..3.yaml` (Q2a-c); sha256 and equivalence records in `prompts/manifest.yaml`. The persona preamble (R2) and block headings are fixed in code, not paraphrased | not published | decided: reviewed by the user 2026-10-04; hashes copied into the prereg at freezing |
 | R6 | Order | the baseline presents one policy per call, so policy order does not arise; criteria order within the JSON is fixed | not published | decided |
 | R7 | "Deliberation" | single structured call per rating, no multi-turn deliberation or subagents | project rule; the paper's "deliberative" scoring is not specified | decided |
 | R8 | Composite score | unweighted mean of the sub-criteria in a dimension | the paper shows composites in the essay but not the weights; spot checks (EITC welfare 68.8; EITC feasibility 79.8) match the unweighted mean; remaining composites checked in the baseline-comparison task | decided, to be verified |
@@ -79,7 +81,9 @@ footnotes and must be rewritten to match this section (open task).
 
 ### 4a. The synthetic persona panel (stand-in, built 2026-10-04; now variation D2b)
 
-`personas/reconstructed.yaml`, built with `llm-panel build-personas synthetic --n 51 --seed 2026`
+`designs/inputs/personas/reconstructed.yaml` (moved from `personas/` on 2026-10-04 so the study
+inputs live in one directory; content unchanged), built with
+`llm-panel build-personas synthetic --n 51 --seed 2026`
 before any result existed; the provenance block in the file records the method, seed and trait
 space. Seven trait dimensions: field (8 levels), political leaning (5), view on redistribution (5),
 view on AI and labour (4), view on the role of government (3), seniority (4) and country of origin

@@ -91,8 +91,9 @@ def _named_cli(tmp_path, roster, out):
 
 
 def test_named_builder_regenerates_the_committed_file_deterministically(tmp_path):
-    roster = Path(__file__).parents[2] / "personas" / "sources" / "table7_roster.csv"
-    committed = Path(__file__).parents[2] / "personas" / "named.yaml"
+    personas = Path(__file__).parents[2] / "designs" / "inputs" / "personas"
+    roster = personas / "sources" / "table7_roster.csv"
+    committed = personas / "named.yaml"
     out = _inputs(tmp_path)
     assert _named_cli(tmp_path, roster, out) == 0
     assert (out / "personas" / "named.yaml").read_text("utf-8") == committed.read_text("utf-8")

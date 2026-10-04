@@ -52,3 +52,21 @@ def test_unknown_d_cell_key_rejected(tmp_path):
     data["d_cells"]["D1"]["temperature"] = 0.5
     with pytest.raises(ValueError, match="temperature"):
         load_oat_design(write(tmp_path, data))
+
+
+@pytest.mark.parametrize("where", ["k_rt", "d_cells.D1.repeats"])
+def test_per_cell_repeat_counts_are_rejected_because_prereg_fixes_k_q(tmp_path, where):
+    data = yaml.safe_load(EXAMPLE.read_text())
+    if where == "k_rt":
+        data["k_rt"] = 4
+    else:
+        data["d_cells"]["D1"]["repeats"] = 4
+    with pytest.raises(ValueError, match=where.split(".")[-1]):
+        load_oat_design(write(tmp_path, data))
+
+
+def test_example_r_t_and_d_cells_get_k_q_repeats():
+    design = load_oat_design(EXAMPLE)
+    for cell in expand_cells(design):
+        if cell.unit in ("R-T", "D1", "D2", "D2b", "D3"):
+            assert cell.repeats == design.k_q, cell.cell_id

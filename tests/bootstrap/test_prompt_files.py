@@ -7,7 +7,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from llm_panel.bootstrap.inputs_loader import load_inputs
+from llm_panel.bootstrap.config import load_config
+from llm_panel.bootstrap.inputs_loader import load_inputs, load_provenance
 from llm_panel.bootstrap.prompt_files import (
     file_sha256,
     load_description_paraphrases,
@@ -172,3 +173,34 @@ def test_manifest_mismatches_reports_an_edited_file(tmp_path):
     assert manifest_mismatches(m, tmp_path) == []
     (tmp_path / "a.txt").write_text("two")
     assert manifest_mismatches(m, tmp_path) == ["a.txt"]
+
+
+def test_manifest_is_marked_reviewed_by_the_user():
+    manifest = yaml.safe_load((PROMPTS / "manifest.yaml").read_text())
+    assert manifest["status"] == "reviewed-by-user"
+    assert str(manifest["reviewed"]) == "2026-10-04"
+
+
+# --- AC6: the study config points at these inputs ----------------------------------------
+
+
+def test_study_config_points_at_the_real_inputs():
+    assert load_config(REPO / "config.yaml").inputs_dir.resolve() == INPUTS.resolve()
+
+
+def test_real_inputs_load_both_persona_panels_criteria_and_policies():
+    loaded = load_inputs(load_config(REPO / "config.yaml").inputs_dir)
+    assert set(loaded.personas) == {"named", "reconstructed"}
+    assert all(len(panel) == 51 for panel in loaded.personas.values())
+    assert set(load_provenance(INPUTS)) == {"named", "reconstructed"}
+    assert len(loaded.criteria) == 13 and len(loaded.policies) == 11
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["config.smoketest.yaml", "config.smoketest-deepseek.yaml", "config.smoketest-glm-cap600.yaml"],
+)
+def test_smoketest_configs_keep_their_own_inputs(name):
+    cfg = load_config(REPO / name)
+    assert cfg.inputs_dir.resolve() == (REPO / "designs" / "smoketest" / "inputs").resolve()
+    assert load_inputs(cfg.inputs_dir).criteria
