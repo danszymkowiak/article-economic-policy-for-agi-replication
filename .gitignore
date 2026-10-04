@@ -245,3 +245,4 @@ adversarial/candidates.csv
 # Claude subagent arm: local data until release (TASK-35)
 subagent_arm/results/
 subagent_arm/work/
+subagent_arm/pilot/

@@ -1,0 +1,16 @@
+# CLAUDE SUBAGENT ARM PILOT (TASK-35): a labeled NON-INFERENCE run to measure Claude Code usage and
+# failure rates; its rows never enter inference. Own store under subagent_arm/pilot/.
+# Run with: uv run python -m subagent_arm --config subagent_arm/config.pilot.yaml next --limit 100
+max_spend_usd: 0
+approved_providers: []
+paths:
+  raw_store: pilot/rows.jsonl
+  ledger: pilot/ledger.jsonl
+  inputs_dir: ../designs/inputs
+  prompts_dir: ../prompts
+  evidence_packets:
+    wikipedia: ../evidence/packets
+subagent_arm:
+  design: ../designs/study.yaml   # the baseline factors come from the study design's baseline
+  k_c: 1                          # pilot: one repeat, only the first 100 jobs are run
+  work_dir: pilot/work
