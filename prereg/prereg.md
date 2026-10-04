@@ -241,8 +241,42 @@ paper's Appendix B per-policy profiles.
 ## 9. Adversarial arm (separate, labeled)
 
 The smallest plausible change that moves a policy from top to bottom, searched separately. It lives
-in its own directory, is reported in its own section labeled "adversarial", and is not pooled with
-the main analysis. Its search procedure and budget are TODO and must be fixed before freezing.
+in its own directory (`adversarial/`), is reported in its own section labeled "adversarial", and is
+not pooled with the main analysis. It is a worst-case search by design, not an estimate of
+stability. Procedure and budget (DRAFT, TASK-22; for user review, fixed at freezing):
+
+- **Catalogue** `adv-catalogue-v1` (`adversarial/catalogue.py`), fixed before any adversarial
+  data; any change is a new version, and the code refuses a config naming another. Fourteen
+  entries: five meaning-preserving one-sentence wording edits of `prompts/persona_policy/
+  baseline.txt`; four edits of the target policy's evidence packet (drop its last excerpt, drop its
+  first, reverse the excerpt order, keep the first half); dropping, at evaluation, the search-panel
+  persona who rated the target highest (no new calls); temperature 0 or 1; criteria in reverse
+  order or the primary composite's criteria first.
+- **Search panel**: 5 of the 51 named personas drawn with seed 20261004, every policy, B's
+  persona x policy prompt and model, one run per candidate at seed 0. A baseline rerun at seed 1
+  is the repeat-noise reference for the target's rank.
+- **Target and outcome**: the policy ranked first on Full Transformation durability (clause (a))
+  in the search-panel baseline; success is that policy in strictly last place.
+- **Greedy search, depth <= 2**: depth 1 runs every entry alone. If any succeeds, the smallest
+  success wins. Otherwise the entry with the largest rank drop of the target is kept (ties: the
+  smaller edit, then catalogue order), and depth 2 runs it combined with every entry of a
+  different slot; the smallest success wins. The search stops at the first success, when no entry
+  lowers the target, at depth 2, at 30 candidates, or when the budget is exhausted.
+- **Smallest** means the lowest edit size, compared in order: number of perturbations; the most
+  characters changed in any one rendered prompt (each perturbation's changed span, summed); the
+  number of prompts changed. Temperature and the persona drop change no characters, and the report
+  shows each component.
+- **Reporting**: every candidate tried is reported, with its target rank, rank drop and edit size,
+  not only the winner; their number is the multiple-comparisons denominator. The report
+  (`adversarial/report.md`) is headed "ADVERSARIAL ARM — not pooled with the main analysis".
+- **Budget**: 1.50 USD (`adversarial/config.adversarial.yaml`), with its own store and ledger
+  under `adversarial/results/`. It counts toward the global 15 USD cap in both directions
+  (`counts_spend_from`). Candidates are submitted whole, in search order, through the study's
+  `--confirm` and ceiling guards. A candidate whose estimate does not fit waits (no cheaper later
+  candidate is sent ahead of it) until collected spend frees room; when nothing fits and nothing
+  is in flight, the search stops as budget exhausted. At the pilot's measured cost (about
+  0.0015 USD per call, 55 calls per candidate) the budget covers depth 1 but probably not all of
+  depth 2.
 
 ## 10. Decisions log
 
@@ -306,7 +340,8 @@ the main analysis. Its search procedure and budget are TODO and must be fixed be
    second-model equivalence check (section 7) and copying the hashes into this file at freezing.
 5. `max_tokens` cap, from the pilot.
 6. Persona bootstrap resample count (secondary analysis).
-7. Adversarial-arm procedure and budget.
+7. Adversarial-arm procedure and budget: drafted in section 9 (TASK-22); open: user review of
+   the catalogue, search panel size and the 1.50 USD budget.
 8. Design file: the one-at-a-time expander exists (`domain/oat_design.py`, TASK-32; the fractional
    expander is not used). Open: the study design file with the pilot's k_R and k_Q; regenerate and
    diff against the frozen copy before the full run.

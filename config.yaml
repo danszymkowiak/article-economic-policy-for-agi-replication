@@ -5,7 +5,7 @@ batch_discount: 1.0        # multiplier on list price; 1.0 = conservatively assu
 est_output_tokens_per_policy: 600  # per rating; x ratings per call is also the max_tokens cap; 600 gave 18/18 valid for glm-5.3-flash (one rating per call)
 chars_per_token: 4.0
 # every config's ledger counts toward the global 15 USD hard cap (this config's own is skipped)
-counts_spend_from: ["config*.yaml"]
+counts_spend_from: ["config*.yaml", "adversarial/config*.yaml"]
 paths:
   raw_store: results/raw/rows.jsonl
   ledger: results/batches.jsonl

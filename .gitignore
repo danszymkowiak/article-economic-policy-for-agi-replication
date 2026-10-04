@@ -236,3 +236,8 @@ results/pilot/
 # Generated analysis reports (commit code, not study outputs); transcribed published inputs stay
 analysis/*
 !analysis/published/
+
+# Adversarial arm: its own store, ledger and generated report (commit code, not outputs)
+adversarial/results/
+adversarial/report.md
+adversarial/candidates.csv

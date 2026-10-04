@@ -1,0 +1,38 @@
+# ADVERSARIAL ARM configuration (prereg s9; TASK-22). NOT POOLED WITH THE MAIN ANALYSIS.
+# Own store and ledger under adversarial/results/, own ceiling (1.50 USD), and its spend counts
+# toward the global 15 USD hard cap: this config counts every root config's ledger, and every root
+# config counts this one (counts_spend_from: adversarial/config*.yaml).
+# Use: uv run python -m adversarial plan | submit --confirm | collect | report
+# DRAFT: no paid runs before the prereg is frozen. Paid use needs the provider added to
+# approved_providers by the user; until then submit refuses opencode jobs.
+max_spend_usd: 1.50
+approved_providers: [fake]
+batch_discount: 1.0
+est_output_tokens_per_policy: 600  # as config.yaml (per rating; also the max_tokens cap)
+chars_per_token: 4.0
+counts_spend_from: ["../config*.yaml"]
+paths:
+  raw_store: results/rows.jsonl      # adversarial/results/, never results/raw
+  ledger: results/ledger.jsonl
+  inputs_dir: ../designs/inputs      # the study's inputs, prompts and packets, read-only
+  prompts_dir: ../prompts
+  evidence_packets:
+    wikipedia: ../evidence/packets
+prices:
+  glm-5.3-flash: {input: 0.15, output: 0.50}  # OpenCode Zen list price per 1M tokens, as config.yaml
+# Search procedure, fixed before any adversarial data (prereg s9 draft). The loader refuses another
+# catalogue version, max_depth above 2 and max_candidates above 30.
+adversarial:
+  catalogue_version: adv-catalogue-v1
+  baseline:                         # study cell B's factors (to match the frozen study design)
+    model: {provider: opencode, snapshot: glm-5.3-flash}
+    temperature: null               # provider default
+    persona_source: named
+    evidence: wikipedia
+  search_personas: 5                # small fixed search panel, drawn from the 51 named personas
+  panel_seed: 20261004
+  seed: 0                           # sampling seed of every candidate run
+  noise_seed: 1                     # baseline rerun: the repeat-noise reference
+  primary_composite: full_transformation  # clause (a): UBC first on Full Transformation
+  max_depth: 2
+  max_candidates: 30
