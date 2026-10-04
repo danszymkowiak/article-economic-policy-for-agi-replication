@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-04 13:23'
-updated_date: '2026-10-04 14:24'
+updated_date: '2026-10-04 16:41'
 labels:
   - phase3
 dependencies:
@@ -24,9 +24,9 @@ Cross-model comparison arm (prereg s9a, user-directed 2026-10-04): repeat the ba
 - [ ] #1 Prereg s9a (draft) matches what is implemented
 - [ ] #2 Runner/ingest builds the exact B prompts, rejects any run with tool use, validates against the schema, retries once, logs failures and discards in subagent_arm/ store
 - [ ] #3 User approves the agent count before any run; k_C = 3 repeats of B collected
-- [ ] #4 Stability comparison report (within-model repeat noise, rank stability, between-model shifts vs noise)
-- [ ] #5 Distribution comparison report (rating distributions, persona spread, halo, failure rates, Table 4 agreement)
-- [ ] #6 Report headed as a separate labeled arm, with the model-plus-harness caveat
+- [x] #4 Stability comparison report (within-model repeat noise, rank stability, between-model shifts vs noise)
+- [x] #5 Distribution comparison report (rating distributions, persona spread, halo, failure rates, Table 4 agreement)
+- [x] #6 Report headed as a separate labeled arm, with the model-plus-harness caveat
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -39,4 +39,6 @@ Pilot 2026-10-04 (non-inference, subagent_arm/pilot/, 63 agent runs): flow works
 Usage after 63 runs: Haiku $2.87 (last 20 line-format agents +$1.10 = ~$0.055/agent, cache writes ~30k/agent, higher than the earlier ~$0.04 average); Sonnet orchestration $9.76 total; session limit 44%, week 15% (from 11% at start, ~+4pp for ~$7.5 incl. building). Rough extrapolation: k_C=3 (1,683 agents) well over a week's allowance in this long-context session; k_C=1 (561) roughly half. Next: restart session (loads .claude/agents/rater.md, shrinks main-thread context), run 20 rater agents with the pilot config to measure, then decide k_C. Prereg s9a k_C=3 is a draft and may be reduced.
 
 Rater-agent measurement 2026-10-04 (non-inference, pilot store, 20 agents, subagent_type rater, all first attempts valid, all 3 tool uses, no discards). /usage before/after: Haiku $0.0016 -> $0.58 (~$0.029/agent; cache writes ~10k/agent vs ~30k for the generic agent); Sonnet orchestration $0.110 -> $0.63 (~$0.026/agent, launch prompts echoed plus hand-back and notification turns re-reading context); total ~$0.055/agent, unchanged from the generic agent (the Haiku saving moved into orchestration). Limits: session 45% -> 50%, week 15% -> 16% (rounded). Full k_C=3 (1,683 agents) judged unaffordable. User decision 2026-10-04: one full pass (561) plus two more passes over UBC only with all 51 personas (+102) = 663 agents; implemented as repeat_policies in config.subagent.yaml and build_jobs(repeat_policy_ids); prereg s9a updated (draft, user reviewed). User then upgraded to the Max plan (more headroom), not yet re-measured. Real arm not started: waits for the frozen prereg and the user's go-ahead.
+
+2026-10-04: real run complete (663 agents, 663 ok, 5 invalid first attempts all retried). Descriptive Claude-only report: subagent_arm/report.py -> subagent_arm/reports/claude_arm_report.md (UBC repeat stability, response distributions, halo, failure rates, Table 4 agreement). Criteria 4-5 ticked by user decision with the B-dependent parts DEFERRED until the main run exists (results/raw is empty): cells shifted from B by more than M=5, B repeat noise beside Claude's, clause/rank comparison against B. Report script has no tests.
 <!-- SECTION:NOTES:END -->
