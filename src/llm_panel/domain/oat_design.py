@@ -242,6 +242,23 @@ def run_order(cells: Sequence[Cell], seed: int) -> RunOrder:
     return RunOrder(seed=seed, slots=tuple(slots))
 
 
+def restrict_to_cells(
+    cells: Sequence[Cell], order: RunOrder, cell_ids: Sequence[str]
+) -> tuple[tuple[Cell, ...], RunOrder]:
+    """Run one unit of the design at a time (prereg s8): keep only the named cells and the slots
+    of the recorded run order that belong to them, in the same relative order (so B' stays last).
+    Job ids do not depend on the design file, so jobs finished this way are skipped later."""
+    known = {c.cell_id for c in cells}
+    unknown = sorted(set(cell_ids) - known)
+    if unknown:
+        raise ValueError(
+            f"unknown cell id(s): {', '.join(unknown)}; known: {', '.join(sorted(known))}"
+        )
+    wanted = set(cell_ids)
+    kept = tuple(c for c in cells if c.cell_id in wanted)
+    return kept, RunOrder(order.seed, tuple(s for s in order.slots if s.cell_id in wanted))
+
+
 @dataclass(frozen=True)
 class NotRun:
     cell_id: str

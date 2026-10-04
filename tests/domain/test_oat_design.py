@@ -15,6 +15,7 @@ from llm_panel.domain.oat_design import (
     expand_cells,
     paired_persona_ids,
     plan_budget,
+    restrict_to_cells,
     run_order,
 )
 
@@ -207,6 +208,25 @@ def test_run_order_interleaves_cells_rather_than_running_block_by_block():
     runs = sum(1 for a, b in zip(ids, ids[1:], strict=False) if a != b) + 1
     n_cells = len({c.cell_id for c in cells})
     assert runs > 2 * n_cells  # block-by-block order would give exactly n_cells runs
+
+
+# --- running one unit at a time (--cells): a restriction of the recorded order ----------
+
+
+def test_restrict_to_cells_keeps_only_those_cells_in_the_recorded_relative_order():
+    cells = expand_cells(design())
+    order = run_order(cells, seed=7)
+    kept_cells, kept = restrict_to_cells(cells, order, ["B", "B'"])
+    assert {c.cell_id for c in kept_cells} == {"B", "B'"}
+    assert kept.seed == order.seed
+    assert kept.slots == tuple(s for s in order.slots if s.cell_id in ("B", "B'"))
+    assert kept.slots[-1].cell_id == "B'"  # B' still last
+
+
+def test_restrict_to_cells_rejects_unknown_cell_ids():
+    cells = expand_cells(design())
+    with pytest.raises(ValueError, match="unknown cell"):
+        restrict_to_cells(cells, run_order(cells, seed=7), ["B", "nope"])
 
 
 # --- priority and cost-based stopping (AC4) ---------------------------------------------

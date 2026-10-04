@@ -502,6 +502,15 @@ analyses affected are labeled post-hoc. No inference data existed at the time of
   reported alongside. The drop order in section 8 (Q3, R-T, D3) is unchanged; its mismatch with
   the reverse priority order stays recorded in section 14 (A2).
 
+- 2026-10-04, execution mechanics (user approved; no design, prompt, seed or data change): `plan` and
+  `submit` gained `--cells IDS` (one-at-a-time designs only) so the section 8 priority units can run
+  one at a time: it keeps only the named cells and their slots of the recorded run order, in the
+  same relative order (B' stays last). Job ids do not depend on the design file, so jobs finished
+  this way are skipped when the full design is run. Before this existed, the first paid study call
+  (user-confirmed, 2026-10-04) submitted the first 100 jobs of the recorded run order, which are all
+  cell Q3c (100 jobs, 0.17 USD actual against 0.29 estimated). Those rows are kept as study data for
+  Q3c; no other cell has been run at the time of writing.
+
 ## 14. Findings after the freeze (not fixed; recorded for posterity)
 
 All of the following were found by the post-freeze red-team review of 2026-10-04, after the

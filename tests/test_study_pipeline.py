@@ -242,3 +242,55 @@ def test_max_jobs_must_be_a_positive_integer(project, bad):
     with pytest.raises(SystemExit):
         run(project, "plan", "--max-jobs", bad, "--design", str(project / "design.yaml"),
             client=FakeModelClient())  # fmt: skip
+
+
+# --- --cells: run one unit of the design (prereg s8 priority order) -------------------------
+
+
+DRIFT = "B'"
+
+
+def _cell_counts(out):
+    return dict(
+        (ln.split(":")[0].strip(), int(ln.split(":")[1].split()[0]))
+        for ln in out.splitlines()
+        if ln.startswith("  ") and "calls (" in ln
+    )
+
+
+def test_cells_plan_covers_only_the_named_cells_and_costs_less(project, capsys):
+    design = ["--design", str(project / "design.yaml")]
+    client = FakeModelClient()
+    run(project, "plan", *design, client=client)
+    full = capsys.readouterr().out
+    assert run(project, "plan", "--cells", "B,B'", *design, client=client) == 0
+    out = capsys.readouterr().out
+    assert set(_cell_counts(out)) == {"B", "B'"}
+    assert _cell_counts(out)["B"] == _cell_counts(full)["B"]
+    counts = _cell_counts(out)
+    assert f"jobs to submit: {counts['B'] + counts[DRIFT]}" in out
+
+
+def test_cells_submit_sends_only_those_jobs_in_the_recorded_relative_order(project):
+    design = ["--design", str(project / "design.yaml")]
+    full = FakeModelClient()
+    run(project, "submit", "--confirm", *design, client=full)
+    order = [(j.cell_id, j.job_id) for j in _submitted(full)]
+    (project / "raw.jsonl").unlink(missing_ok=True)
+    (project / "ledger.jsonl").unlink()
+    some = FakeModelClient()
+    assert run(project, "submit", "--confirm", "--cells", "B,B'", *design, client=some) == 0
+    expected = [j for c, j in order if c in ("B", "B'")]
+    assert [j.job_id for j in _submitted(some)] == expected
+    assert {j.cell_id for j in _submitted(some)} == {"B", "B'"}
+
+
+def test_cells_combines_with_max_jobs_and_rejects_unknown_cells(project):
+    design = ["--design", str(project / "design.yaml")]
+    client = FakeModelClient()
+    assert run(project, "submit", "--confirm", "--cells", "B", "--max-jobs", "2", *design,
+               client=client) == 0  # fmt: skip
+    assert len(_submitted(client)) == 2
+    assert {j.cell_id for j in _submitted(client)} == {"B"}
+    with pytest.raises(SystemExit):
+        run(project, "plan", "--cells", "B,nope", *design, client=client)

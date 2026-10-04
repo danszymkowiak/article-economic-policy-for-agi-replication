@@ -90,7 +90,12 @@ from llm_panel.bootstrap.published_loader import NET_APPROVAL, load_published
 from llm_panel.bootstrap.smoketest_loader import load_expectations
 from llm_panel.domain.analysis_rank import DEFAULT_RESAMPLES
 from llm_panel.domain.design import to_run_specs
-from llm_panel.domain.oat_design import expand_cells, paired_persona_ids, run_order
+from llm_panel.domain.oat_design import (
+    expand_cells,
+    paired_persona_ids,
+    restrict_to_cells,
+    run_order,
+)
 from llm_panel.domain.personas import (
     build_igm_panel,
     build_named_panel,
@@ -138,6 +143,19 @@ MAX_JOBS_HELP = (
 )
 
 
+CELLS_HELP = (
+    "one-at-a-time designs only: run just these cells (comma-separated, e.g. B,B'), in the "
+    "recorded run order; used to run the prereg s8 priority units one at a time"
+)
+
+
+def _cell_ids(text: str) -> list[str]:
+    ids = [t.strip() for t in text.split(",") if t.strip()]
+    if not ids:
+        raise argparse.ArgumentTypeError("give at least one cell id")
+    return ids
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="llm-panel")
     parser.add_argument("--config", default="config.yaml", help="path to config.yaml")
@@ -150,12 +168,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan.add_argument("--provider")
     plan.add_argument("--max-jobs", type=_positive_int, metavar="N", help=MAX_JOBS_HELP)
+    plan.add_argument("--cells", type=_cell_ids, metavar="IDS", help=CELLS_HELP)
 
     sub_submit = sub.add_parser("submit", help="submit jobs as batches (spends money)")
     sub_submit.add_argument("--design", required=True)
     sub_submit.add_argument("--provider")
     sub_submit.add_argument("--confirm", action="store_true", help="required to submit")
     sub_submit.add_argument("--max-jobs", type=_positive_int, metavar="N", help=MAX_JOBS_HELP)
+    sub_submit.add_argument("--cells", type=_cell_ids, metavar="IDS", help=CELLS_HELP)
 
     sub.add_parser("collect", help="fetch finished batches, validate, store, retry once")
     sub.add_parser("status", help="show spend versus ceiling and row counts")
@@ -407,6 +427,8 @@ def _run(args, config, store, ledger, factory, settings, now) -> int:
         if is_oat_design(args.design):
             plan = _oat_plan(args, config, store, ledger, settings, external)
         else:
+            if args.cells:
+                raise SystemExit("error: --cells needs a one-at-a-time design")
             specs = to_run_specs(load_design(args.design))
             inputs = load_inputs(config.inputs_dir)
             plan = make_plan(
@@ -466,8 +488,14 @@ def _oat_plan(args, config, store, ledger, settings, external):
     cells = expand_cells(design)
     materials = load_study_materials(config)
     paired_persona_ids(cells, materials.panels, design.n_personas)
+    order = run_order(cells, design.order_seed)
+    if args.cells:
+        try:
+            cells, order = restrict_to_cells(cells, order, args.cells)
+        except ValueError as err:
+            raise SystemExit(f"error: --cells: {err}") from err
     build = build_study_jobs(
-        cells, run_order(cells, design.order_seed), materials, store,
+        cells, order, materials, store,
         cost=lambda job: estimate_job_cost(job, settings),
     )  # fmt: skip
     return plan_from_build(build, store, ledger, settings, args.provider, external, args.max_jobs)
