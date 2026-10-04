@@ -12,6 +12,7 @@ from pathlib import Path
 
 from llm_panel.adapters.jsonl import JsonlBatchLedger, JsonlResultStore
 from llm_panel.adapters.lock import LockHeld, exclusive_lock
+from llm_panel.application.build_jobs import build_study_jobs
 from llm_panel.application.collect import collect
 from llm_panel.application.smoketest import ratings_from_store
 from llm_panel.application.spend import SpendCeilingError
@@ -22,12 +23,13 @@ from llm_panel.application.submit import (
     ModelIdDrift,
     ProviderNotApproved,
     make_plan,
+    plan_from_build,
     submit,
 )
 from llm_panel.bootstrap.config import ExternalSpendError, external_spend, load_config
-from llm_panel.bootstrap.design_loader import load_design
+from llm_panel.bootstrap.design_loader import is_oat_design, load_design, load_oat_design
 from llm_panel.bootstrap.env import load_dotenv
-from llm_panel.bootstrap.inputs_loader import load_inputs
+from llm_panel.bootstrap.inputs_loader import load_inputs, load_study_materials
 from llm_panel.bootstrap.persona_files import read_records, write_panel
 from llm_panel.bootstrap.providers import (
     ProviderBuilder,
@@ -37,12 +39,13 @@ from llm_panel.bootstrap.providers import (
 )
 from llm_panel.bootstrap.smoketest_loader import load_expectations
 from llm_panel.domain.design import to_run_specs
+from llm_panel.domain.oat_design import expand_cells, paired_persona_ids, run_order
 from llm_panel.domain.personas import (
     build_igm_panel,
     build_named_panel,
     build_synthetic_panel,
 )
-from llm_panel.domain.pricing import HARD_CEILING_USD, MissingPriceError
+from llm_panel.domain.pricing import HARD_CEILING_USD, MissingPriceError, estimate_job_cost
 from llm_panel.domain.smoketest import evaluate
 from llm_panel.ports import ProviderConfigError
 
@@ -184,9 +187,12 @@ def _run(args, config, store, ledger, factory, settings, now) -> int:
         return _build_personas(args)
     external = external_spend(config)
     if args.command in ("plan", "submit"):
-        specs = to_run_specs(load_design(args.design))
-        inputs = load_inputs(config.inputs_dir)
-        plan = make_plan(specs, inputs, store, ledger, settings, args.provider, external)
+        if is_oat_design(args.design):
+            plan = _oat_plan(args, config, store, ledger, settings, external)
+        else:
+            specs = to_run_specs(load_design(args.design))
+            inputs = load_inputs(config.inputs_dir)
+            plan = make_plan(specs, inputs, store, ledger, settings, args.provider, external)
         if args.command == "plan":
             _print_plan(plan, settings.max_spend_usd)
             return 0
@@ -235,8 +241,28 @@ def _run(args, config, store, ledger, factory, settings, now) -> int:
     return 0
 
 
+def _oat_plan(args, config, store, ledger, settings, external):
+    """One-at-a-time design (prereg s5): cells -> jobs in the recorded run order."""
+    design = load_oat_design(args.design)
+    cells = expand_cells(design)
+    materials = load_study_materials(config)
+    paired_persona_ids(cells, materials.panels, design.n_personas)
+    build = build_study_jobs(
+        cells, run_order(cells, design.order_seed), materials, store,
+        cost=lambda job: estimate_job_cost(job, settings),
+    )  # fmt: skip
+    return plan_from_build(build, store, ledger, settings, args.provider, external)
+
+
 def _print_plan(plan, ceiling: float) -> None:
     b = plan.build
+    if b.per_cell:
+        print(f"design: one_at_a_time ({len(b.per_cell)} cells)")
+        for cid, s in b.per_cell.items():
+            print(
+                f"  {cid}: {s.count.calls} calls ({s.count.calls // s.repeats} per repeat x "
+                f"{s.repeats}), {s.count.ratings} ratings, estimated ${s.estimated_cost:.4f}"
+            )
     print(f"configurations: {len(b.per_spec)}")
     print(f"calls (all configs, before dedupe): {sum(c.calls for c in b.per_spec)}")
     print(f"ratings (all configs, before dedupe): {sum(c.ratings for c in b.per_spec)}")

@@ -21,6 +21,9 @@ class Config:
     ledger: Path
     inputs_dir: Path
     counts_spend_from: list[Path] = field(default_factory=list)  # config paths/globs
+    prompts_dir: Path = Path("prompts")  # study templates, prompts/<call unit>/<wording>.txt
+    # evidence level -> directory of per-policy packets (<policy id>.md)
+    evidence_packets: dict[str, Path] = field(default_factory=dict)
 
 
 def load_config(path: Path | str) -> Config:
@@ -54,6 +57,10 @@ def load_config(path: Path | str) -> Config:
         ledger=base / paths.get("ledger", "results/batches.jsonl"),
         inputs_dir=base / paths.get("inputs_dir", "."),
         counts_spend_from=[base / p for p in data.get("counts_spend_from") or ()],
+        prompts_dir=base / paths.get("prompts_dir", "prompts"),
+        evidence_packets={
+            level: base / d for level, d in (paths.get("evidence_packets") or {}).items()
+        },
     )
 
 

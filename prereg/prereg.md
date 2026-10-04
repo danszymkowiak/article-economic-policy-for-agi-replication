@@ -264,6 +264,16 @@ the main analysis. Its search procedure and budget are TODO and must be fixed be
 - 2026-10-04 (user): staged execution. The study runs in stages, and the user may raise the
   account budget between stages. The code ceiling `max_spend_usd = 15` stays until the user
   changes it explicitly in config.
+- 2026-10-04 (implementer, TASK-33; for user review): (a) D1's evidence is all 11 packets
+  concatenated in Table 3 order, each under its own header, so D1 shows the same evidence text as
+  B, in one prompt. (b) Q1 de-names packet text by fixed rules (`domain/denaming.py`): the header
+  and the source-article titles in the packet's metadata become the neutral code ("P11 source 1"),
+  and every policy's names, acronyms and listed variants (e.g. EIC, SWF) become that policy's
+  code anywhere in the text. Descriptive wording and real-world programme names (e.g. Alaska
+  Permanent Fund, Mincome, Baby bonds, Canada's EI) stay, because they are content, not policy
+  labels; the definition already describes the policy. (c) The per-call output-token estimate
+  and the `max_tokens` cap scale with ratings per call (13 for a persona x policy call), so the
+  estimate is an upper bound until the pilot calibrates it.
 
 ## 11. Limitations
 
@@ -300,10 +310,10 @@ the main analysis. Its search procedure and budget are TODO and must be fixed be
 8. Design file: the one-at-a-time expander exists (`domain/oat_design.py`, TASK-32; the fractional
    expander is not used). Open: the study design file with the pilot's k_R and k_Q; regenerate and
    diff against the frozen copy before the full run.
-9. Pipeline changes: partly done. Named persona builder (TASK-31), templates and renderer for
-   persona x policy and joint calls (TASK-16) exist, and the study config points at
-   `designs/inputs`. Open (TASK-33): job building from the new renderer with per-policy evidence
-   packets (names removed for Q1), and a response schema with one entry per criterion.
+9. Pipeline changes: done. Named persona builder (TASK-31), templates and renderer (TASK-16), and
+   job building (TASK-33): `plan` and `submit` read the one-at-a-time design file and build jobs
+   in its recorded run order, with each policy's packet from `evidence/packets` (de-named for
+   Q1), a per-criterion response schema, and call counts and cost per cell.
 
 ## 13. Amendments
 

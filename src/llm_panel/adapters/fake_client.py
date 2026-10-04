@@ -81,7 +81,7 @@ class FakeModelClient:
         jid = job.job_id
         usage = {
             "input_tokens": -(-len(job.prompt) // 4),
-            "output_tokens": OUTPUT_TOKENS_PER_POLICY * len(job.policy_ids),
+            "output_tokens": OUTPUT_TOKENS_PER_POLICY * job.n_ratings,
         }
         misbehave = self._submissions.get(jid, 1) <= self._malformed_attempts
         if jid in self._errors and misbehave:
@@ -91,13 +91,15 @@ class FakeModelClient:
         if jid in self._malformed and misbehave:
             text = "this is not json"
         else:
+            # per-criterion jobs answer one entry per criterion id, others one per policy label
+            key = "criterion" if job.criterion_ids else "policy"
             ratings = [
                 {
-                    "policy": label,
+                    key: label,
                     "score": self._scorer(jid, label),
                     "rationale": f"fake rationale for {label}",
                 }
-                for label in job.policy_labels
+                for label in (job.criterion_ids or job.policy_labels)
             ]
             text = json.dumps({"ratings": ratings})
         return ModelResponse(

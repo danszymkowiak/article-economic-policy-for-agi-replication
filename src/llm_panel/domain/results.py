@@ -40,7 +40,7 @@ class StoredRow:
     attempt: int
     provider: str
     model_snapshot: str
-    temperature: float
+    temperature: float | None  # None = provider default
     seed: int
     timestamp: str
     request: dict

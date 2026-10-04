@@ -7,8 +7,8 @@ templates must meet and fills them. Policies are shown by name and definition, o
 neutral code P1..P11 and the definition alone. The persona preamble is EDSL's default wording
 (reconstruction.md R2) and is held fixed across instruction paraphrases.
 
-Not yet wired into the job builder (`jobs.py` still uses the placeholder `rendering.py`); that
-waits for the user's review of the wording.
+The one-at-a-time job builder (`study_jobs.py`) uses it; the fractional smoketest designs still
+use the placeholder `rendering.py`.
 """
 
 from __future__ import annotations

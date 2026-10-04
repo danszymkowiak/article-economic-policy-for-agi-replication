@@ -80,18 +80,29 @@ class RenderedJob:
     prompt: str
     provider: str
     model_snapshot: str
-    temperature: float
+    temperature: float | None  # None = provider default (left out of the request)
     seed: int
     persona_id: str
-    criterion_id: str
+    criterion_id: str  # "" for a per-criterion job
     policy_ids: tuple[str, ...]
     policy_labels: tuple[str, ...]
     spec_id: str
     repeat: int
+    # Non-empty: one policy, and the reply holds one entry per criterion keyed by these ids
+    # (the study's persona x policy unit). Empty: one entry per policy keyed by its label.
+    criterion_ids: tuple[str, ...] = ()
+    cell_id: str = ""  # one-at-a-time design cell (prereg s5); "" for fractional-design jobs
 
     def __post_init__(self) -> None:
         if len(self.policy_ids) != len(self.policy_labels):
             raise ValueError("policy_ids and policy_labels must have the same length")
+        if self.criterion_ids and len(self.policy_ids) != 1:
+            raise ValueError("a per-criterion job rates exactly one policy")
+
+    @property
+    def n_ratings(self) -> int:
+        """Ratings one valid reply yields (policy x criterion scores)."""
+        return len(self.policy_ids) * max(1, len(self.criterion_ids))
 
     @property
     def job_id(self) -> str:
@@ -106,6 +117,7 @@ class RenderedJob:
         kw = {k: v for k, v in data.items() if k in names}
         kw["policy_ids"] = tuple(kw["policy_ids"])
         kw["policy_labels"] = tuple(kw["policy_labels"])
+        kw["criterion_ids"] = tuple(kw.get("criterion_ids") or ())
         return cls(**kw)
 
 

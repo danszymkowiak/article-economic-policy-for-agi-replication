@@ -19,5 +19,5 @@ rt_temperatures: [0.0, 1.0]  # temperature 0 and one higher level (TODO: the hig
 d_cells:                  # omit a cell to leave it out; it is then reported as not run
   D1: {}                  # joint scoring, all policies per persona x criterion
   D2: {}                  # no persona
-  D2b: {persona_source: synthetic}
+  D2b: {persona_source: reconstructed}  # our synthetic trait panel (designs/inputs)
   D3: {model: {provider: fake, snapshot: fake-model-2026-02-01}}  # TODO: second study model

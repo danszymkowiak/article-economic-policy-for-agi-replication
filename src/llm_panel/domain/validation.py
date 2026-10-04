@@ -8,7 +8,7 @@ import re
 import jsonschema
 
 from llm_panel.domain.models import Rating, RenderedJob
-from llm_panel.domain.schema import RESPONSE_SCHEMA
+from llm_panel.domain.schema import CRITERION_RESPONSE_SCHEMA, RESPONSE_SCHEMA
 
 _FENCE = re.compile(r"^\s*```(?:json)?\s*(.*?)\s*```\s*$", re.DOTALL)
 
@@ -24,10 +24,15 @@ def parse_ratings(job: RenderedJob, text: str) -> list[Rating]:
         payload = json.loads(body)
     except json.JSONDecodeError as exc:
         raise InvalidResponse(f"not valid JSON: {exc}") from exc
+    per_criterion = bool(job.criterion_ids)
     try:
-        jsonschema.validate(payload, RESPONSE_SCHEMA)
+        jsonschema.validate(
+            payload, CRITERION_RESPONSE_SCHEMA if per_criterion else RESPONSE_SCHEMA
+        )
     except jsonschema.ValidationError as exc:
         raise InvalidResponse(f"schema violation: {exc.message}") from exc
+    if per_criterion:
+        return _criterion_ratings(job, payload)
 
     label_to_policy = dict(zip(job.policy_labels, job.policy_ids, strict=True))
     seen: set[str] = set()
@@ -51,4 +56,31 @@ def parse_ratings(job: RenderedJob, text: str) -> list[Rating]:
         )
     if seen != set(label_to_policy):
         raise InvalidResponse(f"missing labels: {sorted(set(label_to_policy) - seen)}")
+    return ratings
+
+
+def _criterion_ratings(job: RenderedJob, payload: dict) -> list[Rating]:
+    """One policy's profile: exactly one entry per criterion id the job asked for."""
+    wanted = set(job.criterion_ids)
+    seen: set[str] = set()
+    ratings = []
+    for item in payload["ratings"]:
+        cid = item["criterion"]
+        if cid not in wanted:
+            raise InvalidResponse(f"unknown criterion {cid!r}")
+        if cid in seen:
+            raise InvalidResponse(f"duplicate criterion {cid!r}")
+        seen.add(cid)
+        ratings.append(
+            Rating(
+                job_id=job.job_id,
+                persona_id=job.persona_id,
+                criterion_id=cid,
+                policy_id=job.policy_ids[0],
+                score=item["score"],
+                rationale=item["rationale"],
+            )
+        )
+    if seen != wanted:
+        raise InvalidResponse(f"missing criteria: {sorted(wanted - seen)}")
     return ratings

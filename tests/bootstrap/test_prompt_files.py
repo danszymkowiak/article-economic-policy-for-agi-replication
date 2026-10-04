@@ -24,6 +24,7 @@ from llm_panel.domain.oat_design import (
     PERSONA_POLICY,
 )
 from llm_panel.domain.study_prompt import neutral_codes, render_joint, render_persona_policy
+from tests.name_patterns import NAME_PATTERNS
 
 REPO = Path(__file__).parents[2]
 INPUTS = REPO / "designs" / "inputs"
@@ -40,14 +41,6 @@ CRITERION_IDS = (
 POLICY_IDS = (
     "eitc", "ui", "almp", "wage_insurance", "directed_industrial_policy", "fjg",
     "ubi", "nit", "ubs", "ubc", "sawf",
-)  # fmt: skip
-# Every name, short name and acronym that would identify a policy (Q1 must show none of them).
-NAME_PATTERNS = (
-    r"earned income", r"\bEITC\b", r"unemployment insurance", r"\bUI\b", r"active labou?r",
-    r"\bALMPs?\b", r"wage insurance", r"industrial policy", r"jobs? guarantee", r"\bFJG\b",
-    r"basic income", r"\bUBI\b", r"negative income tax", r"\bNIT\b", r"basic services",
-    r"\bUBS\b", r"basic capital", r"\bUBC\b", r"sovereign", r"\bSAWF\b", r"AI fund",
-    r"AI dividend",
 )  # fmt: skip
 PERSONA = Persona(id="p", source="named", description="Your traits: {'name': 'A B'}")
 LEFTOVER = re.compile(r"\{[a-z_]+\}")

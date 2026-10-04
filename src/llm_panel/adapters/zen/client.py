@@ -114,7 +114,7 @@ class ZenClient:
         os.fsync(fh.fileno())
 
     def _request(self, job: RenderedJob) -> ModelResponse:
-        body = build_request(job, self._max_tokens_per_policy * len(job.policy_ids))
+        body = build_request(job, self._max_tokens_per_policy * job.n_ratings)
         headers = {
             "Authorization": f"Bearer {self._key}",
             "Content-Type": "application/json",

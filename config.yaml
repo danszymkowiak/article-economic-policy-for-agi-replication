@@ -2,7 +2,7 @@
 max_spend_usd: 15          # hard ceiling; values above 15 are rejected on load
 approved_providers: [fake, opencode] # opencode: user-approved 2026-10-03 for the free big-pickle smoketest only
 batch_discount: 1.0        # multiplier on list price; 1.0 = conservatively assume no discount
-est_output_tokens_per_policy: 600  # also the max_tokens cap; 600 gave 18/18 valid for glm-5.3-flash
+est_output_tokens_per_policy: 600  # per rating; x ratings per call is also the max_tokens cap; 600 gave 18/18 valid for glm-5.3-flash (one rating per call)
 chars_per_token: 4.0
 # every config's ledger counts toward the global 15 USD hard cap (this config's own is skipped)
 counts_spend_from: ["config*.yaml"]
@@ -10,6 +10,9 @@ paths:
   raw_store: results/raw/rows.jsonl
   ledger: results/batches.jsonl
   inputs_dir: designs/inputs   # study inputs (TASK-16); smoketest configs use their own
+  prompts_dir: prompts         # study templates (prompts/<call unit>/<wording>.txt)
+  evidence_packets:            # evidence level -> per-policy packets <policy id>.md (TASK-17)
+    wikipedia: evidence/packets
 # USD per million tokens by pinned snapshot. TODO: real snapshots/prices per provider.
 prices:
   fake-model-2026-01-01: {input: 1.0, output: 5.0}

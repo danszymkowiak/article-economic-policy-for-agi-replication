@@ -12,13 +12,16 @@ MODEL_PREFIX = "opencode/"
 
 def build_request(job: RenderedJob, max_tokens: int) -> dict:
     model = job.model_snapshot.removeprefix(MODEL_PREFIX)
-    return {
+    body = {
         "model": model,
         "messages": [{"role": "user", "content": job.prompt}],
         "temperature": job.temperature,
         "seed": job.seed,
         "max_tokens": max_tokens,
     }
+    if job.temperature is None:  # provider default: send no temperature at all
+        del body["temperature"]
+    return body
 
 
 def is_retryable(status_code: int) -> bool:

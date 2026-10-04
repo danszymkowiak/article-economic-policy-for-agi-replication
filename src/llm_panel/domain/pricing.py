@@ -27,7 +27,7 @@ class Price:
 class SpendSettings:
     max_spend_usd: float
     prices: Mapping[str, Price]  # keyed by pinned model snapshot
-    est_output_tokens_per_policy: int = 100
+    est_output_tokens_per_policy: int = 100  # per rating (one policy x criterion score)
     chars_per_token: float = 4.0
     batch_discount: float = 1.0  # multiplier on list price; 1.0 = assume no discount
 
@@ -68,7 +68,7 @@ def usage_cost(usage: Mapping, price: Price, discount: float) -> float:
 def estimated_usage(job: RenderedJob, settings: SpendSettings) -> dict:
     return {
         "input_tokens": math.ceil(len(job.prompt) / settings.chars_per_token),
-        "output_tokens": settings.est_output_tokens_per_policy * len(job.policy_ids),
+        "output_tokens": settings.est_output_tokens_per_policy * job.n_ratings,
     }
 
 

@@ -60,6 +60,17 @@ def make_plan(
     external: float = 0.0,
 ) -> Plan:
     build = build_jobs(specs, inputs, store)
+    return plan_from_build(build, store, ledger, settings, provider, external)
+
+
+def plan_from_build(
+    build: BuildResult,
+    store: ResultStore,
+    ledger: BatchLedger,
+    settings: SpendSettings,
+    provider: str | None = None,
+    external: float = 0.0,
+) -> Plan:
     flying = jobs_in_flight(ledger)
     jobs = [
         j

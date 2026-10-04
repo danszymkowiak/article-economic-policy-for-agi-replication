@@ -58,6 +58,11 @@ def _model(data: dict) -> ModelRef:
     return ModelRef(provider=data.get("provider", ""), snapshot=data.get("snapshot", ""))
 
 
+def is_oat_design(path: Path | str) -> bool:
+    data = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
+    return isinstance(data, dict) and data.get("design") == "one_at_a_time"
+
+
 def load_oat_design(path: Path | str) -> OatDesign:
     data = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
     if data.get("design") != "one_at_a_time":
