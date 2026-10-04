@@ -1,5 +1,10 @@
 # Study design spec v2.1 (folded into prereg.md on 2026-10-04)
 
+> Post-freeze note: this record is not edited. Where it differs from `prereg.md`, the prereg governs.
+> Known superseded figures: D1 is 663 calls per repeat (not 612); Table 4 has 11 criteria and the
+> study rates 13; tier-change flips were dropped; k_R = 5 and k_Q = 3 are frozen; the priority
+> order includes D2b.
+
 **STATUS: FOLDED.** The design below was accepted by the user and now lives in `prereg.md`, which
 governs; `reconstruction.md` holds the stand-ins. This file is kept as the record of the proposal
 and as the home of the red-team resolution log (section 10). Basis: the SSRN paper (Jacobs and

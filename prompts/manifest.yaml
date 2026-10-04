@@ -1,4 +1,4 @@
-# Reviewed by the user 2026-10-04, not frozen (TASK-16). sha256 of every prompt template and
+# Reviewed by the user 2026-10-04 (TASK-16); status frozen. sha256 of every prompt template and
 # description paraphrase. tests/bootstrap/test_prompt_files.py fails if a listed file changes
 # without this manifest being regenerated. The user reviewed every file and the equivalence
 # records below as drafted (hashes unchanged by the review). Frozen with the prereg

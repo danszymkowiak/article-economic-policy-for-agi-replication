@@ -111,7 +111,7 @@ level (0.0 and 1.0); **B'**: one more B repeat at the very end, as a provider-dr
 
 | Cell | Change |
 |---|---|
-| Q1 description-only | policy name removed everywhere (prompt, evidence packet, labels use neutral codes P1..P11); the definition is the only identifier |
+| Q1 description-only | policy name, label and acronym removed (prompt, evidence packet; labels use neutral codes P1..P11); the definition is the only identifier. Real-world programme names inside the packets (e.g. Alaska Permanent Fund, Baby bonds) are kept, as accepted in section 10 |
 | Q2a-c description wording | three meaning-preserving paraphrases of the Table 3 definitions (`designs/inputs/description_paraphrases/para_1..3.yaml`) |
 | Q3a-c instruction wording | three paraphrases of the instruction/rubric text (`prompts/persona_policy/para_1..3.txt`; B uses `prompts/persona_policy/baseline.txt`) |
 | Q4 evidence | no packet (the "none" level) |
@@ -154,11 +154,11 @@ does repeats measure sampling noise and are not reproducible by seed.
 
 **Primary, per Q cell and for each R-T cell versus B, compared with the same quantities in R:**
 
-1. **Flip counts:** (a) the four recommendation clauses below, flipped or not in each single run
+1. **Flip counts:** the four recommendation clauses below, flipped or not in each single run
    and in the repeat-mean. (Tier changes are not a metric: the paper defines no usable tiers, and
    the essay's cut-offs are inconsistent, e.g. Mixed 42-54 or 40-54.)
 2. **Materiality shifts:** the number of policy x criterion panel means, over the 11 Table 4
-   criteria, whose |shift| from B exceeds **M = 5 points** (about one-sixth of a tier width and far above the paper's one-decimal
+   criteria, whose |shift| from B exceeds **M = 5 points** (about one-third of a tier width and far above the paper's one-decimal
    precision; set now, not from data), with the repeat-noise multiple. Sensitivity to M (3 and 8)
    is shown descriptively and is not used to pick M. The two added criteria (Political Support,
    Administrative Capacity and Speed) are counted separately and descriptively, never in the primary
@@ -226,7 +226,7 @@ paper's Appendix B per-policy profiles.
 - **Drift.** The model id each response reports is tabulated per cell; B' tests for drift.
 
 **Prompt and paraphrase hashes** (sha256, copied from `prompts/manifest.yaml` on 2026-10-04 after the user
-confirmed the wording; `tests/bootstrap/test_prompt_files.py` fails if a file and the manifest disagree):
+confirmed the wording, except the last two rows, copied from `subagent_arm/manifest.yaml`; `tests/bootstrap/test_prompt_files.py` fails if a file and the manifest disagree):
 
 | File | Role | sha256 |
 |---|---|---|
@@ -317,9 +317,10 @@ path and is not run (no second model approved).
   are not reproducible by seed.
 - **Design:** the baseline B configuration unchanged (named personas, Wikipedia evidence, the
   baseline instruction wording, 13 criteria), one fresh subagent per persona x policy call, given
-  the exact rendered B prompt and nothing else (561 calls per repeat). Subagents must not use
-  tools or read files; a run whose report shows any tool use is discarded and logged as a
-  failure, so that no run can see published scores.
+  the exact rendered B prompt (561 calls per pass) as the content of a task file. The agent's own
+  instruction is a fixed wrapper (see Reply format and Tool use below). The only tool use allowed
+  is one Read of that task file and one Write of its answer file; a run showing any other tool use
+  is discarded and logged as a failure, so that no run can see published scores.
 - **Passes (changed 2026-10-04, user):** one pass over every persona x policy call (561 agents),
   then two further passes over a single policy, Universal Basic Capital (UBC), with all 51
   personas (51 agents per pass): 3 passes on UBC in all, 663 agents. The cost was measured in the
@@ -341,7 +342,7 @@ path and is not run (no second model approved).
   count is discarded, logged and retried once. The restricted `rater` agent type (Read and Write
   only, Haiku; `.claude/agents/rater.md`) is used for every run. The agent definition and the
   driver code that holds the agent prompt wrapper and the line conversion are pinned by hash
-  (`subagent_arm/manifest.yaml`, below); a change after the tag is an amendment and the arm is
+  (`subagent_arm/manifest.yaml`, in section 7 above); a change after the tag is an amendment and the arm is
   then labeled post-hoc. Measured on 20 pilot agents: 20 of 20 valid first attempts, all with 3
   tool uses.
 - **Validation and logging:** replies go through the same JSON schema check as the main arm;
@@ -476,5 +477,98 @@ path and is not run (no second model approved).
 
 ## 13. Amendments
 
-None. After freezing, changes are recorded here with date and rationale, and analyses
-affected are labeled as post-hoc.
+Changes after the tag `prereg-v1` (commit 5a30367) are recorded here with date and rationale;
+analyses affected are labeled post-hoc. No inference data existed at the time of any entry below.
+
+- 2026-10-04, post-freeze red-team (fresh read-only reviewer on the locked design files; user
+  directed: fix actual errors, record methodological issues as found after the freeze). Errors
+  corrected, no design change: (1) section 9a Design no longer says agents use no tools; it now
+  matches Tool use (one Read, one Write, nothing else); (2) section 6: M = 5 is about one-third
+  of a tier width (tiers are 13-15 points wide), not one-sixth; (3) section 6: stray "(a)" label
+  removed; (4) section 5 Q1 row now says labels, names and acronyms are removed while real-world
+  programme names in packets are kept, as already accepted in section 10; (5) section 7: the two
+  harness hash rows are sourced from `subagent_arm/manifest.yaml`, and 9a points to section 7;
+  (6) stale text in companion files: `reconstruction.md` (status, TODO notes, 11 vs 12 panel
+  numbers), `spec-v2-draft.md` (superseded-figures note), `designs/study.yaml` and
+  `prompts/manifest.yaml` (draft and cost comments). No hashed file changed.
+
+- 2026-10-04, user decisions on three red-team ambiguities (no design change, no data yet):
+  (a) B' (the drift control) runs at the very end of the first priority unit, R: all k_R repeats
+  of B first, then B'. (b) Budget checks are made per unit, in the section 8 priority order, with
+  the remaining cost estimated by the code's conservative `plan` estimate against the budget left
+  under the ceiling; the run is batched by unit and a unit runs whole or not at all. (c) A
+  recommendation clause "flips" when its outcome differs from the published Table 4 result (the
+  published data pass all four clauses), so a flip is a failed clause; B's own clause results are
+  reported alongside. The drop order in section 8 (Q3, R-T, D3) is unchanged; its mismatch with
+  the reverse priority order stays recorded in section 14 (A2).
+
+## 14. Findings after the freeze (not fixed; recorded for posterity)
+
+All of the following were found by the post-freeze red-team review of 2026-10-04, after the
+prereg was frozen and before any inference data. They are not changes to the design. Reports
+should cite them as limitations discovered after the freeze.
+
+**Ambiguities left as written (the user decides before the first staged run; any resolution is
+an amendment in section 13):**
+- A1 (resolved in section 13, 2026-10-04). Section 5 says B' is "one more B repeat at the very end", but section 8 makes "R with B'" the
+  first priority unit and a unit runs whole. The run order of B' is therefore not fixed.
+- A2 (cost basis resolved in section 13: the conservative estimate; the drop order below stays open).
+  Section 8 stopping rule: "precomputed unit costs" did not say whether the code's
+  conservative estimate (about twice actual) or actual cost applies. The drop order (Q3, R-T, D3)
+  also differs from the reverse of the priority order, so with a full plan above the ceiling Q3
+  and R-T are dropped before D2, D2b and D1.
+- A3 (resolved in section 13: against the published result). Section 6 did not state the reference against which a recommendation clause "flips" (the
+  published pass, B's repeat-mean or R); "three durability composites" means three scenario
+  criteria.
+- A4. Section 7 promises replacement of failing paraphrases "under a pre-stated rule" that is not
+  stated; the manifest's equivalence note says "nothing is added" while section 10 records that the
+  Q2a SAWF wording adds ownership (kept by the user); the second-model check is described
+  differently in the manifest ("author check") and section 10 (fresh instance).
+- A5. Section 9: "the smallest success wins" and "stops at the first success" conflict, and "slot"
+  is undefined in the prereg.
+- A6. Section 9a pilot counts (11 of 36 first attempts failed; 3 of 7 retries) are not explained
+  and were not rechecked.
+- A7. The essay's feasibility columns do not map one to one onto the study's Administrative
+  Capacity and Speed criterion, and no mapping rule is given for the essay comparison.
+
+**Methodological issues (severity from the reviewer; none change the frozen design):**
+- High. The 15 USD ceiling funds roughly R, B' and Q1 plus the adversarial arm; under the stopping
+  rule Q2a-c and later units may never run unless the ceiling is raised, so H3 and most of Q2
+  would rest on the Q1 cell alone.
+- High. Staged execution in priority order breaks the claim that cells are interleaved over time:
+  time is confounded with cell, B' tests drift only at the end, and the ceiling is raised between
+  stages after the user has seen results.
+- High. With k_Q = 3 each Q cell has three single runs (flip rates 0, 1/3, 2/3, 1). Clauses (a)
+  and (b) have margins of 15.5 and 40 and will almost never flip, so H2 and the flip metric rest
+  on (c) and (d). The reference band (3-run mean against the remaining 2-run mean) is wider than
+  the actual contrast (3 against 5 runs) and uses only 10 overlapping splits.
+- Medium. Claude arm: repeat noise is measured on UBC only (13 cells, 3 passes) against glm's 5
+  repeats of all 143 cells, and the between-model shift uses one Haiku pass; a difference is a
+  bundle of model, agent wrapper, changed reply format and uncontrolled sampling.
+- Medium. Claude arm validity: "3 tool uses" does not show which file was read; whether subagents
+  inherit the project CLAUDE.md (which describes the study) is unchecked; `rater.md` names the
+  alias `haiku`, not a snapshot; calls are not reproducible by seed.
+- Medium. Adversarial arm: search on 5 personas with one run per candidate, no confirmation on the
+  51-persona panel, so a "strictly last place" success is exposed to winner's curse; evidence
+  edits apply only to the target policy.
+- Medium. Q1 and Q2: paraphrases are not guaranteed meaning-preserving (SAWF "publicly owned"),
+  Q1 keeps programme names, and the equivalence checks come from the same model family that
+  helped write the text; a Q1 or Q2 shift can be a meaning change, which affects H3 for SAWF and
+  UBC.
+- Medium. Evidence packets are uneven (Wage Insurance nearly empty; UBC rests on Baby bonds) and
+  were extracted by one Claude model; cross-policy ranks and the Q4 effect are confounded with
+  packet size and content.
+- Medium-low. Published comparisons for Readiness and Administrative Capacity and Speed are weak
+  (the essay codes Speed and Readiness by the authors); Popular Support is not rated, so the
+  four-criterion feasibility composite cannot match the paper's six-criterion composite.
+- Medium-low. D2 (no persona) is called an independent noise estimator but lacks persona x policy
+  variance, so it need not match B's noise; D1's per-call cost is likely understated because it
+  carries all 11 evidence packets.
+- Low. H1 "exceeds 0.05 by a wide margin" has no threshold; the Holm family and any test for flips
+  are undefined.
+- Low. Repeat r uses seed base_seed + r in every cell, so if Zen honours seeds, Q and B noise may
+  be correlated; R-T at T = 1.0 may equal the provider default, and reasoning models may ignore
+  temperature.
+- Low. Hash freezing covers prompts, paraphrases and the Claude arm harness only; policies,
+  criteria, personas, evidence packets and `designs/study.yaml` are not hash-pinned, and section
+  12 item 8 refers to a "frozen copy" of `study.yaml` with no recorded hash.

@@ -1,6 +1,6 @@
 # Reconstruction of the setup from the public paper and essay
 
-**STATUS: DRAFT.** Companion to `prereg.md`; frozen together with it. This study is a
+**STATUS: FROZEN with `prereg.md` (tag prereg-v1).** Companion to `prereg.md`. This study is a
 **re-implementation from the public description, not a replication**. The authors released no
 prompts, persona data, survey responses or literature text. Everything below is either taken from
 the paper or essay (marked *paper*, *essay*) or is our own stand-in (marked *stand-in*). No
@@ -24,7 +24,7 @@ Sources:
 | Scale | 0 to 100 per criterion; composites per dimension; score tiers (High >= 70, Moderate 55-69, Mixed 42-54 or 40-54, Low < 42 or < 40) (*essay*) |
 | Public support | measured by a separate survey of 2,019 Americans (net approval), not rated by agents (*paper*) |
 | Not stated | model, temperature, number of runs, prompt text, literature text, whether the literature was identical across personas; "it is impossible to perfectly replicate results, even with identical prompting" (*paper*) |
-| Published targets | Table 4 and Appendix B (12 panel numbers per policy plus net approval); the essay's tables add the Political Support and Administrative Capacity and Speed columns |
+| Published targets | Table 4 and Appendix B (11 panel numbers per policy plus net approval, 12 in Appendix B); the essay's tables add the Political Support and Administrative Capacity and Speed columns |
 
 ## 2. Policies (*paper* Table 3; essay uses near-identical definitions)
 
@@ -67,15 +67,15 @@ definition; its description is our wording, built from the paper's own phrases. 
 |---|---|---|---|---|
 | R1 | Unit of one call | one call per persona x policy, all criteria returned in one JSON object, policies scored independently (51 x 11 = 561 calls per configuration-repeat) | paper Figure 2 (51 x 25 evaluations "across multiple dimensions"); "all criteria in one JSON" is our reading | decided |
 | R2 | Persona representation | a traits dictionary rendered in EDSL's format as `Your traits: {...}` after "You are answering questions as if you were a human. Do not break character." (section 5) | EDSL's default rendering | decided |
-| R3 | The 51 baseline personas | the 51 named economists of paper Appendix A Table 7, with traits limited to name, institution and primary field; the model's memorised knowledge supplies the rest. John Cochrane is named in the paper's text but is not in Table 7, so he is excluded | user decision 2026-10-04 (match the paper); the biographies and IGM responses the paper used are not available | decided; builder to write |
+| R3 | The 51 baseline personas | the 51 named economists of paper Appendix A Table 7, with traits limited to name, institution and primary field; the model's memorised knowledge supplies the rest. John Cochrane is named in the paper's text but is not in Table 7, so he is excluded | user decision 2026-10-04 (match the paper); the biographies and IGM responses the paper used are not available | decided; built (TASK-31) |
 | R3b | Synthetic personas | our 51 synthetic trait personas (`designs/inputs/personas/reconstructed.yaml`, section 4a) are kept as variation D2b only | earlier design | decided |
 | R4 | Evidence packet | one verbatim, evidence-only packet per policy from pinned English Wikipedia revisions, two LLM extraction passes (union), section 4b; the "none" level is the Q4 variation | the paper says agents are "prompted with extensive literature reviews" but not what they said; user decisions 2026-10-04 | decided |
 | R5 | Rating prompt wording | our own: baseline `prompts/persona_policy/baseline.txt` (B), instruction paraphrases `prompts/persona_policy/para_1..3.txt` (Q3a-c), joint template `prompts/joint/baseline.txt` (D1), definition paraphrases `designs/inputs/description_paraphrases/para_1..3.yaml` (Q2a-c); sha256 and equivalence records in `prompts/manifest.yaml`. The persona preamble (R2) and block headings are fixed in code, not paraphrased | not published | decided: reviewed by the user 2026-10-04; hashes copied into the prereg at freezing |
 | R6 | Order | the baseline presents one policy per call, so policy order does not arise; criteria order within the JSON is fixed | not published | decided |
 | R7 | "Deliberation" | single structured call per rating, no multi-turn deliberation or subagents | project rule; the paper's "deliberative" scoring is not specified | decided |
 | R8 | Composite score | unweighted mean of the sub-criteria in a dimension | the paper shows composites in the essay but not the weights; spot checks (EITC welfare 68.8; EITC feasibility 79.8) match the unweighted mean; remaining composites checked in the baseline-comparison task | decided, to be verified |
-| R9 | Temperature | recorded for every run; provider default for B, plus temperature 0 and one higher level in R-T | not published | levels TODO in prereg |
-| R10 | Repeats | k_R repeats of B for the noise floor, k_Q per variation cell, set from the pilot's cost | user requirement 2026-10-03 | counts TODO in prereg |
+| R9 | Temperature | recorded for every run; provider default for B, plus temperature 0 and one higher level in R-T | not published | levels 0.0 and 1.0, set in prereg |
+| R10 | Repeats | k_R repeats of B for the noise floor, k_Q per variation cell, set from the pilot's cost | user requirement 2026-10-03 | k_R = 5, k_Q = 3, set in prereg |
 | R11 | Popular Support | not rated; the paper uses survey net approval | paper Table 4 | decided |
 | R12 | Implementation Readiness | rated by the agents; comparison lower-confidence | paper Table 4 (daggered, unexplained) | decided |
 
