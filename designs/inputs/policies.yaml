@@ -1,0 +1,91 @@
+# DRAFT for user review. Stand-in text: names and definitions follow the taxonomy table of the
+# essay (docs/economic-policy-for-agi.html), reworded; blinded_description describes the
+# mechanism only, with no name, acronym or well-known label. Not the authors' original wording.
+# Order is the essay's taxonomy order (Panel A, then Panel B) and is the "fixed" order.
+- id: pol_almp
+  name: Active Labour Market Policies (ALMPs) and Retraining
+  description: >-
+    State-sponsored programmes that reskill displaced workers and match their skills to
+    occupations that work alongside AI.
+  blinded_description: >-
+    Publicly sponsored training and job-matching programmes that help displaced workers acquire
+    new skills and move into occupations that work alongside AI.
+- id: pol_wage_ins
+  name: Wage Insurance
+  description: >-
+    A temporary subsidy that makes up part of the income a displaced worker loses when they
+    take a new job at a lower wage.
+  blinded_description: >-
+    A temporary payment that covers part of the gap between a displaced worker's previous pay and
+    the lower pay of the new job they take.
+- id: pol_eitc
+  name: Earned Income Tax Credit (EITC)
+  description: >-
+    A means-tested, refundable tax credit that works as a wage subsidy for workers with low to
+    moderate incomes.
+  blinded_description: >-
+    A refundable tax credit, available only below an income limit, that tops up the earnings of
+    low- and moderate-income people who are in work.
+- id: pol_fjg
+  name: Federal Jobs Guarantee
+  description: >-
+    The government acts as employer of last resort and gives a publicly funded job to anyone
+    willing to work.
+  blinded_description: >-
+    The government offers a publicly funded job to anyone who is willing to work and cannot find
+    one elsewhere.
+- id: pol_ui
+  name: Unemployment Insurance (UI)
+  description: >-
+    A stabiliser that gives displaced workers temporary, partial replacement of their lost wages.
+  blinded_description: >-
+    Temporary payments that replace part of the wages of people who lose their jobs, rising when
+    unemployment rises.
+- id: pol_nit
+  name: Negative Income Tax (NIT)
+  description: >-
+    A guaranteed minimum income floor: people whose income falls below a threshold automatically
+    receive a cash transfer.
+  blinded_description: >-
+    Automatic cash transfers, through the tax system, to anyone whose income is below a set
+    threshold, shrinking as their own earnings rise.
+- id: pol_ubi
+  name: Universal Basic Income (UBI)
+  description: >-
+    An unconditional cash transfer paid in the same amount to all citizens, whatever their
+    employment status or wealth.
+  blinded_description: >-
+    A regular cash payment of the same amount to every citizen, with no conditions on work,
+    income or wealth.
+- id: pol_sovdiv
+  name: Sovereign AI Dividend
+  description: >-
+    A universal, unconditional cash payout funded by taxing, or by public ownership of,
+    foundational artificial intelligence assets.
+  blinded_description: >-
+    A regular cash payment to every citizen, paid out of revenue from taxing, or from public
+    ownership of, the most advanced AI systems.
+- id: pol_ubc
+  name: Universal Basic Capital (UBC)
+  description: >-
+    The state facilitates an up-front asset or equity endowment for each person, for example
+    trust accounts or shares in a sovereign wealth fund.
+  blinded_description: >-
+    A one-off asset endowment, such as an investment account or a share in a publicly managed
+    investment fund, set up for every person so that they own part of the economy's capital.
+- id: pol_ubs
+  name: Universal Basic Services (UBS)
+  description: >-
+    The direct, unconditional public provision of essential services such as healthcare,
+    housing and transport.
+  blinded_description: >-
+    Essential services such as healthcare, housing and transport provided directly by the public
+    sector to everyone, free of conditions.
+- id: pol_indpol
+  name: Industrial Policy
+  description: >-
+    Strategic state intervention and targeted capital allocation meant to fund public goods and
+    create jobs in occupations that complement AI.
+  blinded_description: >-
+    Government direction of investment towards chosen sectors, intended to fund public goods and
+    create jobs in occupations that work alongside AI.

@@ -99,6 +99,14 @@ Decision: **reuse EDSL's persona format and wording, not its runtime.** Personas
 trait dictionaries (compatible with `edsl.Agent(traits=...)`), and our own pipeline renders and
 sends the prompt. EDSL is not a project dependency. Status: decided.
 
+## 5a. Essay versus the full paper (noted 2026-10-04)
+
+The SSRN abstract of the full paper (Jacobs and Imas, abstract_id 7470000) says it evaluates
+"twenty-four" interventions; the essay evaluates 11 policies. This study follows the essay's 11,
+the public description it re-implements. The 15 criterion descriptions in
+`designs/inputs/criteria.yaml` quote the essay's table footnotes; the full paper may define them
+differently. Status: open until the paper's definitions are checked.
+
 ## 6. What stays unknowable
 
 The authors' exact prompts, persona traits, evidence text, model(s), temperature and any

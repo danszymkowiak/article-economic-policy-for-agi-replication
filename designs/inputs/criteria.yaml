@@ -1,0 +1,94 @@
+# DRAFT for user review. The 15 sub-criteria, their groups and the definition phrases follow the
+# essay (docs/economic-policy-for-agi.html): the table footnotes under each result table, and
+# the four-dimension framework paragraph. Each description quotes the essay's phrase nearly
+# verbatim and adds only a lead-in so a higher score reads as better for the policy. Where the
+# essay defines two items in one phrase (Political and Popular Support, Economic Feasibility and
+# Administrative Capacity, Speed and Readiness) the phrase is split between them, with the
+# framework paragraph's wording ("economic cost", "administrative simplicity", "speed of
+# rollout", "institutional readiness") used to disambiguate. The essay's note that Readiness is
+# "author-coded" is not carried over: here the agents rate it.
+# Welfare and Resilience (footnote; framework: "material living standards, meaning and purpose,
+# and overall economic stability")
+- id: crit_standards
+  name: Standards of Living
+  group: welfare_resilience
+  description: >-
+    Protection against material deprivation and maintenance of baseline consumption.
+- id: crit_meaning
+  name: Meaning and Human Value
+  group: welfare_resilience
+  description: >-
+    Individual psychosocial meaning, status and purpose.
+- id: crit_macro_stab
+  name: Macroeconomic Stabilisation
+  group: welfare_resilience
+  description: >-
+    Counter-cyclical support for aggregate demand and household purchasing power during
+    automation slumps.
+# Agency and Voice (footnote)
+- id: crit_participation
+  name: Economic Participation
+  group: agency_voice
+  description: >-
+    Preservation of individual worker autonomy, career self-determination and economic agency.
+- id: crit_ownership
+  name: Ownership of Gains
+  group: agency_voice
+  description: >-
+    Broad-based societal distribution of AI-generated capital and productivity gains.
+- id: crit_voice
+  name: Democratic Voice
+  group: agency_voice
+  description: >-
+    Individual influence over economic governance and workplace decisions.
+# Durability across scenarios (footnote)
+- id: crit_mild
+  name: Mild Disruption
+  group: durability
+  description: >-
+    Performance in a scenario of localised task automation with gradual reallocation.
+- id: crit_broad
+  name: Broad Displacement
+  group: durability
+  description: >-
+    Performance in a scenario of widespread displacement outrunning new job creation.
+- id: crit_transform
+  name: AGI Transformation
+  group: durability
+  description: >-
+    Performance in a scenario of comprehensive automation that fundamentally decouples human
+    labour from baseline subsistence.
+# Feasibility and Efficiency (footnotes: "Political & Popular Support: legislative viability
+# and broader public acceptance. Econ. Feasibility & Admin. Capacity: fiscal/macro cost
+# viability and institutional execution. Speed & Readiness: rapidity of disbursement and policy
+# operational maturity.")
+- id: crit_political
+  name: Political Support
+  group: feasibility
+  description: >-
+    Legislative viability.
+- id: crit_econ_feas
+  name: Economic Feasibility
+  group: feasibility
+  description: >-
+    Fiscal and macroeconomic cost viability.
+- id: crit_popular
+  name: Popular Support
+  group: feasibility
+  description: >-
+    Broader public acceptance.
+- id: crit_admin
+  name: Administrative Capacity
+  group: feasibility
+  description: >-
+    Institutional execution: administrative simplicity of carrying the policy out.
+- id: crit_speed
+  name: Speed
+  group: feasibility
+  description: >-
+    Rapidity of disbursement: speed of rollout.
+- id: crit_readiness
+  name: Readiness
+  group: feasibility
+  description: >-
+    Policy operational maturity: institutional readiness to implement.
