@@ -23,6 +23,16 @@ from llm_panel.application.baseline_comparison import (
 )
 from llm_panel.application.build_jobs import build_study_jobs
 from llm_panel.application.collect import collect
+from llm_panel.application.rank_stability import (
+    render_aggregation_csv,
+    render_noise_csv,
+    render_shifts_csv,
+    render_tau_csv,
+    run_rank_stability,
+)
+from llm_panel.application.rank_stability import (
+    render_markdown as render_rank_markdown,
+)
 from llm_panel.application.smoketest import ratings_from_store
 from llm_panel.application.spend import SpendCeilingError
 from llm_panel.application.status import get_status
@@ -48,6 +58,7 @@ from llm_panel.bootstrap.providers import (
 )
 from llm_panel.bootstrap.published_loader import load_published
 from llm_panel.bootstrap.smoketest_loader import load_expectations
+from llm_panel.domain.analysis_rank import DEFAULT_RESAMPLES
 from llm_panel.domain.design import to_run_specs
 from llm_panel.domain.oat_design import expand_cells, paired_persona_ids, run_order
 from llm_panel.domain.personas import (
@@ -146,6 +157,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="transcribed published scores (relative to the config's folder)",
     )
     baseline.add_argument("--out", default="analysis/baseline", help="report directory")
+    ranks = analyses.add_parser("ranks", help="rank stability of every cell versus B")
+    ranks.add_argument("--out", default="analysis/ranks", help="report directory")
+    ranks.add_argument(
+        "--resamples",
+        type=int,
+        default=DEFAULT_RESAMPLES,
+        help="persona bootstrap resamples (placeholder default; prereg s12 item 6 open)",
+    )
+    ranks.add_argument("--seed", type=int, default=0, help="persona bootstrap seed")
     return parser
 
 
@@ -216,15 +236,19 @@ def _build_personas(args) -> int:
     return 0
 
 
+def _store_label(raw_store: Path, config_dir: Path) -> str:
+    try:
+        return str(raw_store.resolve().relative_to(config_dir.resolve()))
+    except ValueError:
+        return str(raw_store)
+
+
 def _analyze_baseline(args, config_dir: Path, raw_store: Path, store) -> int:
     published = load_published(config_dir / args.published)
     result = run_baseline_comparison(store, published)
     out = config_dir / args.out
     out.mkdir(parents=True, exist_ok=True)
-    try:
-        label = str(raw_store.resolve().relative_to(config_dir.resolve()))
-    except ValueError:
-        label = str(raw_store)
+    label = _store_label(raw_store, config_dir)
     (out / "baseline_comparison.md").write_text(render_markdown(result, label), encoding="utf-8")
     (out / "baseline_agreement.csv").write_text(render_agreement_csv(result), encoding="utf-8")
     (out / "baseline_policy_scores.csv").write_text(render_policy_csv(result), encoding="utf-8")
@@ -233,11 +257,31 @@ def _analyze_baseline(args, config_dir: Path, raw_store: Path, store) -> int:
     return 0
 
 
+def _analyze_ranks(args, config_dir: Path, raw_store: Path, store) -> int:
+    report = run_rank_stability(store, resamples=args.resamples, seed=args.seed)
+    out = config_dir / args.out
+    out.mkdir(parents=True, exist_ok=True)
+    label = _store_label(raw_store, config_dir)
+    files = {
+        "rank_stability.md": render_rank_markdown(report, label),
+        "rank_tau.csv": render_tau_csv(report),
+        "rank_shifts.csv": render_shifts_csv(report),
+        "rank_repeat_noise.csv": render_noise_csv(report),
+        "rank_aggregation_agreement.csv": render_aggregation_csv(report),
+    }
+    for name, text in files.items():
+        (out / name).write_text(text, encoding="utf-8")
+    print(f"wrote rank_stability.md and four CSVs to {out} "
+          f"({len(report.cell_order)} cells from {label})")  # fmt: skip
+    return 0
+
+
 def _run(args, config, store, ledger, factory, settings, now) -> int:
     if args.command == "build-personas":
         return _build_personas(args)
     if args.command == "analyze":  # read-only; needs no ledger or spend state
-        return _analyze_baseline(args, Path(args.config).parent, config.raw_store, store)
+        analyze = _analyze_ranks if args.analysis == "ranks" else _analyze_baseline
+        return analyze(args, Path(args.config).parent, config.raw_store, store)
     external = external_spend(config)
     if args.command in ("plan", "submit"):
         if is_oat_design(args.design):

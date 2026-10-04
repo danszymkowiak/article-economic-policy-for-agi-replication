@@ -6,6 +6,7 @@ from __future__ import annotations
 import csv
 import io
 import math
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import PurePath
 
@@ -45,33 +46,42 @@ class BaselineComparison:
     policy_order: tuple[str, ...]
 
 
-def baseline_observations(
-    store: ResultStore, cell_id: str = BASELINE_CELL
-) -> tuple[list[Observation], CellCounts]:
-    """Ratings of one persona x policy cell from ok rows; each job counted once."""
-    ok: set[str] = set()
-    attempted: set[str] = set()
-    observations: list[Observation] = []
+def cell_observations(store: ResultStore) -> dict[str, tuple[list[Observation], CellCounts]]:
+    """Ratings of every one-at-a-time cell from ok rows, each job counted once. Persona x policy
+    jobs and joint (D1, persona x criterion) jobs both count; fractional-design rows (no cell id)
+    do not."""
+    ok: dict[str, set[str]] = defaultdict(set)
+    attempted: dict[str, set[str]] = defaultdict(set)
+    observations: dict[str, list[Observation]] = defaultdict(list)
     for row in store.iter_rows():
-        if (row.request or {}).get("cell_id") != cell_id:
+        cell_id = (row.request or {}).get("cell_id")
+        if not cell_id:
             continue
         if row.status in (STATUS_OK, STATUS_INVALID, STATUS_FAILED):
-            attempted.add(row.job_id)
-        if row.status != STATUS_OK or row.job_id in ok:
+            attempted[cell_id].add(row.job_id)
+        if row.status != STATUS_OK or row.job_id in ok[cell_id]:
             continue
         job = RenderedJob.from_dict(row.request)
-        if not job.criterion_ids:
-            continue  # not a persona x policy job
         try:
             ratings = parse_ratings(job, (row.response or {}).get("text") or "")
         except InvalidResponse:
             continue
-        ok.add(row.job_id)
-        observations += [
+        ok[cell_id].add(row.job_id)
+        observations[cell_id] += [
             Observation(job.repeat, r.persona_id, r.policy_id, r.criterion_id, r.score)
             for r in ratings
         ]
-    return observations, CellCounts(len(ok), len(attempted - ok))
+    return {
+        cell: (observations[cell], CellCounts(len(ok[cell]), len(attempted[cell] - ok[cell])))
+        for cell in attempted
+    }
+
+
+def baseline_observations(
+    store: ResultStore, cell_id: str = BASELINE_CELL
+) -> tuple[list[Observation], CellCounts]:
+    """Ratings of one cell from ok rows; each job counted once."""
+    return cell_observations(store).get(cell_id, ([], CellCounts(0, 0)))
 
 
 def run_baseline_comparison(
