@@ -1,7 +1,7 @@
 ---
 id: TASK-30
 title: Reconcile prereg and reconstruction with spec v2.1
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-04 07:12'
@@ -38,3 +38,9 @@ The SSRN paper and the red-team pass changed the design (one call per persona x 
 <!-- SECTION:NOTES:BEGIN -->
 2026-10-04: prereg.md rewritten from spec v2.1 (questions, H1-H4, baseline, design blocks, metrics, validity rules, budget order, decisions log, 9 open TODOs); reconstruction.md rewritten (paper-first sources, criteria from Table 1, R1/R3/R4 and new R3b/R11/R12, section 5a resolved); spec-v2-draft.md marked FOLDED; README Approach updated to match. Not yet done: designs/inputs/criteria.yaml, prompts/, design expander, persona builder (listed as TODOs).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+prereg.md and reconstruction.md rewritten to the user-approved v2.1 design (Q1/Q2, one persona x policy calls, named personas, Wikipedia evidence, one-at-a-time blocks, primary and rank metrics, decisions log, 9 open TODOs); spec marked folded; README approach aligned. Verified by grep for stale terms (15 criteria, 765 calls, fractional factorial, balanced packet) and full test run (266 pass). Both prereg files remain DRAFT. Known remaining mismatch outside the three files: designs/inputs/criteria.yaml and prompts/ still reflect the earlier design (TASK-16).
+<!-- SECTION:FINAL_SUMMARY:END -->
