@@ -1,10 +1,11 @@
 ---
 id: TASK-35
 title: 'Claude Code subagent comparison arm (separate, labeled, not pooled)'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-10-04 13:23'
-updated_date: '2026-10-04 13:46'
+updated_date: '2026-10-04 13:51'
 labels:
   - phase3
 dependencies:
@@ -27,3 +28,9 @@ Cross-model comparison arm (prereg s9a, user-directed 2026-10-04): repeat the ba
 - [ ] #5 Distribution comparison report (rating distributions, persona spread, halo, failure rates, Table 4 agreement)
 - [ ] #6 Report headed as a separate labeled arm, with the model-plus-harness caveat
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Runner built and tested (subagent_arm/, 11 tests): task files, next prompts, discard, ingest with one retry, own store (gitignored), config with k_c 3 from the study design baseline. Design: agent reads one task file and writes one answer file (expected tool uses 2) so answers do not pass through the session context. Not run: needs the frozen prereg and the user's go-ahead on 1,683 agents. Comparison reports still to write.
+<!-- SECTION:NOTES:END -->

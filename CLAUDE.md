@@ -7,7 +7,7 @@ Re-implementation (not a replication) of the "Economic Policy for AGI" survey fr
 - Write `prereg/prereg.md` and keep it draft until the user tags it frozen. No paid API calls before that, except labeled non-inference runs (smoketest, pilot): each needs the user's explicit go-ahead, goes through the spend ceiling and `--confirm`, and its data never enters inference.
 - Hard spend ceiling `max_spend_usd = 15`, enforced in code (`submit` needs `--confirm` and refuses anything that would exceed the ceiling). Confirm with the user before any paid call on a new provider.
 - Run the tests and stop for user review after each task.
-- Pin exact model snapshots, never aliases. Use single structured batch calls, not agentic subagents.
+- Pin exact model snapshots, never aliases. Use single structured batch calls, not agentic subagents. One user-approved exception: the Claude subagent arm (`subagent_arm/`, prereg s9a, TASK-35), a separate labeled baseline-only comparison on Claude Haiku 4.5 that is never pooled with the main analysis.
 - Log every run, including failures, with seed and temperature. The raw store is append-only; analysis reads only from `results/raw`.
 - Instability of scores shows they lack the claimed precision, not that the recommendations are wrong. Say so in write-ups.
 
