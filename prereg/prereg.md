@@ -297,6 +297,49 @@ stability. Procedure and budget (DRAFT, TASK-22; for user review, fixed at freez
   0.0015 USD per call, 55 calls per candidate) the budget covers the noise rerun, depth 1 and a full depth 2 (about 2.40
   USD in all).
 
+## 9a. Claude cross-model arm (separate, labeled; DRAFT, TASK-35)
+
+Purpose: a second model on the baseline only, so the report can show how much of the variation in
+section 6 is due to the choice of model and how that compares with run-to-run noise. It is not a
+battery: none of the Q, R-T or D variations are run on it. It is a user-approved exception to the
+"single structured batch calls, not agentic subagents" rule, so it is labeled, kept in its own
+directory (`subagent_arm/`) and store, never pooled with the main analysis, and its rows never
+enter the main inference. It is also not D3: D3 is a second API model through the same batch
+path and is not run (no second model approved).
+
+- **Model:** Claude Haiku 4.5 (`claude-haiku-4-5-20251001`), run as Claude Code subagents with the
+  model set to haiku. Whether the subagent reports a snapshot is checked and recorded per run;
+  if only an alias is available, that is stated in the report. Temperature and seed cannot be set
+  (recorded as "not controllable"), so job ids are not comparable to the main store's and runs
+  are not reproducible by seed.
+- **Design:** the baseline B configuration unchanged (named personas, Wikipedia evidence, the
+  baseline instruction wording, 13 criteria), one fresh subagent per persona x policy call, given
+  the exact rendered B prompt and nothing else (561 calls per repeat). Subagents must not use
+  tools or read files; a run whose report shows any tool use is discarded and logged as a
+  failure, so that no run can see published scores.
+- **Repeats:** k_C = 3 (the k_Q floor). Repeats run in full, in order; a partial repeat is
+  reported as such and not used in repeat-mean quantities. No other cells.
+- **Validation and logging:** replies go through the same JSON schema check as the main arm;
+  malformed ones are retried once, then logged as failures. Every run is logged, including
+  failures and discards, with a null temperature and seed.
+- **Comparison 1, stability** (descriptive, per model): repeat-to-repeat noise of the panel mean per
+  policy x criterion; persona-level SD across repeats; the persona-versus-run-noise variance
+  decomposition and n_eff; rank stability across repeats within each model (Kendall tau between
+  repeat means, recommendation clauses (a)-(d) per repeat). Then between models: the number of
+  policy x criterion panel means shifted from B by more than M = 5, shown beside each model's own
+  repeat noise, and the same recommendation clauses and ranks.
+- **Comparison 2, distribution of responses** (descriptive): the distribution of single ratings
+  per criterion (mean, SD, quantiles, share of round values and of the extreme 0-10 and 90-100
+  bands), the spread of persona means, within-call correlation among criteria (halo), failure and
+  discard rates, rationale length, and agreement with published Table 4 for each model.
+- **Reading:** B repeats (k_R = 5) give glm-5.3-flash's repeat noise; the Claude repeats give
+  Haiku's. A between-model shift is read against both. A difference between the models is a
+  difference between two model-and-harness bundles (model, agentic wrapper, uncontrolled
+  sampling), not a clean model effect; it shows that scores depend on which model is used, not
+  that either is right. There is no inference language and no Holm correction here.
+- **Budget:** no spend through the ledger or the 15 USD ceiling; it uses Claude Code usage, so
+  the user is told the agent count (1,683 for k_C = 3) before the run starts and approves it.
+
 ## 10. Decisions log
 
 - 2026-10-04 (user): named-economist personas from Appendix A (match the paper); results reported
@@ -349,6 +392,10 @@ stability. Procedure and budget (DRAFT, TASK-22; for user review, fixed at freez
   Q3a "proposed as one way" and Q3b "might use" vs the baseline's "could help"; Q2a SAWF "a publicly
   owned wealth fund" adds ownership (the original says "public wealth fund"; the user kept it as written, 2026-10-04); Q2c UBS "including" vs "such as". This is a Claude check of text written with
   Claude's help, not an independent model family; the user's own review stands alongside it.
+- 2026-10-04 (user, TASK-35): the Claude subagent arm covers model variability only: a repeat of
+  the baseline with Claude Haiku 4.5, compared with B on stability and on the distribution of
+  responses; no variation battery. Written up as section 9a; repeats k_C = 3 and the one-agent-
+  per-call design are the implementer's choices, for review.
 - 2026-10-04 (user, TASK-34): keep the conservative guard (estimate from the cap) and raise the
   ceiling in stages, in the section 8 priority order; the code ceiling changes only when the user
   edits `config.yaml` explicitly, and the account budget is topped up by the user between stages.
