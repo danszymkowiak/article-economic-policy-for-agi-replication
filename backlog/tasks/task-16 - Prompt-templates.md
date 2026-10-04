@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-03 06:03'
-updated_date: '2026-10-04 07:50'
+updated_date: '2026-10-04 07:52'
 labels:
   - phase3
 dependencies:
@@ -49,6 +49,8 @@ Carried over from TODO.md: replaces the placeholder prompt template (domain/rend
 2026-10-04 draft phase (v2.1): code + tests, no wiring. New: domain/study_prompt.py (placeholder contract per call unit, render_persona_policy for B/Q1/Q2/Q3, render_joint for D1, neutral codes P1..P11), bootstrap/prompt_files.py (load_templates, load_description_paraphrases, sha256 manifest check); tests in tests/domain/test_study_prompt.py and tests/bootstrap/test_prompt_files.py (criteria count/ids, all templates render, unknown template/unit fails, description-only shows no policy name or acronym, manifest hashes). Old prompts/all_policies and one_policy drafts replaced. NOT done (needs review first): AC6 config inputs_dir, prereg R5 and prompt-wording row, job builder and response-schema wiring. USER MUST REVIEW: (1) designs/inputs/criteria.yaml (13 criteria, Table 1 + Figure 1 verbatim; Implementation Readiness wording is ours); (2) designs/inputs/policies.yaml (Table 3 verbatim, ids = evidence packet names); (3) prompts/persona_policy/baseline.txt (B); (4) prompts/persona_policy/para_1.txt, para_2.txt, para_3.txt (Q3a-c); (5) prompts/joint/baseline.txt (D1); (6) designs/inputs/description_paraphrases/para_1.yaml, para_2.yaml, para_3.yaml (Q2a-c, 33 entries); (7) prompts/manifest.yaml (hashes, element checklists; status draft). Persona preamble (EDSL wording) and block headings (Evidence:, Policy:, Criteria:) are fixed in study_prompt.py, not paraphrased.
 
 2026-10-04 wiring (16b), user approved the drafts as they stand: personas/ moved (git mv, content unchanged) to designs/inputs/personas so config.yaml paths.inputs_dir = designs/inputs loads both panels (named, reconstructed; 51 each), 13 criteria, 11 policies; smoketest configs keep designs/smoketest/inputs. prompts/manifest.yaml status reviewed-by-user 2026-10-04, hashes unchanged. prereg: 13 criteria; call counts recomputed (B 561/config-repeat, D1 51x13=663, D2 11; full plan 561(k_R+1)+7406 k_Q = 25,584 calls at k_R=5,k_Q=3); s8 priority with D2b after D2, R-T and D cells k_Q repeats, stopping rule; decisions log; Readiness limitation; s12 items 4, 8, 9. reconstruction.md: R5 decided with file refs, s3 criteria sentence fixed, persona paths. Expander: removed k_rt and per-D-cell repeats (R-T and D cells now k_Q, loader rejects k_rt and d_cells repeats) to match s8. Evidence: designs/inputs has no evidence/ dir, so load_inputs returns no evidence for the study inputs; per-policy packets are TASK-33. Validation: uv run pytest -q 356 passed; ruff check clean.
+
+2026-10-04 fix round 1: D2 restored to a dedicated repeat count (d2_repeats, default 51: 11 x 51 = 561 calls, one B repeat's worth, independent noise estimator); D1, D2b, D3 stay at k_Q. Prereg s5/s8/decisions log and totals updated: full plan 561(k_R+2) + 7,395 k_Q = 26,112 calls at k_R=5, k_Q=3. pytest 358 passed, ruff clean.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

@@ -122,13 +122,14 @@ the hashes are copied here at freezing.
 **Block D, design changes (reported separately, not "small variations"):** D1 joint scoring, all 11
 policies in one prompt per persona x criterion (`prompts/joint/baseline.txt`; 51 personas x 13
 criteria = 663 calls per repeat, each returning 11 ratings: 663 x 11 = 7,293 ratings, the same as
-B); D2 no persona (one call per policy, 11 calls per repeat; also an independent noise estimator);
+B); D2 no persona (one call per policy, 11 calls per repeat, many repeats: 51 repeats x 11 = 561
+calls, the same as one B repeat, so it serves as an independent noise estimator);
 D2b our synthetic trait panel in place of the named economists; D3 a second pinned model, if
 budget allows.
 
 **Call counts.** A persona x policy configuration-repeat is 51 x 11 = 561 calls (B, B', R-T, every
 Q cell, D2b, D3); a D1 repeat is 51 x 13 = 663 calls; a D2 repeat is 11 calls. With the repeat
-counts of section 8 (k_R for B, one B', k_Q for every other cell):
+counts of section 8 (k_R for B, one B', 51 for D2, k_Q for every other cell):
 
 | Unit | Cells | Calls |
 |---|---|---|
@@ -137,12 +138,12 @@ counts of section 8 (k_R for B, one B', k_Q for every other cell):
 | Q1, Q4 | 1 each | 561 k_Q each |
 | Q2, Q3 | 3 each | 3 x 561 x k_Q = 1,683 k_Q each |
 | D1 | 1 | 663 k_Q |
-| D2 | 1 | 11 k_Q |
+| D2 | 1 | 11 x 51 = 561 |
 | D2b, D3 | 1 each | 561 k_Q each |
 
-Full plan: 561 x (k_R + 1) + k_Q x (1,122 + 2 x 561 + 2 x 1,683 + 663 + 11 + 2 x 561) =
-561 x (k_R + 1) + 7,406 k_Q calls. At the indicative floor k_R = 5, k_Q = 3: 561 x 6 = 3,366 plus
-7,406 x 3 = 22,218, total 25,584 calls (D3's on a second model, priced separately). Cost per
+Full plan: 561 x (k_R + 1) + 561 + k_Q x (1,122 + 2 x 561 + 2 x 1,683 + 663 + 2 x 561) =
+561 x (k_R + 2) + 7,395 k_Q calls. At the indicative floor k_R = 5, k_Q = 3: 561 x 7 = 3,927 plus
+7,395 x 3 = 22,185, total 26,112 calls (D3's on a second model, priced separately). Cost per
 call is measured in the pilot; section 8 applies it.
 
 Temperature and seed are recorded for every run. Zen may ignore `seed`; the pilot checks, and if it
@@ -223,9 +224,11 @@ paper's Appendix B per-policy profiles.
 - Hard spend ceiling: `max_spend_usd = 15`, enforced in code. `submit` requires `--confirm` and
   refuses any job set whose estimated cost plus cumulative actual spend would exceed it. Confirm
   with the user before any paid call on a new provider.
-- Repeats: B gets k_R repeats and B' one; each R-T cell, each Q cell and each D cell gets k_Q
-  repeats. k_R and k_Q are not frozen: they are set after the pilot from its measured cost, with an
-  indicative floor of k_R >= 5 and k_Q >= 3. Call counts per unit are in section 5.
+- Repeats: B gets k_R repeats and B' one; D2 gets 51 repeats (11 x 51 = 561 calls, one B
+  repeat's worth, so it works as an independent noise estimator); each R-T cell, each Q cell and
+  D1, D2b and D3 get k_Q repeats. k_R and k_Q are not frozen: they are set after the pilot from
+  its measured cost, with an indicative floor of k_R >= 5 and k_Q >= 3. Call counts per unit are
+  in section 5.
 - Priority order if the budget binds (fixed now): R with B', Q1, Q2a-c, Q4, Q3a-c, R-T, D2, D2b,
   D1, D3.
 - Stopping rule, applied to precomputed unit costs against the budget left under the ceiling
@@ -255,7 +258,8 @@ the main analysis. Its search procedure and budget are TODO and must be fixed be
   Administrative Capacity and Speed); call counts recomputed (section 5). Implementation Readiness
   has no Table 1 definition, so its wording is ours. The criteria, policy definitions, templates
   and paraphrases were reviewed as drafted (`prompts/manifest.yaml`, hashes unchanged). D2b sits
-  right after D2 in the priority order; R-T and D cells get k_Q repeats each; the stopping rule
+  right after D2 in the priority order; R-T cells and D1, D2b, D3 get k_Q repeats each, D2 gets 51
+  (561 calls); the stopping rule
   reads as stated in section 8.
 - 2026-10-04 (user): staged execution. The study runs in stages, and the user may raise the
   account budget between stages. The code ceiling `max_spend_usd = 15` stays until the user

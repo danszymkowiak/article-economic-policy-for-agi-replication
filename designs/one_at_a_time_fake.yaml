@@ -1,7 +1,8 @@
 # Example one-at-a-time design (prereg section 5) using the fake provider only; spends nothing.
 # Format reference for the study design file. Numbers marked TODO are placeholders, not study
 # values: k_r and k_q come from the pilot (indicative floor k_r >= 5, k_q >= 3), the higher R-T
-# temperature is open (prereg s12 item 2). Every R-T and D cell gets k_q repeats (prereg s8).
+# temperature is open (prereg s12 item 2). Every R-T and D cell gets k_q repeats except D2,
+# which gets d2_repeats (prereg s8).
 design: one_at_a_time
 order_seed: 20261004      # recorded seed for the randomised, interleaved run order
 base_seed: 0              # repeat r uses sampling seed base_seed + r; B' uses base_seed + k_r
@@ -13,6 +14,7 @@ baseline:
 n_personas: 51
 k_r: 5                    # TODO: from the pilot
 k_q: 3                    # TODO: from the pilot
+d2_repeats: 51            # D2: 11 policies x 51 repeats = 561 calls (one B repeat's worth)
 rt_temperatures: [0.0, 1.0]  # temperature 0 and one higher level (TODO: the higher level)
 d_cells:                  # omit a cell to leave it out; it is then reported as not run
   D1: {}                  # joint scoring, all policies per persona x criterion

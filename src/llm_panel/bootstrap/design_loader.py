@@ -8,7 +8,7 @@ from pathlib import Path
 import yaml
 
 from llm_panel.domain.design import Design
-from llm_panel.domain.oat_design import DSettings, Factors, ModelRef, OatDesign
+from llm_panel.domain.oat_design import D2_REPEATS, DSettings, Factors, ModelRef, OatDesign
 
 REQUIRED_FACTORS = (
     "model",
@@ -91,6 +91,7 @@ def load_oat_design(path: Path | str) -> OatDesign:
         ),
         k_r=int(data["k_r"]),
         k_q=int(data["k_q"]),
+        d2_repeats=int(data.get("d2_repeats", D2_REPEATS)),
         rt_temperatures=tuple(float(t) for t in data["rt_temperatures"]),
         d_cells=d_cells,
         base_seed=int(data.get("base_seed", 0)),

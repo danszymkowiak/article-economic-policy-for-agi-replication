@@ -51,6 +51,7 @@ UNIT_CELLS = {
 }
 D_CELLS = ("D1", "D2", "D2b", "D3")
 DRIFT_CELL = "B'"
+D2_REPEATS = 51  # prereg s8: 11 policies x 51 repeats = 561 calls
 
 
 @dataclass(frozen=True)
@@ -79,7 +80,7 @@ class Factors:
 
 @dataclass(frozen=True)
 class DSettings:
-    """Block D cell settings from the design file. Repeats are k_Q for every D cell (prereg s8)."""
+    """Block D cell settings from the design file. Repeats (prereg s8): k_Q, except D2."""
 
     persona_source: str | None = None  # D2b only
     model: ModelRef | None = None  # D3 only
@@ -92,6 +93,9 @@ class OatDesign:
     k_q: int
     rt_temperatures: tuple[float, ...]  # temperature 0 and one higher level
     d_cells: Mapping[str, DSettings] = field(default_factory=dict)  # R-T and D cells get k_q
+    # D2 (no persona) is 11 calls per repeat; 51 repeats = 561 calls, one B repeat's worth, so it
+    # serves as an independent noise estimator (prereg s5, s8).
+    d2_repeats: int = D2_REPEATS
     base_seed: int = 0
     order_seed: int = 0
     n_personas: int = NAMED_PANEL_SIZE
@@ -116,8 +120,8 @@ def differing_factors(a: Factors, b: Factors) -> tuple[str, ...]:
 
 def _validate(design: OatDesign) -> None:
     base = design.baseline
-    if design.k_r < 1 or design.k_q < 1:
-        raise ValueError("k_r and k_q must be >= 1")
+    if design.k_r < 1 or design.k_q < 1 or design.d2_repeats < 1:
+        raise ValueError("k_r, k_q and d2_repeats must be >= 1")
     if base.persona_source == NO_PERSONA or base.evidence == NO_EVIDENCE:
         raise ValueError("baseline needs a persona panel and an evidence packet")
     default = Factors(base.model, base.temperature, base.persona_source, base.evidence)
@@ -179,7 +183,7 @@ def expand_cells(design: OatDesign) -> tuple[Cell, ...]:
             "D2b": replace(base, persona_source=d.persona_source),
             "D3": replace(base, model=d.model),
         }[name]
-        cells.append(Cell(name, "D", name, f, seeds(k_q)))
+        cells.append(Cell(name, "D", name, f, seeds(design.d2_repeats if name == "D2" else k_q)))
     return tuple(cells)
 
 

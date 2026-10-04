@@ -65,8 +65,19 @@ def test_per_cell_repeat_counts_are_rejected_because_prereg_fixes_k_q(tmp_path, 
         load_oat_design(write(tmp_path, data))
 
 
-def test_example_r_t_and_d_cells_get_k_q_repeats():
+def test_example_r_t_and_d_cells_get_k_q_repeats_except_d2():
     design = load_oat_design(EXAMPLE)
     for cell in expand_cells(design):
-        if cell.unit in ("R-T", "D1", "D2", "D2b", "D3"):
+        if cell.unit in ("R-T", "D1", "D2b", "D3"):
             assert cell.repeats == design.k_q, cell.cell_id
+        if cell.unit == "D2":
+            assert cell.repeats == 51
+
+
+def test_d2_repeats_defaults_to_51_and_can_be_set(tmp_path):
+    data = yaml.safe_load(EXAMPLE.read_text())
+    data.pop("d2_repeats", None)
+    assert load_oat_design(write(tmp_path, data)).d2_repeats == 51
+    data["d2_repeats"] = 10
+    d2 = {c.cell_id: c for c in expand_cells(load_oat_design(write(tmp_path, data)))}["D2"]
+    assert d2.repeats == 10

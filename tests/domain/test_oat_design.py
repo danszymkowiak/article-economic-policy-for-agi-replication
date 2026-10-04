@@ -65,11 +65,14 @@ def test_expands_every_prereg_cell_in_blocks_r_q_d():
 
 
 def test_repeat_counts_follow_k_r_and_k_q():
-    # Prereg s8: B gets k_R, B' one; every Q, R-T and D cell gets k_Q.
+    # Prereg s8: B gets k_R, B' one, D2 d2_repeats (51); every Q, R-T and other D cell gets k_Q.
     cells = by_id(expand_cells(design()))
     assert cells["B"].repeats == 5 and cells["B'"].repeats == 1
-    assert all(c.repeats == 3 for c in cells.values() if c.cell_id not in ("B", "B'"))
-    assert all(c.repeats == 4 for c in expand_cells(design(k_q=4)) if c.unit in ("R-T", "D2"))
+    assert cells["D2"].repeats == 51  # 11 x 51 = 561 calls, one B repeat's worth
+    assert all(c.repeats == 3 for c in cells.values() if c.cell_id not in ("B", "B'", "D2"))
+    k4 = by_id(expand_cells(design(k_q=4, d2_repeats=7)))
+    assert all(k4[c].repeats == 4 for c in ("R-T0", "R-T1", "D1", "D2b", "D3"))
+    assert k4["D2"].repeats == 7
 
 
 def test_b_prime_seed_differs_from_every_r_repeat_so_its_job_ids_are_new():
@@ -159,6 +162,7 @@ def test_paired_persona_check_rejects_wrong_panel_size():
         dict(baseline=replace(BASE, persona_source="none")),
         dict(baseline=replace(BASE, description_wording="para_1")),
         dict(d_cells={"D9": DSettings()}),
+        dict(d2_repeats=0),
         dict(d_cells={"D2b": DSettings()}),  # needs a persona source
         dict(d_cells={"D2b": DSettings(persona_source="named")}),
         dict(d_cells={"D3": DSettings()}),  # needs a model
