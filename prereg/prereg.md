@@ -319,6 +319,16 @@ path and is not run (no second model approved).
   failure, so that no run can see published scores.
 - **Repeats:** k_C = 3 (the k_Q floor). Repeats run in full, in order; a partial repeat is
   reported as such and not used in repeat-mean quantities. No other cells.
+- **Reply format (changed after the pilot, 2026-10-04):** agents write one line per criterion,
+  `criterion_id | score | rationale`, instead of hand-written JSON, because in the pilot 11 of 36
+  first attempts at JSON failed the syntax check (mostly a stray closing brace) and 3 of 7 retries
+  failed again. `ingest` converts the lines to the study's JSON mechanically (it never changes a
+  score or rationale; a rationale may contain a pipe) and the agent's own text is kept in the row.
+  The task text is otherwise exactly B's prompt; the wrapper tells the agent to ignore its JSON
+  reply instruction. With lines, 20 of 20 first attempts passed (pilot, 2026-10-04).
+- **Tool use:** a valid run shows 3 tool uses (Read, Write and the harness hand-back); any other
+  count is discarded, logged and retried once. A restricted `rater` agent type (Read and Write
+  only, Haiku; `.claude/agents/rater.md`) is used when available.
 - **Validation and logging:** replies go through the same JSON schema check as the main arm;
   malformed ones are retried once, then logged as failures. Every run is logged, including
   failures and discards, with a null temperature and seed.
