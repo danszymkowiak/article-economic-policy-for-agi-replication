@@ -232,3 +232,7 @@ results/smoketest/
 
 # Pilot runs (labeled non-inference; same redistribution caution as raw results)
 results/pilot/
+
+# Generated analysis reports (commit code, not study outputs); transcribed published inputs stay
+analysis/*
+!analysis/published/

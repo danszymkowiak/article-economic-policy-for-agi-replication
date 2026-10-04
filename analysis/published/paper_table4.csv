@@ -1,0 +1,19 @@
+# Published panel scores from "Economic Policy for AGI" (Jacobs and Imas, 15 Sep 2026), SSRN abstract 7470000.
+# Source: Table 4 (p. 14) and Appendix B profiles B.1-B.11 (pp. 35-38) of docs/economic-policy-for-agi-ssrn.pdf
+# (sha256 329f21d42fa4cceb999f91f1e765b1d8e1f801271bc4869858e87508f4f436b8), retrieved 2026-10-04.
+# Table 4 and Appendix B carry the same numbers; tests/test_published_table4.py checks every value against both.
+# Panel criteria are 0-100 means of N = 51 simulated economists; public_net_approval_pct is survey data
+# (% support minus % oppose, N = 2,019), not a panel rating. Column ids are our criterion ids
+# (designs/inputs/criteria.yaml); implementation_readiness is the paper's daggered "Ready" column.
+policy_id,standards_of_living,meaning_human_value,macro_stabilisation,economic_agency_mobility,ownership_of_gains,democratic_voice,economic_feasibility,implementation_readiness,public_net_approval_pct,mild_disruption,moderate_disruption,full_transformation
+eitc,67.1,71.8,67.6,64.7,20.6,56.4,83.2,95.3,58.7,68.9,52.3,31.9
+ui,63.2,61.4,75.6,63.9,19.2,48.1,81.9,91.9,56.5,70.0,65.9,50.1
+almp,25.6,47.5,37.7,52.1,9.4,49.4,50.1,65.0,72.8,42.5,20.6,5.9
+wage_insurance,55.5,58.9,27.8,59.8,21.3,53.0,47.9,54.8,48.2,35.7,38.9,33.0
+directed_industrial_policy,58.3,64.3,24.6,59.1,47.0,50.1,54.0,55.0,63.6,38.9,50.3,65.0
+fjg,63.0,41.2,28.9,51.1,33.5,54.0,38.0,27.0,54.1,18.0,37.0,50.0
+ubi,64.7,41.4,47.4,61.9,51.3,46.2,40.2,38.6,7.4,51.0,57.0,65.0
+nit,74.3,69.3,65.7,64.2,39.8,57.0,78.9,57.9,17.1,74.0,69.8,65.0
+ubs,64.0,54.2,63.9,61.4,12.4,52.0,61.0,48.4,55.1,73.0,74.0,78.0
+ubc,69.8,52.3,64.0,66.7,94.9,67.2,55.0,30.0,28.9,63.0,66.0,93.5
+sawf,52.4,40.6,68.0,52.7,54.9,58.0,48.5,51.0,35.2,60.4,62.0,68.0

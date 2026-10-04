@@ -1,4 +1,6 @@
-"""Cron-friendly CLI: plan, submit, collect, status. Exit 0 on success, 2 on a guarded refusal."""
+"""Cron-friendly CLI: plan, submit, collect, status, check, analyze.
+
+Exit 0 on success, 2 on a guarded refusal."""
 
 from __future__ import annotations
 
@@ -13,6 +15,12 @@ from pathlib import Path
 
 from llm_panel.adapters.jsonl import JsonlBatchLedger, JsonlResultStore
 from llm_panel.adapters.lock import LockHeld, exclusive_lock
+from llm_panel.application.baseline_comparison import (
+    render_agreement_csv,
+    render_markdown,
+    render_policy_csv,
+    run_baseline_comparison,
+)
 from llm_panel.application.build_jobs import build_study_jobs
 from llm_panel.application.collect import collect
 from llm_panel.application.smoketest import ratings_from_store
@@ -38,6 +46,7 @@ from llm_panel.bootstrap.providers import (
     default_registry,
     make_client_factory,
 )
+from llm_panel.bootstrap.published_loader import load_published
 from llm_panel.bootstrap.smoketest_loader import load_expectations
 from llm_panel.domain.design import to_run_specs
 from llm_panel.domain.oat_design import expand_cells, paired_persona_ids, run_order
@@ -128,6 +137,15 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--out", required=True, help="inputs directory")
     check = sub.add_parser("check", help="check smoketest expectations against the store")
     check.add_argument("--expectations", required=True)
+    analyze = sub.add_parser("analyze", help="descriptive analyses read from the raw store")
+    analyses = analyze.add_subparsers(dest="analysis", required=True)
+    baseline = analyses.add_parser("baseline", help="baseline B versus the published Table 4")
+    baseline.add_argument(
+        "--published",
+        default="analysis/published/paper_table4.csv",
+        help="transcribed published scores (relative to the config's folder)",
+    )
+    baseline.add_argument("--out", default="analysis/baseline", help="report directory")
     return parser
 
 
@@ -198,9 +216,28 @@ def _build_personas(args) -> int:
     return 0
 
 
+def _analyze_baseline(args, config_dir: Path, raw_store: Path, store) -> int:
+    published = load_published(config_dir / args.published)
+    result = run_baseline_comparison(store, published)
+    out = config_dir / args.out
+    out.mkdir(parents=True, exist_ok=True)
+    try:
+        label = str(raw_store.resolve().relative_to(config_dir.resolve()))
+    except ValueError:
+        label = str(raw_store)
+    (out / "baseline_comparison.md").write_text(render_markdown(result, label), encoding="utf-8")
+    (out / "baseline_agreement.csv").write_text(render_agreement_csv(result), encoding="utf-8")
+    (out / "baseline_policy_scores.csv").write_text(render_policy_csv(result), encoding="utf-8")
+    print(f"wrote baseline_comparison.md and two CSVs to {out} "
+          f"({result.counts.ok_jobs} cell B jobs from {label})")  # fmt: skip
+    return 0
+
+
 def _run(args, config, store, ledger, factory, settings, now) -> int:
     if args.command == "build-personas":
         return _build_personas(args)
+    if args.command == "analyze":  # read-only; needs no ledger or spend state
+        return _analyze_baseline(args, Path(args.config).parent, config.raw_store, store)
     external = external_spend(config)
     if args.command in ("plan", "submit"):
         if is_oat_design(args.design):
