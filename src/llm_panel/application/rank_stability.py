@@ -43,7 +43,7 @@ class RankStabilityReport:
     cell_order: list[str]  # B first, then the compared cells
 
 
-def _order(cell_ids) -> list[str]:
+def report_order(cell_ids) -> list[str]:
     known = [c for c in _KNOWN_ORDER if c in cell_ids]
     return known + sorted(set(cell_ids) - set(known))
 
@@ -59,7 +59,7 @@ def run_rank_stability(
         for cell, (obs, _) in by_cell.items()
         if obs
     }
-    order = _order(arrays)
+    order = report_order(arrays)
     if BASELINE_CELL not in arrays:
         return RankStabilityReport(None, counts, arrays, order)
     others = [arrays[c] for c in order if c != BASELINE_CELL]

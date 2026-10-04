@@ -231,7 +231,7 @@ def _reindex(arr: CellArray, personas: tuple[str, ...]) -> np.ndarray:
     return out
 
 
-def _align(b: CellArray, cell: CellArray) -> tuple[np.ndarray, np.ndarray, str]:
+def align_cells(b: CellArray, cell: CellArray) -> tuple[np.ndarray, np.ndarray, str]:
     """Both score arrays ready to compare, and the pairing rule that applies."""
     if not cell.has_personas:
         return b.scores, cell.scores, NO_PERSONAS
@@ -312,7 +312,7 @@ def rank_stability(
                 lo, mid, hi = _summary(taus[:, j])
                 noise.append(NoiseSummary(how, name, kind, len(taus), lo, mid, hi))
         for cell in cells:
-            xb, xc, pairing = _align(b, cell)
+            xb, xc, pairing = align_cells(b, cell)
             pb = repeat_composites(xb, how, b.criteria, composites)
             pc = repeat_composites(xc, how, cell.criteria, composites)
             mb, mc = pb.mean(axis=0), pc.mean(axis=0)

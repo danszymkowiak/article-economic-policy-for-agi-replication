@@ -45,6 +45,16 @@ from llm_panel.application.submit import (
     plan_from_build,
     submit,
 )
+from llm_panel.application.variance import (
+    render_agreement_csv as render_variance_agreement_csv,
+)
+from llm_panel.application.variance import (
+    render_components_csv,
+    render_persona_cells_csv,
+    run_variance,
+)
+from llm_panel.application.variance import render_markdown as render_variance_markdown
+from llm_panel.application.variance import render_shifts_csv as render_variance_shifts_csv
 from llm_panel.bootstrap.config import ExternalSpendError, external_spend, load_config
 from llm_panel.bootstrap.design_loader import is_oat_design, load_design, load_oat_design
 from llm_panel.bootstrap.env import load_dotenv
@@ -166,6 +176,10 @@ def build_parser() -> argparse.ArgumentParser:
         help="persona bootstrap resamples (placeholder default; prereg s12 item 6 open)",
     )
     ranks.add_argument("--seed", type=int, default=0, help="persona bootstrap seed")
+    variance = analyses.add_parser(
+        "variance", help="variance decomposition: persona share, n_eff, factors versus noise"
+    )
+    variance.add_argument("--out", default="analysis/variance", help="report directory")
     return parser
 
 
@@ -276,12 +290,33 @@ def _analyze_ranks(args, config_dir: Path, raw_store: Path, store) -> int:
     return 0
 
 
+def _analyze_variance(args, config_dir: Path, raw_store: Path, store) -> int:
+    report = run_variance(store)
+    out = config_dir / args.out
+    out.mkdir(parents=True, exist_ok=True)
+    label = _store_label(raw_store, config_dir)
+    files = {
+        "variance.md": render_variance_markdown(report, label),
+        "variance_components.csv": render_components_csv(report),
+        "variance_persona_cells.csv": render_persona_cells_csv(report),
+        "variance_agreement.csv": render_variance_agreement_csv(report),
+        "variance_factor_shifts.csv": render_variance_shifts_csv(report),
+    }
+    for name, text in files.items():
+        (out / name).write_text(text, encoding="utf-8")
+    print(f"wrote variance.md and four CSVs to {out} "
+          f"({len(report.cell_order)} cells from {label})")  # fmt: skip
+    return 0
+
+
+ANALYSES = {"baseline": _analyze_baseline, "ranks": _analyze_ranks, "variance": _analyze_variance}
+
+
 def _run(args, config, store, ledger, factory, settings, now) -> int:
     if args.command == "build-personas":
         return _build_personas(args)
     if args.command == "analyze":  # read-only; needs no ledger or spend state
-        analyze = _analyze_ranks if args.analysis == "ranks" else _analyze_baseline
-        return analyze(args, Path(args.config).parent, config.raw_store, store)
+        return ANALYSES[args.analysis](args, Path(args.config).parent, config.raw_store, store)
     external = external_spend(config)
     if args.command in ("plan", "submit"):
         if is_oat_design(args.design):
