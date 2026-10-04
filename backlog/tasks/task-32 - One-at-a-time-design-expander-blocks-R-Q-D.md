@@ -1,7 +1,7 @@
 ---
 id: TASK-32
 title: 'One-at-a-time design expander (blocks R, Q, D)'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-04 07:16'
@@ -47,3 +47,9 @@ Readings of ambiguous prereg points (also in code comments):
 - AC2 '51 personas' applies to every cell except D2 (no persona) and D2b (synthetic panel), which change the persona factor by design.
 Tests: uv run pytest -q -> 323 passed; ruff clean.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Pure one-at-a-time expander for blocks R/Q/D with seeded interleaved run order, B' last, priority order + cost stopping rule with not-run report; loader and fake design added. 323 tests pass. Open rulings (D2b priority, drop-first reading, R-T repeats) recorded in notes; need prereg edit.
+<!-- SECTION:FINAL_SUMMARY:END -->
