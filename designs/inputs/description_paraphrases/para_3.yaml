@@ -1,0 +1,40 @@
+# DRAFT for user review; not frozen (TASK-16, cell Q2c). A meaning-preserving paraphrase of each
+# Table 3 definition in designs/inputs/policies.yaml: every element of the original is kept
+# (see the element checklist in prompts/manifest.yaml), nothing is added, and no policy name or
+# acronym is introduced. Drafted by Claude; the user reviews every entry before freezing.
+eitc: >-
+  A tax credit for working households on low to moderate incomes that is means-tested and
+  refundable, and that works as a subsidy to their wages.
+ui: >-
+  A stabilizer that temporarily replaces a portion of the wages of workers who have lost their
+  employment.
+almp: >-
+  Programs, typically state-sponsored, that offer training and assistance with searching for a
+  job, with the aim of adapting workers' skills to occupations that AI complements.
+wage_insurance: >-
+  A transitional earnings subsidy: when displaced workers take re-employment at a lower wage, it
+  compensates them for a portion of the resulting loss in wages.
+directed_industrial_policy: >-
+  Strategic state financing of public good projects intended to tackle market failures and to
+  create new sources of employment.
+fjg: >-
+  Direct employment funded by the public, in which the state serves as employer of last resort so
+  that any individual willing to work is ensured a job.
+ubi: >-
+  A cash transfer delivered uniformly and without conditions to all citizens, whatever their
+  wealth, income, or employment status.
+nit: >-
+  A tax-transfer schedule establishing a guaranteed minimum income floor: cash transfers go automatically
+  to households whose income falls below a threshold, and they phase out smoothly as those
+  households' market earnings rise.
+ubs: >-
+  The public provision, directly and without conditions, of essential in-kind benefits, including
+  healthcare, childcare, education, housing, and transit, free or at subsidized cost to users.
+ubc: >-
+  Sharing, facilitated by the state, of a capital endowment given in advance or of a diversified
+  equity stake in the productive economy, such as accounts holding wealth for citizens or shares
+  in a public trust.
+sawf: >-
+  A wealth fund held by the public that captures the returns from economic gains in the AI sector,
+  via public equity or the taxation of profits, in order to pay universal cash dividends to
+  citizens.

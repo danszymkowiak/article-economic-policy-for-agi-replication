@@ -1,8 +1,0 @@
-{persona_block}{evidence_block}Please score the policy listed below from 0 to 100 on the following criterion, and give one sentence of reasoning for the score.
-
-Criterion: "{criterion_name}" - {criterion_description}
-
-Policy:
-{policy_block}
-
-Respond with JSON only, in the form {{"ratings": [{{"policy": <label>, "score": <0-100>, "rationale": <text>}}]}} with exactly one entry, using the label exactly as shown.

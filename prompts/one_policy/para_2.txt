@@ -1,8 +1,0 @@
-{persona_block}{evidence_block}Criterion: "{criterion_name}" - {criterion_description}
-
-Assess how the following policy fares on this criterion. Assign it a score on a 0-100 scale and add a one-sentence rationale for the score.
-
-Policy:
-{policy_block}
-
-Respond with JSON only, in the form {{"ratings": [{{"policy": <label>, "score": <0-100>, "rationale": <text>}}]}} with exactly one entry, using the label exactly as shown.

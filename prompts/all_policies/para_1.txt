@@ -1,7 +1,0 @@
-{persona_block}{evidence_block}Your task is to evaluate the policies listed below against one criterion: "{criterion_name}", defined as follows: {criterion_description}
-For every policy, give a score between 0 and 100 and explain it in a single sentence.
-
-Policies:
-{policy_block}
-
-Respond with JSON only, in the form {{"ratings": [{{"policy": <label>, "score": <0-100>, "rationale": <text>}}, ...]}} with exactly one entry per policy, using the labels exactly as shown.

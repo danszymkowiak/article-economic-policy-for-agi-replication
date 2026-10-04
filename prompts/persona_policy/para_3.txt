@@ -1,0 +1,11 @@
+{persona_block}{evidence_block}Consider the following household-facing economic policy, an option the United States could adopt to manage the economic transition to artificial general intelligence (AGI).
+
+Policy:
+{policy_block}
+
+Judge how well the policy does on each criterion listed below. For each one, give a score from 0 to 100, with higher scores for better performance on that criterion, together with a one-sentence explanation.
+
+Criteria:
+{criteria_block}
+
+Respond with JSON only, in the form {{"ratings": [{{"criterion": <id>, "score": <0-100>, "rationale": <text>}}, ...]}} with exactly one entry per criterion, using the criterion ids exactly as shown.

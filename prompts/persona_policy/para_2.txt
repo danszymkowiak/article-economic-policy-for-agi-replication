@@ -1,0 +1,11 @@
+{persona_block}{evidence_block}Your task is to assess a policy directed at households that the United States might use to manage the economic transition to artificial general intelligence (AGI).
+
+Policy:
+{policy_block}
+
+On a scale from 0 to 100, on which a higher number means the policy performs better, score the policy against each of the criteria below, and explain each score in one sentence.
+
+Criteria:
+{criteria_block}
+
+Respond with JSON only, in the form {{"ratings": [{{"criterion": <id>, "score": <0-100>, "rationale": <text>}}, ...]}} with exactly one entry per criterion, using the criterion ids exactly as shown.

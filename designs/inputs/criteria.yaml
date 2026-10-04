@@ -1,94 +1,101 @@
-# DRAFT for user review. The 15 sub-criteria, their groups and the definition phrases follow the
-# essay (docs/economic-policy-for-agi.html): the table footnotes under each result table, and
-# the four-dimension framework paragraph. Each description quotes the essay's phrase nearly
-# verbatim and adds only a lead-in so a higher score reads as better for the policy. Where the
-# essay defines two items in one phrase (Political and Popular Support, Economic Feasibility and
-# Administrative Capacity, Speed and Readiness) the phrase is split between them, with the
-# framework paragraph's wording ("economic cost", "administrative simplicity", "speed of
-# rollout", "institutional readiness") used to disambiguate. The essay's note that Readiness is
-# "author-coded" is not carried over: here the agents rate it.
-# Welfare and Resilience (footnote; framework: "material living standards, meaning and purpose,
-# and overall economic stability")
-- id: crit_standards
+# DRAFT for user review (TASK-16, v2.1 design; prereg section 4, reconstruction.md section 3).
+# The criteria the panel rates, in the fixed order they appear in the prompt and the JSON reply.
+# Names and descriptions are the operational definitions of paper Table 1, verbatim. The three
+# scenario criteria add the scenario definition of paper Figure 1, verbatim, after the Table 1
+# phrase. Popular Support is survey data in the paper and is not rated.
+# Two departures from verbatim, for the user to check:
+# - Implementation Readiness is in Table 4 and Appendix B but has no Table 1 definition. Its
+#   description is OUR wording, built from the paper's own phrases ("Near-Term Implementation
+#   Readiness", Figure 7; "the readiness of an intervention today"; "institutional,
+#   administrative, and political barriers", on UBC's 30.0).
+# - Political Support and Administrative Capacity and Speed are Table 1 criteria not reported in
+#   Table 4 (essay columns only); they are rated so the essay comparison is possible.
+# Count: 11 Table 4 panel columns + these 2 = 13 rated criteria.
+# Welfare and Macroeconomic Resilience
+- id: standards_of_living
   name: Standards of Living
   group: welfare_resilience
   description: >-
-    Protection against material deprivation and maintenance of baseline consumption.
-- id: crit_meaning
-  name: Meaning and Human Value
+    Alleviates poverty, cushions consumption against income shocks, and secures access to
+    essential goods and services.
+- id: meaning_human_value
+  name: Meaning & Human Value
   group: welfare_resilience
   description: >-
-    Individual psychosocial meaning, status and purpose.
-- id: crit_macro_stab
+    Preserves non-monetary psychosocial well-being, personal dignity, and structured societal
+    participation.
+- id: macro_stabilisation
   name: Macroeconomic Stabilisation
   group: welfare_resilience
   description: >-
-    Counter-cyclical support for aggregate demand and household purchasing power during
-    automation slumps.
-# Agency and Voice (footnote)
-- id: crit_participation
-  name: Economic Participation
+    Serves as a countercyclical automatic stabilizer sustaining aggregate demand via household
+    transfers.
+# Economic Agency and Democratic Empowerment
+- id: economic_agency_mobility
+  name: Economic Agency & Mobility
   group: agency_voice
   description: >-
-    Preservation of individual worker autonomy, career self-determination and economic agency.
-- id: crit_ownership
+    Enhances worker bargaining power, labor mobility, and the effective capacity to exit
+    non-viable employment.
+- id: ownership_of_gains
   name: Ownership of Gains
   group: agency_voice
   description: >-
-    Broad-based societal distribution of AI-generated capital and productivity gains.
-- id: crit_voice
+    Distributes capital claims to ensure citizens share directly in technological returns as
+    capital share of income rises.
+- id: democratic_voice
   name: Democratic Voice
   group: agency_voice
   description: >-
-    Individual influence over economic governance and workplace decisions.
-# Durability across scenarios (footnote)
-- id: crit_mild
-  name: Mild Disruption
-  group: durability
-  description: >-
-    Performance in a scenario of localised task automation with gradual reallocation.
-- id: crit_broad
-  name: Broad Displacement
-  group: durability
-  description: >-
-    Performance in a scenario of widespread displacement outrunning new job creation.
-- id: crit_transform
-  name: AGI Transformation
-  group: durability
-  description: >-
-    Performance in a scenario of comprehensive automation that fundamentally decouples human
-    labour from baseline subsistence.
-# Feasibility and Efficiency (footnotes: "Political & Popular Support: legislative viability
-# and broader public acceptance. Econ. Feasibility & Admin. Capacity: fiscal/macro cost
-# viability and institutional execution. Speed & Readiness: rapidity of disbursement and policy
-# operational maturity.")
-- id: crit_political
+    Supports material autonomy and institutional engagement, while warding against policy
+    capture by individuals or entities with concentrated wealth.
+# Feasibility and Implementation (Table 1 order; Readiness, from Table 4, last)
+- id: political_support
   name: Political Support
   group: feasibility
   description: >-
-    Legislative viability.
-- id: crit_econ_feas
+    Political viability and cross-ideological coalition potential within U.S. governing
+    institutions.
+- id: economic_feasibility
   name: Economic Feasibility
   group: feasibility
   description: >-
-    Fiscal and macroeconomic cost viability.
-- id: crit_popular
-  name: Popular Support
+    Minimizes budgetary burden and deadweight distortions to labor and capital allocation.
+- id: admin_capacity_speed
+  name: Administrative Capacity & Speed
   group: feasibility
   description: >-
-    Broader public acceptance.
-- id: crit_admin
-  name: Administrative Capacity
+    Delivery simplicity and the speed of the intervention.
+- id: implementation_readiness
+  name: Implementation Readiness
   group: feasibility
   description: >-
-    Institutional execution: administrative simplicity of carrying the policy out.
-- id: crit_speed
-  name: Speed
-  group: feasibility
+    Near-term readiness: how ready the intervention is to be implemented today, given the
+    institutional, administrative, and political barriers it faces.
+# Durability Across Scenarios (Table 1 phrase, then "Scenario:" and the Figure 1 definition)
+- id: mild_disruption
+  name: Mild Disruption
+  group: durability
   description: >-
-    Rapidity of disbursement: speed of rollout.
-- id: crit_readiness
-  name: Readiness
-  group: feasibility
+    Efficacy when AI acts as an incremental productivity shock; wage labor and payroll tax bases
+    endure. Scenario: AGI acts as an incremental productivity shock that boosts economic growth
+    while subtly shifting skill demand. These effects do not mark a radical transformation of the
+    economy or labor market, and wage labor endures as the primary source of household income.
+- id: moderate_disruption
+  name: Moderate Disruption
+  group: durability
   description: >-
-    Policy operational maturity: institutional readiness to implement.
+    Viability under widespread cognitive and routine task automation with contracting payroll
+    bases. Scenario: AGI diffuses rapidly across routine and non-routine cognitive occupations,
+    creating widespread task displacement, contracting payroll tax bases, and growing fissures
+    between capital owners and wage earners—a structural labor market shock roughly akin to the
+    Industrial Revolution.
+- id: full_transformation
+  name: Full Transformation
+  group: durability
+  description: >-
+    Structural resilience under unprecedented transformation where demand for labor decouples
+    from the productive economy. Scenario: Capital and automated systems produce the vast
+    majority of output. Labor automation significantly outpaces labor reinstatement into new
+    tasks, leading to widespread structural underemployment and a fundamental decoupling of
+    labor earnings from broader economic growth.

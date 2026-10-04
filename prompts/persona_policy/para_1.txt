@@ -1,0 +1,11 @@
+{persona_block}{evidence_block}Below is an economic policy aimed at households, proposed as one way for the United States to handle the economic transition to artificial general intelligence (AGI). Please assess it.
+
+Policy:
+{policy_block}
+
+For every criterion listed below, assign the policy a score between 0 and 100; a higher score indicates that the policy performs better on that criterion. Justify each score in a single sentence.
+
+Criteria:
+{criteria_block}
+
+Respond with JSON only, in the form {{"ratings": [{{"criterion": <id>, "score": <0-100>, "rationale": <text>}}, ...]}} with exactly one entry per criterion, using the criterion ids exactly as shown.

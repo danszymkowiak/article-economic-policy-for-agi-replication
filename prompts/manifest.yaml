@@ -1,0 +1,280 @@
+# DRAFT, not frozen (TASK-16). sha256 of every prompt template and description paraphrase.
+# tests/bootstrap/test_prompt_files.py fails if a listed file changes without this manifest
+# being regenerated. Freezing = the user reviews every file, then status becomes frozen and
+# the hashes are copied into prereg.md. The equivalence records below are the author's
+# checklist, not yet confirmed by the user.
+status: draft
+files:
+- path: prompts/joint/baseline.txt
+  sha256: 686c1224cb45f57888e88149a1c9f0231129f14163531975b769c4057a2e4f04
+  role: D1 joint scoring (all 11 policies, one criterion per call)
+- path: prompts/persona_policy/baseline.txt
+  sha256: e1dcf123fba8fd358e1ea4bf16b424614ae49e545ae9ce3cfe6dcb4b3c6587e8
+  role: B baseline instruction wording (also used by Q1, Q2a-c, Q4)
+- path: prompts/persona_policy/para_1.txt
+  sha256: 6e5611d02ffd54e9e147c8dd3dfe0c48423903f5dcaa321aaae3954dc10746ed
+  role: Q3a instruction paraphrase of persona_policy/baseline.txt
+  equivalence_check:
+    elements:
+    - 'task: evaluate one household-facing economic policy'
+    - 'context: a policy the United States could use to manage the economic transition to AGI'
+    - score the policy on every listed criterion
+    - scale 0 to 100
+    - a higher score means better performance on that criterion
+    - a one-sentence rationale for each score
+    - 'unchanged: the ''Policy:'' and ''Criteria:'' headings, the placeholders and the JSON reply line'
+    result: 'Author check (Claude, 2026-10-04): each element of the original is present and nothing is
+      added; mechanical checks in tests/bootstrap/test_prompt_files.py (placeholder contract, same policy
+      ids, differs from baseline, no policy name or acronym in description-only prompts). Pending: user
+      review of every entry.'
+- path: prompts/persona_policy/para_2.txt
+  sha256: d49cd789bce35cd271477506b370b6a5372b6fa6ca2f1875e964c1a82394d0e6
+  role: Q3b instruction paraphrase of persona_policy/baseline.txt
+  equivalence_check:
+    elements:
+    - 'task: evaluate one household-facing economic policy'
+    - 'context: a policy the United States could use to manage the economic transition to AGI'
+    - score the policy on every listed criterion
+    - scale 0 to 100
+    - a higher score means better performance on that criterion
+    - a one-sentence rationale for each score
+    - 'unchanged: the ''Policy:'' and ''Criteria:'' headings, the placeholders and the JSON reply line'
+    result: 'Author check (Claude, 2026-10-04): each element of the original is present and nothing is
+      added; mechanical checks in tests/bootstrap/test_prompt_files.py (placeholder contract, same policy
+      ids, differs from baseline, no policy name or acronym in description-only prompts). Pending: user
+      review of every entry.'
+- path: prompts/persona_policy/para_3.txt
+  sha256: 18070f211d4d698d8c47d867f35f570dc18543f7d584b2d74ad79f339c8676fa
+  role: Q3c instruction paraphrase of persona_policy/baseline.txt
+  equivalence_check:
+    elements:
+    - 'task: evaluate one household-facing economic policy'
+    - 'context: a policy the United States could use to manage the economic transition to AGI'
+    - score the policy on every listed criterion
+    - scale 0 to 100
+    - a higher score means better performance on that criterion
+    - a one-sentence rationale for each score
+    - 'unchanged: the ''Policy:'' and ''Criteria:'' headings, the placeholders and the JSON reply line'
+    result: 'Author check (Claude, 2026-10-04): each element of the original is present and nothing is
+      added; mechanical checks in tests/bootstrap/test_prompt_files.py (placeholder contract, same policy
+      ids, differs from baseline, no policy name or acronym in description-only prompts). Pending: user
+      review of every entry.'
+- path: designs/inputs/description_paraphrases/para_1.yaml
+  sha256: 6e3f059abe3062ed86fa8edf5457c34c097dc087d111a01889e8b312b8e372e9
+  role: Q2a paraphrase of the Table 3 definitions (designs/inputs/policies.yaml)
+  equivalence_check:
+    elements:
+      eitc:
+      - means-tested
+      - refundable
+      - tax credit
+      - functions as a wage subsidy
+      - low-to-moderate-income
+      - working households
+      ui:
+      - a stabilizer
+      - temporary
+      - partial wage replacement
+      - workers who lose employment
+      almp:
+      - typically state-sponsored
+      - training
+      - job-search assistance
+      - programs
+      - 'aim: realign workers'' skills with AI-complementary occupations'
+      wage_insurance:
+      - transitional
+      - earnings subsidy
+      - displaced workers
+      - compensates a portion of the wage loss
+      - when re-employed at a lower wage
+      directed_industrial_policy:
+      - strategic
+      - state funding
+      - public good projects
+      - address market failures
+      - generate new sources of employment
+      fjg:
+      - publicly funded
+      - direct employment
+      - state as employer of last resort
+      - a job for any individual willing to work
+      ubi:
+      - unconditional
+      - cash transfer
+      - uniform amount
+      - all citizens
+      - regardless of income, wealth, or employment status
+      nit:
+      - tax-transfer schedule
+      - guaranteed minimum income floor
+      - automatic cash transfers to households below an income threshold
+      - transfers phase out smoothly as market earnings rise
+      ubs:
+      - direct
+      - unconditional
+      - public provision
+      - essential in-kind benefits
+      - 'examples: healthcare, childcare, education, housing, transit'
+      - zero or subsidized user cost
+      ubc:
+      - state-facilitated
+      - sharing
+      - ex-ante capital endowment
+      - or diversified equity stake in the productive economy
+      - 'examples: citizen wealth accounts, public trust shares'
+      sawf:
+      - public wealth fund
+      - captures returns from AI sector economic gains
+      - through public equity or profit taxation
+      - distributes universal cash dividends to citizens
+    result: 'Author check (Claude, 2026-10-04): each element of the original is present and nothing is
+      added; mechanical checks in tests/bootstrap/test_prompt_files.py (placeholder contract, same policy
+      ids, differs from baseline, no policy name or acronym in description-only prompts). Pending: user
+      review of every entry.'
+- path: designs/inputs/description_paraphrases/para_2.yaml
+  sha256: 8ad9f3f14524efa686a867e1457790e3bc3f58587bf2b8d0d9dd69878ad1a143
+  role: Q2b paraphrase of the Table 3 definitions (designs/inputs/policies.yaml)
+  equivalence_check:
+    elements:
+      eitc:
+      - means-tested
+      - refundable
+      - tax credit
+      - functions as a wage subsidy
+      - low-to-moderate-income
+      - working households
+      ui:
+      - a stabilizer
+      - temporary
+      - partial wage replacement
+      - workers who lose employment
+      almp:
+      - typically state-sponsored
+      - training
+      - job-search assistance
+      - programs
+      - 'aim: realign workers'' skills with AI-complementary occupations'
+      wage_insurance:
+      - transitional
+      - earnings subsidy
+      - displaced workers
+      - compensates a portion of the wage loss
+      - when re-employed at a lower wage
+      directed_industrial_policy:
+      - strategic
+      - state funding
+      - public good projects
+      - address market failures
+      - generate new sources of employment
+      fjg:
+      - publicly funded
+      - direct employment
+      - state as employer of last resort
+      - a job for any individual willing to work
+      ubi:
+      - unconditional
+      - cash transfer
+      - uniform amount
+      - all citizens
+      - regardless of income, wealth, or employment status
+      nit:
+      - tax-transfer schedule
+      - guaranteed minimum income floor
+      - automatic cash transfers to households below an income threshold
+      - transfers phase out smoothly as market earnings rise
+      ubs:
+      - direct
+      - unconditional
+      - public provision
+      - essential in-kind benefits
+      - 'examples: healthcare, childcare, education, housing, transit'
+      - zero or subsidized user cost
+      ubc:
+      - state-facilitated
+      - sharing
+      - ex-ante capital endowment
+      - or diversified equity stake in the productive economy
+      - 'examples: citizen wealth accounts, public trust shares'
+      sawf:
+      - public wealth fund
+      - captures returns from AI sector economic gains
+      - through public equity or profit taxation
+      - distributes universal cash dividends to citizens
+    result: 'Author check (Claude, 2026-10-04): each element of the original is present and nothing is
+      added; mechanical checks in tests/bootstrap/test_prompt_files.py (placeholder contract, same policy
+      ids, differs from baseline, no policy name or acronym in description-only prompts). Pending: user
+      review of every entry.'
+- path: designs/inputs/description_paraphrases/para_3.yaml
+  sha256: 506f86b37e8ba451a438e3fa70e27335c373ee09b6a3882d8f07666baa422dfd
+  role: Q2c paraphrase of the Table 3 definitions (designs/inputs/policies.yaml)
+  equivalence_check:
+    elements:
+      eitc:
+      - means-tested
+      - refundable
+      - tax credit
+      - functions as a wage subsidy
+      - low-to-moderate-income
+      - working households
+      ui:
+      - a stabilizer
+      - temporary
+      - partial wage replacement
+      - workers who lose employment
+      almp:
+      - typically state-sponsored
+      - training
+      - job-search assistance
+      - programs
+      - 'aim: realign workers'' skills with AI-complementary occupations'
+      wage_insurance:
+      - transitional
+      - earnings subsidy
+      - displaced workers
+      - compensates a portion of the wage loss
+      - when re-employed at a lower wage
+      directed_industrial_policy:
+      - strategic
+      - state funding
+      - public good projects
+      - address market failures
+      - generate new sources of employment
+      fjg:
+      - publicly funded
+      - direct employment
+      - state as employer of last resort
+      - a job for any individual willing to work
+      ubi:
+      - unconditional
+      - cash transfer
+      - uniform amount
+      - all citizens
+      - regardless of income, wealth, or employment status
+      nit:
+      - tax-transfer schedule
+      - guaranteed minimum income floor
+      - automatic cash transfers to households below an income threshold
+      - transfers phase out smoothly as market earnings rise
+      ubs:
+      - direct
+      - unconditional
+      - public provision
+      - essential in-kind benefits
+      - 'examples: healthcare, childcare, education, housing, transit'
+      - zero or subsidized user cost
+      ubc:
+      - state-facilitated
+      - sharing
+      - ex-ante capital endowment
+      - or diversified equity stake in the productive economy
+      - 'examples: citizen wealth accounts, public trust shares'
+      sawf:
+      - public wealth fund
+      - captures returns from AI sector economic gains
+      - through public equity or profit taxation
+      - distributes universal cash dividends to citizens
+    result: 'Author check (Claude, 2026-10-04): each element of the original is present and nothing is
+      added; mechanical checks in tests/bootstrap/test_prompt_files.py (placeholder contract, same policy
+      ids, differs from baseline, no policy name or acronym in description-only prompts). Pending: user
+      review of every entry.'

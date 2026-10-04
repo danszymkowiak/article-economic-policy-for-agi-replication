@@ -1,7 +1,0 @@
-{persona_block}{evidence_block}Rate each policy below on this criterion: "{criterion_name}" - {criterion_description}
-Give each policy a score from 0 to 100 and a one-sentence rationale.
-
-Policies:
-{policy_block}
-
-Respond with JSON only, in the form {{"ratings": [{{"policy": <label>, "score": <0-100>, "rationale": <text>}}, ...]}} with exactly one entry per policy, using the labels exactly as shown.

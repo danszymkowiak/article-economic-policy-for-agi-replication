@@ -1,0 +1,11 @@
+{persona_block}{evidence_block}You are evaluating a household-facing economic policy that could help the United States manage the economic transition to artificial general intelligence (AGI).
+
+Policy:
+{policy_block}
+
+Score the policy on each criterion below from 0 to 100, where a higher score means the policy does better on that criterion. Give a one-sentence rationale for each score.
+
+Criteria:
+{criteria_block}
+
+Respond with JSON only, in the form {{"ratings": [{{"criterion": <id>, "score": <0-100>, "rationale": <text>}}, ...]}} with exactly one entry per criterion, using the criterion ids exactly as shown.
