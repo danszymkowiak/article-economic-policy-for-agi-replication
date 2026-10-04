@@ -1,0 +1,18 @@
+# TASK-12 PILOT design (labeled non-inference run; rows never enter inference). Baseline cell B
+# only, one repeat, on the study model; run with --max-jobs 20, which takes the first 20 jobs of
+# B's repeat in run order. Seeds follow the study's rule (repeat r uses base_seed + r), so these
+# job ids are the ones the full design would produce for B repeat 0. k_q, rt_temperatures and
+# order_seed are required by the format but unused here: `cells` keeps only B.
+design: one_at_a_time
+cells: [B]                # baseline only
+order_seed: 20261004      # recorded seed for the run order (only one slot here)
+base_seed: 0              # repeat 0 uses sampling seed 0
+baseline:
+  model: {provider: opencode, snapshot: glm-5.3-flash}  # Zen alias; responses log the reported id
+  temperature: null       # provider default
+  persona_source: named   # the 51 named economists (paper Table 7)
+  evidence: wikipedia     # per-policy packets
+n_personas: 51
+k_r: 1                    # smallest allowed
+k_q: 1                    # smallest allowed (unused: no Q, R-T or D cells)
+rt_temperatures: [0.0, 1.0]  # required by the format; R-T cells are not run

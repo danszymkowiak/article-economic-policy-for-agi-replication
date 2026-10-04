@@ -81,3 +81,25 @@ def test_d2_repeats_defaults_to_51_and_can_be_set(tmp_path):
     data["d2_repeats"] = 10
     d2 = {c.cell_id: c for c in expand_cells(load_oat_design(write(tmp_path, data)))}["D2"]
     assert d2.repeats == 10
+
+
+def test_cells_key_selects_a_subset(tmp_path):
+    data = yaml.safe_load(EXAMPLE.read_text())
+    data["cells"] = ["B"]
+    design = load_oat_design(write(tmp_path, data))
+    assert design.cells == ("B",)
+    assert [c.cell_id for c in expand_cells(design)] == ["B"]
+    del data["cells"]
+    assert load_oat_design(write(tmp_path, data)).cells is None
+
+
+PILOT = EXAMPLE.parent / "pilot.yaml"
+
+
+def test_pilot_design_is_one_baseline_repeat_on_the_study_model():
+    design = load_oat_design(PILOT)
+    assert design.baseline.model == ModelRef("opencode", "glm-5.3-flash")
+    assert design.baseline.persona_source == "named"
+    assert design.baseline.evidence == "wikipedia"
+    (cell,) = expand_cells(design)
+    assert cell.cell_id == "B" and cell.repeats == 1

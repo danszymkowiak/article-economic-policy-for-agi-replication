@@ -44,6 +44,8 @@ class Plan:
     spend: Spend
     attempts: dict[str, int]  # job_id -> attempt number this submission would be
     model_ids: ModelIdReport = ModelIdReport()
+    max_jobs: int | None = None  # --max-jobs, if given
+    eligible: int = 0  # jobs to submit before the --max-jobs cut
 
     @property
     def estimated_cost(self) -> float:
@@ -58,9 +60,10 @@ def make_plan(
     settings: SpendSettings,
     provider: str | None = None,
     external: float = 0.0,
+    max_jobs: int | None = None,
 ) -> Plan:
     build = build_jobs(specs, inputs, store)
-    return plan_from_build(build, store, ledger, settings, provider, external)
+    return plan_from_build(build, store, ledger, settings, provider, external, max_jobs)
 
 
 def plan_from_build(
@@ -70,15 +73,25 @@ def plan_from_build(
     settings: SpendSettings,
     provider: str | None = None,
     external: float = 0.0,
+    max_jobs: int | None = None,
 ) -> Plan:
+    """`max_jobs` keeps the first N jobs still to submit (not finished, not in flight, matching
+    `provider`) in the build's order, which for one-at-a-time designs is the recorded run order.
+    Cost, plan output and the ceiling check then see only those N, and repeating the same
+    command takes the next N (staged runs)."""
+    if max_jobs is not None and max_jobs < 1:
+        raise ValueError("max_jobs must be >= 1")
     flying = jobs_in_flight(ledger)
-    jobs = [
+    eligible = [
         j
         for j in build.jobs
         if j.job_id not in flying and (provider is None or j.provider == provider)
     ]
+    jobs = eligible if max_jobs is None else eligible[:max_jobs]
     counts = attempt_counts(store)
     return Plan(
+        max_jobs=max_jobs,
+        eligible=len(eligible),
         attempts={j.job_id: counts[j.job_id] + 1 for j in jobs},
         build=build,
         jobs=jobs,

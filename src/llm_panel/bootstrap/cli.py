@@ -6,6 +6,7 @@ import argparse
 import contextlib
 import os
 import sys
+from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
@@ -74,6 +75,19 @@ def default_client_factory(
     return make_client_factory(context, registry or default_registry())
 
 
+def _positive_int(text: str) -> int:
+    value = int(text)
+    if value < 1:
+        raise argparse.ArgumentTypeError(f"must be a positive integer, got {value}")
+    return value
+
+
+MAX_JOBS_HELP = (
+    "only the first N jobs still to submit, in run order (finished and in-flight jobs are "
+    "skipped first, so rerunning takes the next N); cost and the ceiling check use only these"
+)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="llm-panel")
     parser.add_argument("--config", default="config.yaml", help="path to config.yaml")
@@ -85,11 +99,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--dry-run", action="store_true", help="accepted for clarity; plan is read-only"
     )
     plan.add_argument("--provider")
+    plan.add_argument("--max-jobs", type=_positive_int, metavar="N", help=MAX_JOBS_HELP)
 
     sub_submit = sub.add_parser("submit", help="submit jobs as batches (spends money)")
     sub_submit.add_argument("--design", required=True)
     sub_submit.add_argument("--provider")
     sub_submit.add_argument("--confirm", action="store_true", help="required to submit")
+    sub_submit.add_argument("--max-jobs", type=_positive_int, metavar="N", help=MAX_JOBS_HELP)
 
     sub.add_parser("collect", help="fetch finished batches, validate, store, retry once")
     sub.add_parser("status", help="show spend versus ceiling and row counts")
@@ -192,7 +208,9 @@ def _run(args, config, store, ledger, factory, settings, now) -> int:
         else:
             specs = to_run_specs(load_design(args.design))
             inputs = load_inputs(config.inputs_dir)
-            plan = make_plan(specs, inputs, store, ledger, settings, args.provider, external)
+            plan = make_plan(
+                specs, inputs, store, ledger, settings, args.provider, external, args.max_jobs
+            )
         if args.command == "plan":
             _print_plan(plan, settings.max_spend_usd)
             return 0
@@ -251,7 +269,7 @@ def _oat_plan(args, config, store, ledger, settings, external):
         cells, run_order(cells, design.order_seed), materials, store,
         cost=lambda job: estimate_job_cost(job, settings),
     )  # fmt: skip
-    return plan_from_build(build, store, ledger, settings, args.provider, external)
+    return plan_from_build(build, store, ledger, settings, args.provider, external, args.max_jobs)
 
 
 def _print_plan(plan, ceiling: float) -> None:
@@ -271,6 +289,15 @@ def _print_plan(plan, ceiling: float) -> None:
         f"{b.duplicates}; in flight: {plan.in_flight}"
     )
     print(f"jobs to submit: {len(plan.jobs)}")
+    if plan.max_jobs is not None:
+        print(
+            f"selected by --max-jobs {plan.max_jobs}: first {len(plan.jobs)} of {plan.eligible} "
+            "jobs in run order"
+        )
+        if b.per_cell:
+            print(f"  cells: {_tally(j.cell_id for j in plan.jobs)}")
+        print(f"  personas: {_tally(j.persona_id for j in plan.jobs)}")
+        print(f"  policies: {_tally(p for j in plan.jobs for p in j.policy_ids)}")
     for provider, cost in sorted(plan.cost_by_provider.items()):
         n = sum(1 for j in plan.jobs if j.provider == provider)
         print(f"  {provider}: {n} jobs, estimated ${cost:.4f}")
@@ -279,6 +306,11 @@ def _print_plan(plan, ceiling: float) -> None:
         f"spend so far: ${plan.spend.actual:.4f} actual + "
         f"${plan.spend.outstanding:.4f} outstanding; ceiling ${ceiling:.2f}"
     )
+
+
+def _tally(values) -> str:
+    counts = Counter(values)
+    return f"{len(counts)} distinct ({', '.join(f'{k} x{n}' for k, n in counts.items())})"
 
 
 if __name__ == "__main__":

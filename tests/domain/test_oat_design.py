@@ -301,3 +301,22 @@ def test_run_order_over_planned_cells_only():
     chosen = [c for c in cells if c.cell_id in plan.run]
     ids = {s.cell_id for s in run_order(chosen, seed=1).slots}
     assert ids == set(plan.run)
+
+
+# --- cell subset (TASK-12 pilot: baseline only) -----------------------------------------
+
+
+def test_cells_restricts_expansion_to_the_listed_cells():
+    cells = expand_cells(design(cells=("B",), k_r=1))
+    assert [c.cell_id for c in cells] == ["B"] and cells[0].repeats == 1
+
+
+def test_cells_default_expands_everything():
+    assert len(expand_cells(design())) == len(expand_cells(design(cells=None)))
+
+
+@pytest.mark.parametrize("cells", [("B", "Q9"), ("D3",), ()])
+def test_cells_rejects_unknown_unconfigured_or_empty(cells):
+    d = design(cells=cells, d_cells={"D1": DSettings()})
+    with pytest.raises(ValueError, match="cells"):
+        expand_cells(d)

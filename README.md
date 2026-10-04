@@ -57,6 +57,11 @@ uv run llm-panel collect                                             # validate,
 uv run llm-panel status                                              # spend versus the 15 USD ceiling
 ```
 
+`plan` and `submit` take `--max-jobs N` to keep only the first N jobs still to submit, in the
+design's recorded run order. Finished and in-flight jobs are skipped first, so repeating the
+command takes the next N (staged runs). The cost estimate, plan output and ceiling check then
+cover only those N jobs.
+
 `config.yaml` holds the ceiling (`max_spend_usd`, rejected above 15), approved providers and
 per-snapshot prices. Spend checks use actual stored usage plus the estimated cost of batches
 still in flight plus the new job set. Running this against the example design writes under

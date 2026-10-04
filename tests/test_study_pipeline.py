@@ -183,3 +183,62 @@ def test_every_real_packet_is_denamed_completely(study):
         out = denamed_packet(text, pid, m.policies, codes)
         assert names_found(out) == [], (pid, names_found(out))
         assert out.splitlines()[0] == f"# Evidence packet: {codes[pid]}"
+
+
+# --- --max-jobs (TASK-12): the first N jobs still to submit, in run order -----------------
+
+
+def _submitted(client):
+    return [j for batch in client._batches.values() for j in batch]
+
+
+def test_max_jobs_submits_the_first_n_jobs_in_run_order(project):
+    design = ["--design", str(project / "design.yaml")]
+    full = FakeModelClient()
+    run(project, "submit", "--confirm", *design, client=full)
+    order = [j.job_id for j in _submitted(full)]
+    (project / "raw.jsonl").unlink(missing_ok=True)
+    (project / "ledger.jsonl").unlink()
+    some = FakeModelClient()
+    assert run(project, "submit", "--confirm", "--max-jobs", "5", *design, client=some) == 0
+    assert [j.job_id for j in _submitted(some)] == order[:5]
+    # staged runs: the next call takes the next 5 (the first 5 are in flight)
+    assert run(project, "submit", "--confirm", "--max-jobs", "5", *design, client=some) == 0
+    assert [j.job_id for j in _submitted(some)] == order[:10]
+
+
+def test_max_jobs_plan_counts_and_costs_only_the_selected_jobs(project, capsys):
+    design = ["--design", str(project / "design.yaml")]
+    client = FakeModelClient()
+    run(project, "plan", *design, client=client)
+    full = capsys.readouterr().out
+    assert run(project, "plan", "--max-jobs", "4", *design, client=client) == 0
+    out = capsys.readouterr().out
+    assert "jobs to submit: 4" in out
+    assert f"selected by --max-jobs 4: first 4 of {EXPECTED_CALLS} jobs in run order" in out
+
+    def total(text):
+        return float(text.split("estimated total: $")[1].split()[0])
+
+    assert 0 < total(out) < total(full)
+    assert client.submitted_batches == []
+
+
+def test_max_jobs_spend_ceiling_checks_only_the_selected_jobs(project, capsys):
+    design = ["--design", str(project / "design.yaml")]
+    client = FakeModelClient()
+    run(project, "plan", "--max-jobs", "2", *design, client=client)
+    two = float(capsys.readouterr().out.split("estimated total: $")[1].split()[0])
+    cfg = yaml.safe_load((project / "config.yaml").read_text())
+    cfg["max_spend_usd"] = two * 1.5  # room for the 2 selected jobs, not for the full design
+    (project / "config.yaml").write_text(yaml.safe_dump(cfg))
+    assert run(project, "submit", "--confirm", *design, client=client) == 2
+    assert run(project, "submit", "--confirm", "--max-jobs", "2", *design, client=client) == 0
+    assert len(_submitted(client)) == 2
+
+
+@pytest.mark.parametrize("bad", ["0", "-1", "x"])
+def test_max_jobs_must_be_a_positive_integer(project, bad):
+    with pytest.raises(SystemExit):
+        run(project, "plan", "--max-jobs", bad, "--design", str(project / "design.yaml"),
+            client=FakeModelClient())  # fmt: skip

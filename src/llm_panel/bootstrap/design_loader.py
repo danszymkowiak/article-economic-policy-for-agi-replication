@@ -102,4 +102,5 @@ def load_oat_design(path: Path | str) -> OatDesign:
         base_seed=int(data.get("base_seed", 0)),
         order_seed=int(data["order_seed"]),
         n_personas=int(data.get("n_personas", 51)),
+        cells=None if data.get("cells") is None else tuple(str(c) for c in data["cells"]),
     )

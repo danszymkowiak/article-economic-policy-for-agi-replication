@@ -99,6 +99,9 @@ class OatDesign:
     base_seed: int = 0
     order_seed: int = 0
     n_personas: int = NAMED_PANEL_SIZE
+    # Optional subset of cell ids to expand (e.g. ("B",) for a baseline-only pilot); None = all.
+    # Seeds stay those of the full design, so a subset's job ids match the full design's.
+    cells: tuple[str, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -184,7 +187,16 @@ def expand_cells(design: OatDesign) -> tuple[Cell, ...]:
             "D3": replace(base, model=d.model),
         }[name]
         cells.append(Cell(name, "D", name, f, seeds(design.d2_repeats if name == "D2" else k_q)))
-    return tuple(cells)
+    if design.cells is None:
+        return tuple(cells)
+    wanted = set(design.cells)
+    unknown = wanted - {c.cell_id for c in cells}
+    if not wanted or unknown:
+        raise ValueError(
+            f"cells must list expanded cell ids (D cells need d_cells); got {sorted(unknown)}"
+            if unknown else "cells must not be empty; omit it to run every cell"
+        )  # fmt: skip
+    return tuple(c for c in cells if c.cell_id in wanted)
 
 
 def paired_persona_ids(

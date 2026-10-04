@@ -229,3 +229,6 @@ results/raw/*
 # Provider outputs and smoketest runs (synthetic, but same redistribution caution as raw results)
 results/zen/
 results/smoketest/
+
+# Pilot runs (labeled non-inference; same redistribution caution as raw results)
+results/pilot/

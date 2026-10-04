@@ -1,0 +1,21 @@
+# TASK-12 PILOT: 20 baseline jobs on the study model glm-5.3-flash via OpenCode Zen
+# (user-approved 2026-10-04, this pilot only). LABELED NON-INFERENCE RUN: rows stored here are
+# pilot data and NEVER enter inference; analysis reads only results/raw. Own store and ledger
+# under results/pilot/. Run with: --config config.pilot.yaml ... --design designs/pilot.yaml
+# --max-jobs 20. Spend here counts toward the global 15 USD cap through counts_spend_from.
+max_spend_usd: 0.25
+approved_providers: [opencode]
+batch_discount: 1.0
+est_output_tokens_per_policy: 600  # per rating; x ratings per call is also the max_tokens cap
+chars_per_token: 4.0
+# every config's ledger counts toward the global 15 USD hard cap (this config's own is skipped)
+counts_spend_from: ["config*.yaml"]
+paths:
+  raw_store: results/pilot/rows.jsonl
+  ledger: results/pilot/ledger.jsonl
+  inputs_dir: designs/inputs   # study inputs, as in config.yaml
+  prompts_dir: prompts
+  evidence_packets:
+    wikipedia: evidence/packets
+prices:
+  glm-5.3-flash: {input: 0.15, output: 0.50}  # OpenCode Zen list price per 1M tokens, as config.yaml
