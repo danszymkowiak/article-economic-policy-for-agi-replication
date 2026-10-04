@@ -1,0 +1,19 @@
+# CLAUDE SUBAGENT ARM configuration (prereg s9a; TASK-35). NOT POOLED WITH THE MAIN ANALYSIS.
+# Own store under subagent_arm/results/ (never results/raw). No API spend: agents run as Claude
+# Code subagents, so the ceiling is 0 and no provider is approved. The analyze commands read this
+# store with: uv run llm-panel --config subagent_arm/config.subagent.yaml analyze <name>
+# Use: uv run python -m subagent_arm prepare | next | discard | ingest | status
+# DRAFT: no runs before the prereg is frozen and the user approves the agent count.
+max_spend_usd: 0
+approved_providers: []
+paths:
+  raw_store: results/rows.jsonl
+  ledger: results/ledger.jsonl
+  inputs_dir: ../designs/inputs
+  prompts_dir: ../prompts
+  evidence_packets:
+    wikipedia: ../evidence/packets
+subagent_arm:
+  design: ../designs/study.yaml   # the baseline factors come from the study design's baseline
+  k_c: 3                          # repeats of B on Claude (prereg s9a)
+  work_dir: work
