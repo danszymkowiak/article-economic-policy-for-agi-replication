@@ -312,7 +312,7 @@ class FactorShift:
         return v / (v + self.noise_var_b) if v + self.noise_var_b > 0 else math.nan
 
 
-def _noise(units: np.ndarray) -> tuple[float, float]:
+def unit_noise(units: np.ndarray) -> tuple[float, float]:
     """(MS_UR, MS_R) of [repeat, unit] panel means; NaN with one repeat."""
     if units.shape[0] < 2 or units.shape[1] < 2:
         return math.nan, math.nan
@@ -323,7 +323,7 @@ def _noise(units: np.ndarray) -> tuple[float, float]:
 def _shift(ub: np.ndarray, uc: np.ndarray, fallback: tuple[float, float]):
     """(level, level_se, shift_var, noise_b, noise_c, source); a side with one repeat borrows
     `fallback`."""
-    (nb, rb), (nc, rc) = _noise(ub), _noise(uc)
+    (nb, rb), (nc, rc) = unit_noise(ub), unit_noise(uc)
     source = "own"
     if math.isnan(nb):
         nb, rb = fallback
@@ -349,7 +349,7 @@ def factor_shift(b: CellArray, cell: CellArray) -> FactorShift:
     if n_u < 2 or kb < 1 or kc < 1:
         return FactorShift(cell.cell_id, pairing, n_u, kb, kc, nan, nan, nan, nan, nan, "own",
                            nan, ())  # fmt: skip
-    full_b = _noise(ub)
+    full_b = unit_noise(ub)
     level, se, shift_var, nb, nc, source = _shift(ub, uc, full_b)
     band = []
     if 1 <= kc < kb:

@@ -56,7 +56,7 @@ class VarianceReport:
     shifts: list[FactorShift]  # empty when the store holds no cell B ratings
 
 
-def _criteria(observed: set[str]) -> tuple[str, ...]:
+def rated_criteria(observed: set[str]) -> tuple[str, ...]:
     first = [c for c in TABLE4_CRITERIA if c in observed]
     return (*first, *sorted(observed - set(first)))
 
@@ -64,7 +64,7 @@ def _criteria(observed: set[str]) -> tuple[str, ...]:
 def run_variance(store) -> VarianceReport:
     by_cell = cell_observations(store)
     policies = tuple(sorted({o.policy_id for obs, _ in by_cell.values() for o in obs}))
-    criteria = _criteria({o.criterion_id for obs, _ in by_cell.values() for o in obs})
+    criteria = rated_criteria({o.criterion_id for obs, _ in by_cell.values() for o in obs})
     counts = {cell: c for cell, (_, c) in by_cell.items()}
     arrays = {
         cell: build_cell_array(cell, obs, policy_ids=policies, criteria=criteria)

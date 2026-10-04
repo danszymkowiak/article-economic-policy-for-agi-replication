@@ -23,6 +23,14 @@ from llm_panel.application.baseline_comparison import (
 )
 from llm_panel.application.build_jobs import build_study_jobs
 from llm_panel.application.collect import collect
+from llm_panel.application.materiality import (
+    render_counts_csv,
+    render_units_csv,
+    run_materiality,
+)
+from llm_panel.application.materiality import (
+    render_markdown as render_materiality_markdown,
+)
 from llm_panel.application.rank_stability import (
     render_aggregation_csv,
     render_noise_csv,
@@ -203,6 +211,10 @@ def build_parser() -> argparse.ArgumentParser:
     recommendations.add_argument(
         "--out", default="analysis/recommendations", help="report directory"
     )
+    materiality = analyses.add_parser(
+        "materiality", help="policy x criterion means shifted from B by more than M (primary)"
+    )
+    materiality.add_argument("--out", default="analysis/materiality", help="report directory")
     return parser
 
 
@@ -352,11 +364,29 @@ def _analyze_recommendations(args, config_dir: Path, raw_store: Path, store) -> 
     return 0
 
 
+def _analyze_materiality(args, config_dir: Path, raw_store: Path, store) -> int:
+    report = run_materiality(store)
+    out = config_dir / args.out
+    out.mkdir(parents=True, exist_ok=True)
+    label = _store_label(raw_store, config_dir)
+    files = {
+        "materiality.md": render_materiality_markdown(report, label),
+        "materiality_counts.csv": render_counts_csv(report),
+        "materiality_units.csv": render_units_csv(report),
+    }
+    for name, text in files.items():
+        (out / name).write_text(text, encoding="utf-8")
+    print(f"wrote materiality.md and two CSVs to {out} "
+          f"({len(report.cell_order)} cells from {label})")  # fmt: skip
+    return 0
+
+
 ANALYSES = {
     "baseline": _analyze_baseline,
     "ranks": _analyze_ranks,
     "variance": _analyze_variance,
     "recommendations": _analyze_recommendations,
+    "materiality": _analyze_materiality,
 }
 
 

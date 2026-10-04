@@ -29,15 +29,18 @@ class FakeModelClient:
         pending_polls: int = 0,
         state_path: Path | str | None = None,
         scorer: Callable[[str, str], int] = fake_score,
+        job_scorer: Callable[[RenderedJob, str], float] | None = None,
     ) -> None:
         """`malformed`/`errors` are job ids that misbehave for their first
         `malformed_attempts` submissions; `pending_polls` makes fetch_results report
         not-done that many times per batch. `state_path` persists submitted batches to a JSON
         file so separate CLI invocations (submit, then collect) can share one fake provider.
         `scorer(job_id, label)` returns the score for a label; the default is a hash, a custom one
-        lets a test plant a known ground truth."""
+        lets a test plant a known ground truth. `job_scorer(job, label)`, when given, replaces it
+        and sees the whole job (cell, persona, policies, repeat), so a planted truth can depend on
+        them."""
         self.provider = provider
-        self._scorer = scorer
+        self._score = job_scorer or (lambda job, label: scorer(job.job_id, label))
         self._malformed = set(malformed)
         self._errors = set(errors)
         self._malformed_attempts = malformed_attempts
@@ -96,7 +99,7 @@ class FakeModelClient:
             ratings = [
                 {
                     key: label,
-                    "score": self._scorer(jid, label),
+                    "score": self._score(job, label),
                     "rationale": f"fake rationale for {label}",
                 }
                 for label in (job.criterion_ids or job.policy_labels)

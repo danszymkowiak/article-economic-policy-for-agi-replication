@@ -60,3 +60,17 @@ def test_errors_and_pending():
     assert not c.fetch_results(bid).done
     r = c.fetch_results(bid).responses[0]
     assert r.status == "error" and r.error
+
+
+def test_job_scorer_plants_scores_from_the_job_and_label():
+    seen = []
+
+    def planted(job, label):
+        seen.append((job.seed, label))
+        return 10 * job.seed + (1 if label == "b" else 0)
+
+    c = FakeModelClient(job_scorer=planted)
+    responses = c.fetch_results(c.submit_batch(jobs())).responses
+    scores = [[x["score"] for x in json.loads(r.text)["ratings"]] for r in responses]
+    assert scores == [[0, 1], [10, 11], [20, 21]]
+    assert seen[:2] == [(0, "a"), (0, "b")]
