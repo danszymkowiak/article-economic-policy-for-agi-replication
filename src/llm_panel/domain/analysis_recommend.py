@@ -40,8 +40,10 @@ from llm_panel.domain.analysis_baseline import COMPOSITES, TABLE4_CRITERIA, Scor
 from llm_panel.domain.analysis_rank import (
     CellArray,
     align_cells,
+    complete_repeats,
     descending_ranks,
     repeat_composites,
+    repeat_mean,
 )
 
 POLITICAL = "political_support"
@@ -250,9 +252,10 @@ def analyse_cell(
     pc = _per_repeat(xc, cell.criteria)
     return CellRecommendations(
         cell.cell_id, pairing, len(cell.repeats),
-        run_result(_to_scores(pb.mean(axis=0), b.policy_ids), net_approval),
-        run_result(_to_scores(pc.mean(axis=0), cell.policy_ids), net_approval),
-        tuple(run_result(_to_scores(r, cell.policy_ids), net_approval) for r in pc),
+        run_result(_to_scores(repeat_mean(pb), b.policy_ids), net_approval),
+        run_result(_to_scores(repeat_mean(pc), cell.policy_ids), net_approval),
+        tuple(run_result(_to_scores(r, cell.policy_ids), net_approval)
+              for r in pc[complete_repeats(xc)]),  # fmt: skip
     )  # fmt: skip
 
 

@@ -15,6 +15,7 @@ from llm_panel.application.baseline_comparison import (
     BASELINE_CELL,
     COUNT_HEADER,
     COUNT_NOTE,
+    NO_PERSONA_NOTE,
     CellCounts,
     cell_observations,
     is_study_store,
@@ -311,7 +312,7 @@ def render_markdown(report: RecommendationReport, store_path: str) -> str:
             f"| {_num(res.mean.r_readiness, 2)} "
             f"({_range([r.r_readiness for r in res.runs], 2)}) |"
         )
-    lines += ["", "## How to read this", "", *HOW_TO_READ, ""]
+    lines += ["", "## How to read this", "", *HOW_TO_READ, NO_PERSONA_NOTE, ""]
     return "\n".join(lines)
 
 

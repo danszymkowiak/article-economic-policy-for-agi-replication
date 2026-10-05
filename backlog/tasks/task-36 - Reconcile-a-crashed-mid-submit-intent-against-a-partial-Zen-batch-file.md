@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-04 18:40'
-updated_date: '2026-10-04 18:48'
+updated_date: '2026-10-04 18:55'
 labels: []
 dependencies: []
 ordinal: 36000
@@ -36,4 +36,6 @@ Zen has no server-side batch: submit_batch runs one HTTP call per job and append
 
 <!-- SECTION:NOTES:BEGIN -->
 Implemented reconcile (application/reconcile.py, ZenClient.answered_job_ids/close_batch, CLI 'reconcile'); tests in tests/test_reconcile.py and test_cli.py. Applied to real ledger 2026-10-04: intent 1ac9b415 -> batch zen-dc90acb1, 341 of 1000 jobs salvaged (339 ok, 2 errored), other 659 not run. collect NOT yet run: it would retry the 2 errored jobs (paid). Pre-existing unrelated failure: tests/test_smoketest_run.py end_to_end asserts real results/raw/rows.jsonl does not exist (it now does).
+
+2026-10-04: user said go; collect run on zen-dc90acb1: 336 ok, 5 invalid retried -> 4 ok, 1 failed. Unit R (B,B') then resumed in 200-job submit/collect rounds per user.
 <!-- SECTION:NOTES:END -->

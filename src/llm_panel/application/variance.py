@@ -14,6 +14,7 @@ from llm_panel.application.baseline_comparison import (
     BASELINE_CELL,
     COUNT_HEADER,
     COUNT_NOTE,
+    NO_PERSONA_NOTE,
     CellCounts,
     cell_observations,
     is_study_store,
@@ -274,6 +275,7 @@ def render_markdown(report: VarianceReport, store_path: str) -> str:
         "",
         "## How to read this",
         "",
+        NO_PERSONA_NOTE,
         "- Descriptive and unthresholded (prereg s6: variance decomposition is a secondary "
         "descriptive). Every cell and every policy x criterion is reported; the CSV files hold "
         "the full tables.",

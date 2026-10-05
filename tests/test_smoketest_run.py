@@ -76,7 +76,14 @@ def test_plan_counts_match_the_smoketest_design(smoke, capsys):
     assert "ratings (all configs, before dedupe): 108" in out
 
 
+def _study_store_state():
+    """(size, mtime) of the real study store, or None before the study has run."""
+    path = REPO / "results" / "raw" / "rows.jsonl"
+    return (path.stat().st_size, path.stat().st_mtime_ns) if path.exists() else None
+
+
 def test_end_to_end_with_ground_truth_scores_passes_and_is_idempotent(smoke, capsys):
+    study_before = _study_store_state()
     client = FakeModelClient(scorer=truth_scorer(TRUTH))
     assert smoke.run("submit", "--confirm", *smoke.design, client=client) == 0
     assert smoke.run("collect", client=client) == 0
@@ -92,8 +99,8 @@ def test_end_to_end_with_ground_truth_scores_passes_and_is_idempotent(smoke, cap
     assert smoke.run("submit", "--confirm", *smoke.design, client=client) == 0
     assert len(client.submitted_batches) == 1
     assert len(list(smoke.store().iter_rows())) == 18
-    # nothing was written outside the smoketest store
-    assert not (REPO / "results" / "raw" / "rows.jsonl").exists()
+    # nothing was written outside the smoketest store (the study store, if any, is untouched)
+    assert _study_store_state() == study_before
 
 
 def test_check_fails_with_exit_1_when_the_system_scores_perversely(smoke, capsys):

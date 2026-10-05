@@ -525,6 +525,23 @@ analyses affected are labeled post-hoc. No inference data existed at the time of
   unit), R-T, D2b, D1 and D3 are not run, with budget as the reason. The main study stops there.
   Reports must cite this as a post-freeze deviation: skipping Q2 means H3 rests on Q1 and Q4 alone.
 
+- 2026-10-05, analysis amendments after the first full analysis run (user approved; TASK-37; no
+  data, prompt or design change). (1) D2 missing data: D2 had 6 failed calls of 561 (ubi 3, sawf 2,
+  ubc 1). The section 7 common-complete rule, as coded for persona cells, keeps a triplet only if it
+  is present in every repeat, so it dropped ubi, sawf and ubc from D2 entirely and left clauses
+  (a), (b) and (d) undefined there. In D2 the repeat plays the persona role (51 x 11 = 561 calls,
+  one B repeat), so the analogue of the persona x policy pair is the single call: a failed D2 call
+  now drops only that repeat x policy, repeat means average the surviving repeats per policy, and
+  analyses that need a balanced array (variance components, the repeat-noise SE, single runs) use
+  the 45 repeats with no failed call. Persona cells are unchanged; every non-D2 number in the
+  reports is identical before and after. D2's results before the change (88 units, 5 beyond M; the
+  clause (c) result on 8 policies) are superseded and must not be reported as primary.
+  (2) Section 7 promised survivor-only means and a worst-case bound (failures imputed at 0 and at
+  100) that the analysis code did not yet produce; `analyze missing` now reports them, per cell,
+  for the primary materiality count and the recommendation clauses. (3) Section 12 item 6 (2,000
+  resamples) is now the code default; reports no longer call it open. Both (1) and (2) were
+  written after seeing results, so cite them as post-freeze analysis amendments.
+
 ## 14. Findings after the freeze (not fixed; recorded for posterity)
 
 All of the following were found by the post-freeze red-team review of 2026-10-04, after the

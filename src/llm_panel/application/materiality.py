@@ -13,6 +13,7 @@ from llm_panel.application.baseline_comparison import (
     BASELINE_CELL,
     COUNT_HEADER,
     COUNT_NOTE,
+    NO_PERSONA_NOTE,
     CellCounts,
     cell_observations,
     is_study_store,
@@ -154,6 +155,7 @@ def render_markdown(report: MaterialityReport, store_path: str) -> str:
         "",
         "## How to read this",
         "",
+        NO_PERSONA_NOTE,
         "- Every cell and every policy x criterion is reported; the CSV files hold all shifts. "
         "Holm correction applies to the primary set only if inference language is used "
         "(prereg s6).",

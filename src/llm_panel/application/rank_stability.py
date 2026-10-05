@@ -13,6 +13,7 @@ from llm_panel.application.baseline_comparison import (
     BASELINE_CELL,
     COUNT_HEADER,
     COUNT_NOTE,
+    NO_PERSONA_NOTE,
     CellCounts,
     cell_observations,
     is_study_store,
@@ -115,15 +116,14 @@ def render_markdown(report: RankStabilityReport, store_path: str) -> str:
             f"| {'(reference)' if cell == BASELINE_CELL else pairing.get(cell, '')} |"
         )
     lines += ["", f"_{COUNT_NOTE}_"]
-    placeholder = (
-        " This count is a **placeholder**: prereg s12 item 6 (persona bootstrap resample count) "
-        "is still open." if res.resamples == DEFAULT_RESAMPLES else
-        " Prereg s12 item 6 (persona bootstrap resample count) is still open."
+    basis = (
+        " The count is prereg s12 item 6 (set 2026-10-04)." if res.resamples == DEFAULT_RESAMPLES
+        else f" This run's count is not the prereg's {DEFAULT_RESAMPLES} (s12 item 6)."
     )  # fmt: skip
     lines += [
         "",
         f"- Persona bootstrap: {res.resamples} resamples, seed {res.seed}; 95% percentile "
-        f"intervals.{placeholder}",
+        f"intervals.{basis}",
         f"- B repeats: {res.b_repeats}. Primary aggregation: unweighted mean over personas "
         "(prereg s4).",
         "",
@@ -226,6 +226,7 @@ def render_markdown(report: RankStabilityReport, store_path: str) -> str:
         "",
         "## How to read this",
         "",
+        NO_PERSONA_NOTE,
         "- Rank metrics are reported for every cell because the paper makes its recommendations "
         "by rank order, but they are secondary to the flip counts and materiality shifts "
         "(prereg s6). Tau moves only when near-ties swap, and the published scores have many.",

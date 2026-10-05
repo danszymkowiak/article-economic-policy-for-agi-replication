@@ -6,7 +6,9 @@ with the repeat-noise multiple. A unit's shift is d_u = cell mean - B mean over 
 unweighted panel means on the common-complete set (paired cells: personas and triplets common to
 both; the TASK-19 alignment). Its repeat-noise SE is sqrt(MS_UR,B / k_B + MS_UR,cell / k_cell), the
 single-run panel-mean noise net of the shared run shift (TASK-20's estimator; a one-repeat cell
-borrows B's), pooled over units. The noise multiple is d_u / SE, and M / SE says how many SEs the
+borrows B's), pooled over units. In a no-persona cell (D2) a failed call leaves a unit's mean over
+its surviving repeats, and the noise comes from the repeats with no failed call (TASK-37); k_cell
+stays the repeat count. The noise multiple is d_u / SE, and M / SE says how many SEs the
 margin is.
 
 Reference "what repeats do" (prereg s3): the same count for every split of B's repeats into a
@@ -22,7 +24,13 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from llm_panel.domain.analysis_rank import CellArray, aggregate, align_cells
+from llm_panel.domain.analysis_rank import (
+    CellArray,
+    aggregate,
+    align_cells,
+    complete_repeats,
+    repeat_mean,
+)
 from llm_panel.domain.analysis_recommend import MATERIALITY_M
 from llm_panel.domain.analysis_variance import unit_noise
 
@@ -72,17 +80,17 @@ def materiality(b: CellArray, cell: CellArray, ms: Sequence[float] = MARGINS) ->
     xb, xc, pairing = align_cells(b, cell)
     ub = aggregate(xb, "mean").reshape(xb.shape[0], -1)  # [repeat, unit]; unit = criterion x policy
     uc = aggregate(xc, "mean").reshape(xc.shape[0], -1)
-    ok = ~np.isnan(ub).any(axis=0) & ~np.isnan(uc).any(axis=0)
+    ok = ~np.isnan(ub).any(axis=0) & ~np.isnan(uc).all(axis=0)
     labels = [(p, c) for c in b.criteria for p in b.policy_ids]
     labels = [lab for lab, keep in zip(labels, ok, strict=True) if keep]
     ub, uc = ub[:, ok], uc[:, ok]
     kb, kc = ub.shape[0], uc.shape[0]
-    (nb, _), (nc, _) = unit_noise(ub), unit_noise(uc)
+    (nb, _), (nc, _) = unit_noise(ub), unit_noise(uc[complete_repeats(uc)])
     source = "own"
     if math.isnan(nc):
         nc, source = nb, "B"
     se = math.sqrt(nb / kb + nc / kc) if kb and kc and not math.isnan(nb) else math.nan
-    mb, mc = ub.mean(axis=0), uc.mean(axis=0)
+    mb, mc = ub.mean(axis=0), repeat_mean(uc)
     d = mc - mb
     units = tuple(
         UnitShift(p, c, float(x), float(y), float(s), float(s) / se if se > 0 else math.nan)

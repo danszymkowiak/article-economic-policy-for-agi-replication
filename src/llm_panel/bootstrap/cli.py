@@ -31,6 +31,15 @@ from llm_panel.application.materiality import (
 from llm_panel.application.materiality import (
     render_markdown as render_materiality_markdown,
 )
+from llm_panel.application.missing_data import (
+    render_csv as render_missing_csv,
+)
+from llm_panel.application.missing_data import (
+    render_markdown as render_missing_markdown,
+)
+from llm_panel.application.missing_data import (
+    run_missing_data,
+)
 from llm_panel.application.rank_stability import (
     render_aggregation_csv,
     render_noise_csv,
@@ -226,7 +235,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--resamples",
         type=int,
         default=DEFAULT_RESAMPLES,
-        help="persona bootstrap resamples (placeholder default; prereg s12 item 6 open)",
+        help="persona bootstrap resamples (default: prereg s12 item 6)",
     )
     ranks.add_argument("--seed", type=int, default=0, help="persona bootstrap seed")
     variance = analyses.add_parser(
@@ -248,6 +257,10 @@ def build_parser() -> argparse.ArgumentParser:
         "materiality", help="policy x criterion means shifted from B by more than M (primary)"
     )
     materiality.add_argument("--out", default="analysis/materiality", help="report directory")
+    missing = analyses.add_parser(
+        "missing", help="survivor-only means and worst-case imputation bounds (prereg s7)"
+    )
+    missing.add_argument("--out", default="analysis/missing", help="report directory")
     return parser
 
 
@@ -417,12 +430,25 @@ def _analyze_materiality(args, config_dir: Path, raw_store: Path, store) -> int:
     return 0
 
 
+def _analyze_missing(args, config_dir: Path, raw_store: Path, store) -> int:
+    report = run_missing_data(store)
+    out = config_dir / args.out
+    out.mkdir(parents=True, exist_ok=True)
+    label = _store_label(raw_store, config_dir)
+    (out / "missing_data.md").write_text(render_missing_markdown(report, label), encoding="utf-8")
+    (out / "missing_data.csv").write_text(render_missing_csv(report), encoding="utf-8")
+    print(f"wrote missing_data.md and missing_data.csv to {out} "
+          f"({len(report.cell_order)} cells from {label})")  # fmt: skip
+    return 0
+
+
 ANALYSES = {
     "baseline": _analyze_baseline,
     "ranks": _analyze_ranks,
     "variance": _analyze_variance,
     "recommendations": _analyze_recommendations,
     "materiality": _analyze_materiality,
+    "missing": _analyze_missing,
 }
 
 

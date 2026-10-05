@@ -1,6 +1,7 @@
 """TASK-19: rank stability between cells, from synthetic raw-store rows. Offline."""
 
 import csv
+import dataclasses
 import io
 import itertools
 import json
@@ -106,11 +107,16 @@ def test_identical_and_reversed_cells(store):
     assert [c for c in report.cell_order] == ["B", "Q1", "Q4", "D1"]
 
 
-def test_markdown_carries_wording_rule_placeholder_and_label(store):
+def test_markdown_carries_wording_rule_resample_basis_and_label(store):
     report = run_rank_stability(store, resamples=1000, seed=0)
     text = render_markdown(report, "results/raw/rows.jsonl")
     assert "lack the claimed precision, not that the recommendations are wrong" in text
-    assert "placeholder" in text.lower() and "s12 item 6" in text
+    assert "placeholder" not in text.lower() and "still open" not in text  # set 2026-10-04
+    assert "not the prereg's 2000" in text
+    standard = render_markdown(dataclasses.replace(report, result=dataclasses.replace(
+        report.result, resamples=2000)), "results/raw/rows.jsonl")  # fmt: skip
+    assert "2000 resamples" in standard and "prereg s12 item 6" in standard
+    assert "not the prereg's" not in standard
     assert "exploratory" in text.lower()  # median / trimmed mean are not in prereg s6
     assert "NON-INFERENCE" not in text
     assert "Kendall tau" in text and "Q4" in text

@@ -18,6 +18,9 @@ trimmed mean (int(0.1 n) cut from each end, scipy's trim_mean convention), each 
 repeat, then the mean over repeats. A persona x policy x criterion triplet enters a cell only when
 it is present in every repeat of that cell (prereg s7, common-complete set); a paired comparison
 also keeps only triplets complete in both cells.
+A cell without personas (D2) has one call per policy and repeat, so its repeat plays the persona
+role and a failed call drops only that repeat x policy (TASK-37, prereg s13): its repeat means
+average the surviving repeats per policy, and its single runs are the repeats with no failed call.
 """
 
 from __future__ import annotations
@@ -41,8 +44,7 @@ PREREG_COMPOSITES = (
     "mild_disruption", "moderate_disruption", "full_transformation",
     "welfare_resilience", "agency_voice", "feasibility", "scenario_durability",
 )  # fmt: skip
-# Placeholder: prereg s12 item 6 (persona bootstrap resample count) is still open.
-DEFAULT_RESAMPLES = 1000
+DEFAULT_RESAMPLES = 2000  # prereg s12 item 6, set 2026-10-04
 TOP_K = 3
 NO_PERSONA_ID = "none"  # persona id of D2's calls (no persona)
 PAIRED, INDEPENDENT, NO_PERSONAS = "paired", "independent", "no personas"
@@ -71,8 +73,11 @@ def build_cell_array(
     *,
     policy_ids: Sequence[str],
     criteria: Sequence[str] = TABLE4_CRITERIA,
+    common_complete: bool = True,
 ) -> CellArray:
-    """Arrange a cell's ratings; triplets missing from any repeat are NaN in every repeat."""
+    """Arrange a cell's ratings. With personas, a triplet missing from any repeat is NaN in every
+    repeat (common-complete set); without personas, or with `common_complete=False` (survivor-only
+    means), only the missing ratings are NaN."""
     obs = [o for o in observations if o.criterion_id in criteria and o.policy_id in policy_ids]
     repeats = tuple(sorted({o.repeat for o in obs}))
     personas = tuple(sorted({o.persona_id for o in obs}))
@@ -85,8 +90,22 @@ def build_cell_array(
         scores[r_ix[o.repeat], c_ix[o.criterion_id], p_ix[o.policy_id], n_ix[o.persona_id]] = (
             o.score
         )
-    scores[:, np.isnan(scores).any(axis=0)] = np.nan
+    if common_complete and personas != (NO_PERSONA_ID,):
+        scores[:, np.isnan(scores).any(axis=0)] = np.nan
     return CellArray(cell_id, personas, tuple(policy_ids), tuple(criteria), repeats, scores)
+
+
+def complete_repeats(scores: np.ndarray) -> np.ndarray:
+    """bool[repeat]: the repeats missing no rating that another repeat has. All True for a
+    common-complete persona cell; False for a no-persona repeat with a failed call."""
+    rated = ~np.isnan(scores).all(axis=0)
+    return ~(np.isnan(scores) & rated).reshape(scores.shape[0], -1).any(axis=1)
+
+
+def repeat_mean(values: np.ndarray) -> np.ndarray:
+    """Mean over the leading repeat axis of the repeats present; NaN where none is."""
+    n = (~np.isnan(values)).sum(axis=0)
+    return np.where(n > 0, np.nansum(values, axis=0) / np.maximum(n, 1), np.nan)
 
 
 def aggregate(values: np.ndarray, how: str) -> np.ndarray:
@@ -250,7 +269,7 @@ def _boot_means(
 ) -> np.ndarray:
     """Repeat-mean composites per bootstrap replicate: [replicate, composite, policy]."""
     if idx is None:
-        point = repeat_composites(scores, how, criteria, composites).mean(axis=0)
+        point = repeat_mean(repeat_composites(scores, how, criteria, composites))
         return np.broadcast_to(point, (resamples, *point.shape))
     parts = []
     for start in range(0, len(idx), _CHUNK):
@@ -315,9 +334,9 @@ def rank_stability(
             xb, xc, pairing = align_cells(b, cell)
             pb = repeat_composites(xb, how, b.criteria, composites)
             pc = repeat_composites(xc, how, cell.criteria, composites)
-            mb, mc = pb.mean(axis=0), pc.mean(axis=0)
+            mb, mc = repeat_mean(pb), repeat_mean(pc)
             tau = kendall_tau_b_rows(mb, mc)
-            single = kendall_tau_b_rows(pc, mb[None])  # [repeat, composite]
+            single = kendall_tau_b_rows(pc[complete_repeats(xc)], mb[None])  # [repeat, comp.]
             rng = np.random.default_rng(seed)  # common draws across cells
             idx_b = rng.integers(0, xb.shape[-1], size=(resamples, xb.shape[-1]))
             idx_c = {
@@ -352,7 +371,7 @@ def rank_stability(
                 )  # fmt: skip
     for cell in (b, *cells):
         means = {
-            how: repeat_composites(cell.scores, how, cell.criteria, composites).mean(axis=0)
+            how: repeat_mean(repeat_composites(cell.scores, how, cell.criteria, composites))
             for how in aggregations
         }
         for a, z in itertools.combinations(aggregations, 2):

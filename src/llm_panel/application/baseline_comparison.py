@@ -56,6 +56,12 @@ COUNT_NOTE = (
     "terminal failures among them); deferred = retry withheld, rerun later; duplicate rows = "
     "usage-only rows for jobs already finished (not outcomes)."
 )
+NO_PERSONA_NOTE = (
+    "- A cell without personas (D2) makes one call per policy and repeat, so a failed call drops "
+    "only that repeat x policy: its means average the surviving repeats per policy, and its "
+    "single runs, repeat-noise SE and variance components use only the repeats with no failed "
+    "call (TASK-37, prereg s13)."
+)
 
 
 @dataclass(frozen=True)

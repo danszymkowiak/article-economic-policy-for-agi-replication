@@ -33,7 +33,8 @@ Three questions are answered within a cell (B is primary):
 
 Varied factors (one-at-a-time design, not factorial): each cell against B at panel-mean level,
 units = policy x criterion. d_u = cell mean - B mean over repeats, both panel means over the
-cell's common-complete personas (paired cells: personas and triplets common to both). With
+cell's common-complete personas (paired cells: personas and triplets common to both); a cell without
+personas (D2) is decomposed on its repeats with no failed call (TASK-37). With
 MS_UR the unit x repeat mean square of a cell's panel means (single-run noise net of the shared
 run shift), E[var_u d] = sigma2_shift + MS_UR,B / k_B + MS_UR,cell / k_cell, so
 sigma2_shift = var_u(d) - MS_UR,B / k_B - MS_UR,cell / k_cell is the unit-specific shift the factor
@@ -53,7 +54,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from llm_panel.domain.analysis_rank import CellArray, aggregate, align_cells
+from llm_panel.domain.analysis_rank import CellArray, aggregate, align_cells, complete_repeats
 
 PERSONA, POLICY, CRITERION, REPEAT, UNIT = "persona", "policy", "criterion", "repeat", "unit"
 CELL_FACTORS = (REPEAT, CRITERION, POLICY, PERSONA)  # CellArray axis order
@@ -185,7 +186,7 @@ def _complete(scores: np.ndarray) -> tuple[np.ndarray, int]:
 
 
 def decompose_cell(cell: CellArray) -> CellDecomposition:
-    scores, dropped = _complete(cell.scores)
+    scores, dropped = _complete(cell.scores[complete_repeats(cell.scores)])
     n_r, n_c, n_j, n_p = scores.shape
     if not cell.has_personas:
         n_p, dropped = 0, 0
@@ -340,8 +341,10 @@ def factor_shift(b: CellArray, cell: CellArray) -> FactorShift:
     if b.criteria != cell.criteria or b.policy_ids != cell.policy_ids:
         raise ValueError("cells must share criteria and policies")
     xb, xc, pairing = align_cells(b, cell)
-    ub = aggregate(xb, "mean").reshape(xb.shape[0], -1)  # [repeat, unit]
-    uc = aggregate(xc, "mean").reshape(xc.shape[0], -1)
+    xc = xc[complete_repeats(xc)]  # no-persona cell: the repeats with no failed call
+    n_units = len(b.criteria) * len(b.policy_ids)
+    ub = aggregate(xb, "mean").reshape(xb.shape[0], n_units)  # [repeat, unit]
+    uc = aggregate(xc, "mean").reshape(xc.shape[0], n_units)
     ok = ~np.isnan(ub).any(axis=0) & ~np.isnan(uc).any(axis=0)
     ub, uc = ub[:, ok], uc[:, ok]
     kb, kc, n_u = ub.shape[0], uc.shape[0], ub.shape[1]
