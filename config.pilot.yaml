@@ -9,7 +9,7 @@ batch_discount: 1.0
 est_output_tokens_per_policy: 600  # per rating; x ratings per call is also the max_tokens cap
 chars_per_token: 4.0
 # every config's ledger counts toward the global 15 USD hard cap (this config's own is skipped)
-counts_spend_from: ["config*.yaml", "adversarial/config*.yaml"]
+counts_spend_from: ["config*.yaml", "adversarial/config*.yaml", "scale_probe/config*.yaml"]
 paths:
   raw_store: results/pilot/rows.jsonl
   ledger: results/pilot/ledger.jsonl

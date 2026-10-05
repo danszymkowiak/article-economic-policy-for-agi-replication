@@ -364,3 +364,41 @@ def factor_shift(b: CellArray, cell: CellArray) -> FactorShift:
         cell.cell_id, pairing, n_u, kb, kc, level, se, shift_var, nb, nc, source,
         shift_var / nb if nb > 0 else nan, tuple(band),
     )  # fmt: skip
+
+
+@dataclass(frozen=True)
+class PanelMeanSpread:
+    """Run-to-run spread of a cell's policy x criterion panel means (prereg H1: precision)."""
+
+    cell_id: str
+    n_runs: int
+    sds: tuple[float, ...]  # per unit: SD (n - 1) of its single-run panel means
+    ranges: tuple[float, ...]  # per unit: max - min of its single-run panel means
+
+    @property
+    def n_units(self) -> int:
+        return len(self.sds)
+
+
+def panel_mean_run_spread(
+    cell: CellArray, criteria: Sequence[str] | None = None
+) -> PanelMeanSpread:
+    """Per policy x criterion unit, the spread across the cell's complete repeats of its panel
+    mean (unweighted mean over the personas present). Units need every complete repeat; no units
+    with fewer than two repeats."""
+    scores = cell.scores[complete_repeats(cell.scores)]
+    keep = [i for i, c in enumerate(cell.criteria) if criteria is None or c in criteria]
+    scores = scores[:, keep]
+    n_runs = scores.shape[0]
+    if n_runs < 2:
+        return PanelMeanSpread(cell.cell_id, n_runs, (), ())
+    n = (~np.isnan(scores)).sum(axis=3)
+    means = np.where(n > 0, np.nansum(scores, axis=3) / np.maximum(n, 1), np.nan)
+    units = means.reshape(n_runs, -1)
+    units = units[:, ~np.isnan(units).any(axis=0)]
+    return PanelMeanSpread(
+        cell.cell_id,
+        n_runs,
+        tuple(float(x) for x in units.std(axis=0, ddof=1)),
+        tuple(float(x) for x in units.max(axis=0) - units.min(axis=0)),
+    )

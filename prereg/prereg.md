@@ -542,6 +542,36 @@ analyses affected are labeled post-hoc. No inference data existed at the time of
   resamples) is now the code default; reports no longer call it open. Both (1) and (2) were
   written after seeing results, so cite them as post-freeze analysis amendments.
 
+- 2026-10-05, adversarial arm run (user go-ahead, TASK-24; execution only, no change to section
+  9). `opencode` added to the arm's `approved_providers`. Its baseline and seed-1 rerun ran first
+  (110 calls, 0.19 USD actual; one invalid reply retried and passed). The search-panel target on
+  Full Transformation is UBI, not UBC. The arm's config sets 600 output tokens per rating (the
+  pilot's value; config comment says "as config.yaml", which has 400), so its `max_tokens` cap is
+  7,800 against B's 5,200: recorded as found, not changed, since the arm config predates any arm
+  data and the cap only bounds truncation.
+  The search then ran to its end (status "depth exhausted"): 27 candidates, no success, 1.97 USD
+  actual; the three depth-2 candidates that first did not fit the budget waited, as section 9
+  says, and ran once collected spend freed room.
+
+- 2026-10-05, EXPLORATORY reversed-scale probe (user suggestion, TASK-38; written before any probe
+  data; not part of the preregistered analysis, the adversarial arm or the Claude arm, and never
+  pooled with them). Question: does the study model give the mirror image when asked to rate with
+  0 = best and 100 = worst? It is not an adversarial catalogue entry, because if the model ignored
+  the reversal the converted scores would push the top policy to the bottom and the arm would count
+  that as a success. Design: B's persona x policy template with one sentence changed
+  (`scale_probe/prompts/reversed_scale.txt`, sha256
+  `1d7a319d1ff61d4dac589ca87b3c41acd2abe41047a87b559daece21a95814cd`), run once on the adversarial
+  arm's 5-persona search panel with every other setting of the arm's baseline run (55 calls; own
+  store, ledger and 0.30 USD ceiling inside the global cap). Raw scores are converted with 100 - x.
+  Comparison: the arm's baseline run (seed 0); reference: the arm's rerun (seed 1) against the same
+  baseline. Measures, all descriptive: Pearson r, mean signed and mean absolute difference of single
+  ratings and of policy x criterion panel means; Table 4 units beyond M = 5; Kendall tau-b per
+  composite; the arm target's rank on Full Transformation; clauses (a)-(d); and per call, "looks
+  unconverted" when the raw call mean is nearer the baseline call mean m_b than 100 - m_b,
+  "undecidable" when |m_b - 50| < 5. Every comparison is repeated without the unconverted calls
+  (secondary). At the time of writing the arm's baseline and rerun had been collected and only its
+  target (UBI) had been looked at; no probe call had been made.
+
 ## 14. Findings after the freeze (not fixed; recorded for posterity)
 
 All of the following were found by the post-freeze red-team review of 2026-10-04, after the

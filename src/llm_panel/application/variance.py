@@ -26,10 +26,12 @@ from llm_panel.domain.analysis_variance import (
     CellDecomposition,
     CriterionAgreement,
     FactorShift,
+    PanelMeanSpread,
     PersonaCell,
     criterion_agreement,
     decompose_cell,
     factor_shift,
+    panel_mean_run_spread,
     persona_cells,
 )
 
@@ -57,6 +59,7 @@ class VarianceReport:
     persona_cells: dict[str, list[PersonaCell]]  # cells with personas
     agreement: dict[str, list[CriterionAgreement]]
     shifts: list[FactorShift]  # empty when the store holds no cell B ratings
+    precision: PanelMeanSpread | None = None  # B's Table 4 panel means across its runs (H1)
 
 
 def rated_criteria(observed: set[str]) -> tuple[str, ...]:
@@ -76,16 +79,17 @@ def run_variance(store) -> VarianceReport:
     }
     order = report_order(arrays)
     with_personas = [c for c in order if arrays[c].has_personas]
-    shifts = []
+    shifts, precision = [], None
     if BASELINE_CELL in arrays:
         b = arrays[BASELINE_CELL]
         shifts = [factor_shift(b, arrays[c]) for c in order if c != BASELINE_CELL]
+        precision = panel_mean_run_spread(b, TABLE4_CRITERIA)
     return VarianceReport(
         counts=counts, cells=arrays, cell_order=order,
         decompositions={c: decompose_cell(arrays[c]) for c in order},
         persona_cells={c: persona_cells(arrays[c]) for c in with_personas},
         agreement={c: criterion_agreement(arrays[c]) for c in with_personas},
-        shifts=shifts,
+        shifts=shifts, precision=precision,
     )  # fmt: skip
 
 
@@ -127,6 +131,22 @@ IDENTIFIABILITY = [
     "- D2 (no persona) and D2b (another panel) are not paired with B's personas; their shifts "
     "compare panel means of different raters and mix the factor with who rates.",
 ]
+
+
+def _precision_lines(spread: PanelMeanSpread | None) -> list[str]:
+    """Prereg H1: run-to-run spread of B's Table 4 panel means against the paper's one decimal."""
+    if spread is None or not spread.n_units:
+        return []
+    return [
+        "",
+        "## Precision of a panel mean (prereg H1)",
+        "",
+        f"- B, SD across its {spread.n_runs} runs of each Table 4 policy x criterion panel mean, "
+        f"min / median / max: {_spread(spread.sds)}; range across runs (max - min), min / "
+        f"median / max: {_spread(spread.ranges)}.",
+        "- The paper prints panel means to one decimal, a precision of 0.05 points. Descriptive: "
+        "H1 sets no threshold (prereg s14).",
+    ]
 
 
 def render_markdown(report: VarianceReport, store_path: str) -> str:
@@ -214,6 +234,7 @@ def render_markdown(report: VarianceReport, store_path: str) -> str:
             f"| {cell} | {_pct(d.persona_main_share)} | {_pct(d.persona_share)}{flag} "
             f"| {_pct(d.repeat_share)} | {_pct(d.structure_share)} | {_spread(per, _pct)} |"
         )
+    lines += _precision_lines(report.precision)
     agreement = report.agreement.get(BASELINE_CELL, [])
     lines += [
         "",

@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-04 13:23'
-updated_date: '2026-10-04 16:41'
+updated_date: '2026-10-05 19:13'
 labels:
   - phase3
 dependencies:
@@ -41,4 +41,6 @@ Usage after 63 runs: Haiku $2.87 (last 20 line-format agents +$1.10 = ~$0.055/ag
 Rater-agent measurement 2026-10-04 (non-inference, pilot store, 20 agents, subagent_type rater, all first attempts valid, all 3 tool uses, no discards). /usage before/after: Haiku $0.0016 -> $0.58 (~$0.029/agent; cache writes ~10k/agent vs ~30k for the generic agent); Sonnet orchestration $0.110 -> $0.63 (~$0.026/agent, launch prompts echoed plus hand-back and notification turns re-reading context); total ~$0.055/agent, unchanged from the generic agent (the Haiku saving moved into orchestration). Limits: session 45% -> 50%, week 15% -> 16% (rounded). Full k_C=3 (1,683 agents) judged unaffordable. User decision 2026-10-04: one full pass (561) plus two more passes over UBC only with all 51 personas (+102) = 663 agents; implemented as repeat_policies in config.subagent.yaml and build_jobs(repeat_policy_ids); prereg s9a updated (draft, user reviewed). User then upgraded to the Max plan (more headroom), not yet re-measured. Real arm not started: waits for the frozen prereg and the user's go-ahead.
 
 2026-10-04: real run complete (663 agents, 663 ok, 5 invalid first attempts all retried). Descriptive Claude-only report: subagent_arm/report.py -> subagent_arm/reports/claude_arm_report.md (UBC repeat stability, response distributions, halo, failure rates, Table 4 agreement). Criteria 4-5 ticked by user decision with the B-dependent parts DEFERRED until the main run exists (results/raw is empty): cells shifted from B by more than M=5, B repeat noise beside Claude's, clause/rank comparison against B. Report script has no tests.
+
+2026-10-05 (TASK-24 prep): deferred B-dependent comparisons done. subagent_arm/compare_b.py (pure, 7 tests in tests/subagent_arm/test_compare_b.py) -> subagent_arm/reports/claude_vs_b.md (python -m subagent_arm.compare_b). On 7,267 shared keys, 51 personas: 72 of 121 Table 4 panel means differ by more than M = 5 between Claude pass 1 and B's repeat mean, against 0 in each B single run vs the other four; 13 of 22 added-criterion units. Claude is higher almost everywhere (e.g. UBC Full Transformation +13.5, Standards of Living +20.8) while each model's UBC repeat SD is 0.1-1.5. Clauses (a), (b), (d) hold and (c) fails for both models; (a) and (b) hold in all 3 Claude UBC passes. Kendall tau Claude vs B 0.24-0.93 by composite (B's own pairwise minimum 0.88-0.96). Claude uses fewer multiples of 5 (39-55% vs 52-68%).
 <!-- SECTION:NOTES:END -->

@@ -1,0 +1,25 @@
+# EXPLORATORY reversed-scale probe configuration (TASK-38; prereg s13). NOT POOLED with the main
+# analysis or the adversarial arm. Own store and ledger under scale_probe/results/, own ceiling, and
+# its spend counts toward the global 15 USD hard cap in both directions (every root config and the
+# adversarial config count this ledger; this config counts theirs).
+# Use: uv run python -m scale_probe plan | submit --confirm | collect | report
+# Paid use needs opencode in approved_providers, added only with the user's go-ahead.
+max_spend_usd: 0.30
+approved_providers: [fake, opencode]  # added 2026-10-05, user go-ahead for the paid probe run (TASK-38)
+batch_discount: 1.0
+est_output_tokens_per_policy: 600  # as the adversarial config, so max_tokens matches its baseline
+chars_per_token: 4.0
+counts_spend_from: ["../config*.yaml", "../adversarial/config*.yaml"]
+paths:
+  raw_store: results/rows.jsonl      # scale_probe/results/, never results/raw
+  ledger: results/ledger.jsonl
+  inputs_dir: ../designs/inputs      # the study's inputs, prompts and packets, read-only
+  prompts_dir: ../prompts
+  evidence_packets:
+    wikipedia: ../evidence/packets
+prices:
+  glm-5.3-flash: {input: 0.15, output: 0.50}  # OpenCode Zen list price per 1M tokens, as config.yaml
+scale_probe:
+  adversarial_config: ../adversarial/config.adversarial.yaml  # search panel, seeds, model; its store is read-only here
+  template: prompts/reversed_scale.txt
+  manifest: manifest.yaml

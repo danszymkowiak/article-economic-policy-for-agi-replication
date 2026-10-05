@@ -22,11 +22,15 @@ def test_pilot_config_has_its_own_store_and_a_small_ceiling():
     assert pilot.inputs_dir == main_cfg.inputs_dir
     assert pilot.prompts_dir == main_cfg.prompts_dir
     assert pilot.evidence_packets == main_cfg.evidence_packets
-    assert pilot.counts_spend_from == [REPO / "config*.yaml", REPO / "adversarial/config*.yaml"]
+    assert pilot.counts_spend_from == [
+        REPO / "config*.yaml",
+        REPO / "adversarial/config*.yaml",
+        REPO / "scale_probe/config*.yaml",
+    ]
 
 
 def test_main_config_counts_the_pilot_ledger_toward_the_global_ceiling():
-    pattern, _adversarial = load_config(REPO / "config.yaml").counts_spend_from
+    pattern, _adversarial, _probe = load_config(REPO / "config.yaml").counts_spend_from
     assert str(PILOT_CONFIG) in glob.glob(str(pattern))
     external_spend(load_config(REPO / "config.yaml"))  # every matched config is readable
     external_spend(load_config(PILOT_CONFIG))

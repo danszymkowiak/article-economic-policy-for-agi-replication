@@ -246,3 +246,7 @@ adversarial/candidates.csv
 subagent_arm/results/
 subagent_arm/work/
 subagent_arm/pilot/
+
+# Reversed-scale probe (exploratory, TASK-38): its own store, ledger and generated report
+scale_probe/results/
+scale_probe/report.md

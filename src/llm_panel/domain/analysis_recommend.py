@@ -8,8 +8,7 @@ above k). A clause whose policies are not all scored is undefined (None).
 
 - (a) UBC rank 1 on Full Transformation durability (published margin 15.5);
 - (b) UBC rank 1 on Ownership of Gains (40.0);
-- (c) NIT in the top 3 on Moderate durability (69.8 - UI 65.9 = 3.9; prereg s6 writes 3.8, the
-  gap to UBC 66.0 at rank 3);
+- (c) NIT in the top 3 on Moderate durability (69.8 - UI 65.9 = 3.9, as prereg s6 since s10);
 - (d) UI and EITC both in the top 4 on Mild durability and both below UBC on Full Transformation
   (5.9: EITC 68.9 - UBC 63.0 on Mild); the margin is the smallest of its four parts.
 

@@ -6,11 +6,11 @@
 # DRAFT: no paid runs before the prereg is frozen. Paid use needs the provider added to
 # approved_providers by the user; until then submit refuses opencode jobs.
 max_spend_usd: 2.50
-approved_providers: [fake]
+approved_providers: [fake, opencode]  # added 2026-10-05, user go-ahead for the paid adversarial run (TASK-24)
 batch_discount: 1.0
 est_output_tokens_per_policy: 600  # as config.yaml (per rating; also the max_tokens cap)
 chars_per_token: 4.0
-counts_spend_from: ["../config*.yaml"]
+counts_spend_from: ["../config*.yaml", "../scale_probe/config*.yaml"]
 paths:
   raw_store: results/rows.jsonl      # adversarial/results/, never results/raw
   ledger: results/ledger.jsonl

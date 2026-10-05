@@ -81,6 +81,11 @@ def test_run_variance_decomposes_cells_and_shifts(store):
     assert shifts["Q1"].ratio_to_noise < shifts["Q4"].ratio_to_noise
     assert len(report.persona_cells["B"]) == len(POLICIES) * len(CRITERIA)
     assert len(report.agreement["B"]) == len(CRITERIA)
+    assert report.precision.n_runs == 4
+    assert report.precision.n_units == len(POLICIES) * len(TABLE4_CRITERIA)
+    assert (
+        0 < sorted(report.precision.sds)[len(report.precision.sds) // 2] < 2
+    )  # noise sd 2 / sqrt(12)
 
 
 def test_markdown_states_persona_share_neff_identifiability_and_wording(store):
@@ -93,6 +98,8 @@ def test_markdown_states_persona_share_neff_identifiability_and_wording(store):
     assert "lack the claimed precision, not that the recommendations are wrong" in text
     assert "descriptive" in text.lower()
     assert "Q4" in text and "evidence" in text.lower()
+    assert "## Precision of a panel mean" in text
+    assert "0.05 points" in text
     assert "NON-INFERENCE" in render_markdown(report, "results/pilot/rows.jsonl")
 
 

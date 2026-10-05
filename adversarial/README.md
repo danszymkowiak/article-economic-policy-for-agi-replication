@@ -32,8 +32,8 @@ recommendations are wrong.
 
 ## Budget and data
 
-`config.adversarial.yaml` sets the arm's own ceiling (1.50 USD), store and ledger
-(`adversarial/results/`, gitignored), and counts every root config's ledger toward the global
+`config.adversarial.yaml` sets the arm's own ceiling (2.50 USD, raised from 1.50 by the user on
+2026-10-04; prereg s10), store and ledger (`adversarial/results/`, gitignored), and counts every root config's ledger toward the global
 15 USD hard cap. Every root config counts this ledger too. Submission goes through the study's
 guards: `--confirm`, approved providers, model-id drift, and both ceilings. Candidates are
 sent whole, in search order. One that does not fit waits, and no cheaper later candidate goes

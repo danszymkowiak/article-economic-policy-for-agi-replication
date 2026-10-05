@@ -11,6 +11,7 @@ from llm_panel.domain.analysis_variance import (
     decompose_cell,
     effective_n,
     factor_shift,
+    panel_mean_run_spread,
     persona_cells,
     variance_components,
 )
@@ -222,3 +223,22 @@ def test_factor_shift_single_repeat_cell_borrows_b_noise_and_d2_style_cell():
     many = CellArray("D2", ("none",), b.policy_ids, b.criteria, tuple(range(6)),
                      np.concatenate([b.scores, b.scores[:1]])[:, :, :, :1])  # fmt: skip
     assert factor_shift(b, many).band == ()  # k_cell >= k_b: no split of B has that size
+
+
+def test_panel_mean_run_spread_is_the_sd_and_range_of_single_run_panel_means():
+    scores = np.zeros((3, 2, 2, 2))  # repeat, criterion, policy, persona
+    scores[:, 0, 0, :] = np.array([[10.0, 20.0], [12.0, 22.0], [14.0, 24.0]])  # means 15, 17, 19
+    scores[:, 1, 1, 1] = np.nan  # crit01 x pol01: one persona left, panel mean 0 in every run
+    spread = panel_mean_run_spread(_cell(scores))
+    assert spread.n_runs == 3 and spread.n_units == 4
+    assert max(spread.sds) == pytest.approx(2.0)
+    assert max(spread.ranges) == pytest.approx(4.0)
+    assert sorted(spread.sds)[:3] == [0.0, 0.0, 0.0]
+
+
+def test_panel_mean_run_spread_keeps_only_the_named_criteria_and_needs_two_runs():
+    scores = np.zeros((2, 2, 1, 2))
+    scores[1, 1] += 3.0
+    only = panel_mean_run_spread(_cell(scores), criteria=("crit00",))
+    assert only.n_units == 1 and only.sds == (0.0,)
+    assert panel_mean_run_spread(_cell(scores[:1])).n_units == 0

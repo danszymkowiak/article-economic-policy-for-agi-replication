@@ -1,0 +1,15 @@
+# EXPLORATORY reversed-scale probe (TASK-38; prereg s13). sha256 of the probe's template, checked by
+# the probe's CLI (it refuses to run on a mismatch) and by tests/scale_probe/test_probe.py.
+# Wording reviewed and approved by the user 2026-10-05, before any paid call.
+status: reviewed
+files:
+- path: scale_probe/prompts/reversed_scale.txt
+  sha256: 1d7a319d1ff61d4dac589ca87b3c41acd2abe41047a87b559daece21a95814cd
+  role: B's persona x policy template (prompts/persona_policy/baseline.txt) with the scale reversed
+  equivalence_check:
+    change: >-
+      one sentence: "where a higher score means the policy does better on that criterion." becomes
+      "where a lower score means the policy does better on that criterion (0 is the best score and
+      100 the worst)." Everything else is byte-identical to the baseline (the test rebuilds the file
+      from the baseline with this one replacement). The criterion descriptions and the JSON reply
+      line ("score": <0-100>) are unchanged.

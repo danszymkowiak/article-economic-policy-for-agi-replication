@@ -129,9 +129,8 @@ HOW_TO_READ = [
     "prereg s6 and are exploratory. 'Low' political support means a rank below the median "
     "policy (our reading; the paper gives no cut-off). Political Support is our rating; the "
     "paper does not publish it per policy.",
-    "- Tier changes (prereg s6 item 1b) are not computed here: the paper defines no tiers or "
-    "tier cut-offs for the Table 4 composites, so a tier change cannot be defined without "
-    "inventing one. This is an open prereg item.",
+    "- Tier changes are not a metric: the paper defines no usable tiers for the Table 4 "
+    "composites, so the tier-change metric was dropped before the freeze (prereg s6, s10).",
     "- Block D cells change the design, not a small detail, and are read separately from blocks "
     "R and Q (prereg s5).",
 ]
@@ -175,7 +174,7 @@ def render_markdown(report: RecommendationReport, store_path: str) -> str:
         "clauses: the gap to the runner-up), so a clause holds exactly when its margin is "
         "positive; a tie at the cut-off does not hold. (d) and the sequence take the smallest "
         "margin of their parts. Published Table 4 margins: (a) 15.5, (b) 40.0, (c) 3.9 (NIT 69.8 "
-        "minus UI 65.9 at rank 4; prereg s6 writes 3.8, the gap to UBC at rank 3), (d) 5.9.",
+        "minus UI 65.9 at rank 4; prereg s6, s10), (d) 5.9.",
         "",
         "The paper's Mild recommendation also names employer-led retraining, but ALMP scores 42.5 "
         "on Mild in Table 4, so it is excluded from the clauses (prereg s6); its Mild rank is "
