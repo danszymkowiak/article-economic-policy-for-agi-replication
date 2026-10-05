@@ -511,6 +511,20 @@ analyses affected are labeled post-hoc. No inference data existed at the time of
   cell Q3c (100 jobs, 0.17 USD actual against 0.29 estimated). Those rows are kept as study data for
   Q3c; no other cell has been run at the time of writing.
 
+- 2026-10-05, deviation from the section 8 stopping rule (user decision, made after unit R had run
+  and before any later unit; chosen on cost and priority order only, not on results). R (B x 5, B')
+  finished on 2026-10-05 at 5.12 USD actual against 8.76 estimated (ratio 0.58; Q3c's first 100
+  jobs gave 0.59). Spend at that point: 5.87 USD actual plus 0.13 USD in other ledgers, leaving about
+  9.00 USD under the ceiling, of which 2.50 USD stays reserved for the adversarial arm (section 9).
+  Under the frozen rule Q1 runs and Q2 (one unit, 14.63 USD estimated) does not fit, so the study
+  would stop after Q1. Instead the priority order is walked skipping, not stopping at, units that do
+  not fit, with unit costs taken as the plan estimate times the observed ratio 0.58: Q1 (about 2.85
+  USD), then Q4 (about 2.70 USD), then D2 (about 0.95 USD). D2 runs only if, after Q4, actual spend
+  plus D2's ratio-adjusted cost still leaves the 2.50 USD reserve; otherwise it is reported as not
+  run. Q2, Q3 (apart from the 100 Q3c jobs already run, reported as a partial cell of a dropped
+  unit), R-T, D2b, D1 and D3 are not run, with budget as the reason. The main study stops there.
+  Reports must cite this as a post-freeze deviation: skipping Q2 means H3 rests on Q1 and Q4 alone.
+
 ## 14. Findings after the freeze (not fixed; recorded for posterity)
 
 All of the following were found by the post-freeze red-team review of 2026-10-04, after the
