@@ -1,6 +1,6 @@
 # How stable are LLM-panel policy scores? A preregistered sensitivity study of "Economic Policy for AGI"
 
-**DRAFT (TASK-24), 2026-10-05.** Not yet shared with the authors (TASK-25). Every number below is
+**DRAFT (TASK-24), 2026-10-06.** Not yet shared with the authors (TASK-25). Every number below is
 read from the analysis reports in `analysis/`, `subagent_arm/reports/`, `scale_probe/` and
 `adversarial/`, which are regenerated from the append-only raw stores.
 
@@ -9,12 +9,14 @@ read from the analysis reports in `analysis/`, `subagent_arm/reports/`, `scale_p
 We re-implemented, from its public description, the simulated-economist panel of "Economic Policy
 for AGI" (Jacobs and Imas, 2026) and asked how stable its scores are. This is a re-implementation,
 not a replication: the authors' prompts, persona data and literature text are not public, so ours
-are stand-ins, and our absolute scores are not the paper's.
+are stand-ins, and our absolute scores are not the paper's. Nothing in our method is new: it
+applies to a policy-ranking panel what work on LLM survey responses has already shown, that small
+changes in prompt wording, format and persona can move LLM answers a long way (see Related work).
 
 - **Repeat noise is far larger than the paper's printed precision.** Running our baseline panel
   five times with identical inputs, the median standard deviation of a policy x criterion panel
-  mean across runs is 0.67 points (up to 1.8; `analysis/variance/variance.md`), against the one-decimal (0.05-point) precision of
-  the published tables. Rankings are nevertheless largely stable run to run, and no panel mean moved
+  mean across runs is 0.67 points (up to 1.8; `analysis/variance/variance.md`), against the
+  one-decimal (0.05-point) precision of the published tables. Rankings are nevertheless largely stable run to run, and no panel mean moved
   by more than 5 points between a single run and the mean of the others.
 - **Small input changes move scores well beyond repeat noise.** Removing policy names (definitions
   only) moved 15 of 121 Table 4 panel means by more than 5 points; removing the evidence packet
@@ -36,6 +38,43 @@ are stand-ins, and our absolute scores are not the paper's.
 
 **Instability of the scores shows they lack the claimed precision, not that the recommendations
 are wrong.** That caveat applies to every result in this report.
+
+## Related work: this study applies known ideas
+
+A growing literature uses LLMs as stand-ins for human survey respondents and shows how fragile
+their answers are. We came to most of it after the preregistration was frozen, so the prereg does
+not cite it, but our design is an application of its ideas to an expert policy panel rather than
+a contribution to them.
+
+- **Simulated respondents and personas.** Argyle et al. (2023, *Political Analysis*) proposed
+  conditioning a language model on respondents' backstories to produce "silicon samples" of human
+  subgroups. Hu and Collier (2024, ACL) found that persona variables explain under 10% of the
+  variance in annotations of existing subjective NLP datasets, and that persona prompting gives
+  modest gains. Our finding that persona identity explains under 1% of rating variance, and that
+  51 named personas behave almost as one rater, is in line with this.
+- **Sensitivity of synthetic survey data.** Bisbee et al. (2024, *Political Analysis*) found that
+  persona-prompted ChatGPT reproduces average survey scores but has too little variance for
+  inference, shifts under small wording changes, and gives different results to the same prompt
+  months apart. Dominguez-Olmedo, Hardt and Mendler-Dünner (2024, NeurIPS) found that LLM survey
+  answers are driven by ordering and labeling biases, and trend toward uniform once those are
+  randomised. Röttger et al. (2024, ACL) found that models' political-survey answers change when
+  the fixed-choice format is relaxed and are not robust to paraphrase.
+- **Perturbations and response biases.** Tjuatja et al. (2024, TACL) found that LLMs generally do
+  not show human-like response biases in survey design, yet are sensitive to perturbations that do
+  not move human answers. Rupprecht, Ahnert and Strohmaier (2026, NLP+CSS workshop) applied ten
+  perturbations of question phrasing and answer structure to World Values Survey items across nine
+  models and found sensitivity to paraphrasing and combined perturbations, and a recency bias
+  toward the last-listed option. Outside surveys, Sclar et al. (2024, ICLR) showed that formatting
+  changes alone can move few-shot accuracy by up to 76 points.
+- **Tooling.** QSTN (Kreutner et al., 2026, EACL system demonstrations) is an open-source framework
+  for exactly this kind of work: questionnaire presentation, prompt perturbations and response
+  generation methods as modular, swappable parts, evaluated on more than 40 million generated
+  responses. It would have been a natural basis for this study had we known it at the start.
+
+What this study adds is narrow: the same checks (repeat runs, one-at-a-time input changes, a
+second model, a bounded worst-case search), preregistered and applied to a published expert-panel
+ranking whose recommendations are stated as rank claims, so that score instability can be weighed
+against whether those claims change.
 
 ## 1. What we did
 
@@ -251,6 +290,29 @@ budget (1.97 USD spent).
 - **Post-freeze changes.** The stopping-rule deviation, the D2 missing-data rule, the survivor-only
   and worst-case views, and the reversed-scale probe were all added after the freeze (prereg s13);
   the post-freeze red-team findings are in prereg s14.
+
+## References
+
+- Argyle, L. P., Busby, E. C., Fulda, N., Gubler, J. R., Rytting, C. and Wingate, D. (2023). Out of
+  One, Many: Using Language Models to Simulate Human Samples. *Political Analysis*.
+- Bisbee, J., Clinton, J. D., Dorff, C., Kenkel, B. and Larson, J. M. (2024). Synthetic
+  Replacements for Human Survey Data? The Perils of Large Language Models. *Political Analysis*.
+- Dominguez-Olmedo, R., Hardt, M. and Mendler-Dünner, C. (2024). Questioning the Survey Responses
+  of Large Language Models. *NeurIPS 2024*.
+- Hu, T. and Collier, N. (2024). Quantifying the Persona Effect in LLM Simulations. *ACL 2024*.
+- Jacobs and Imas (2026). Economic Policy for AGI. SSRN, 15 September 2026.
+- Kreutner, M., Rupprecht, J., Ahnert, G., Salem, A. and Strohmaier, M. (2026). QSTN: A Modular
+  Framework for Robust Questionnaire Inference with Large Language Models. *EACL 2026 System
+  Demonstrations*. arXiv:2512.08646.
+- Röttger, P. et al. (2024). Political Compass or Spinning Arrow? Towards More Meaningful
+  Evaluations for Values and Opinions in Large Language Models. *ACL 2024*.
+- Rupprecht, J., Ahnert, G. and Strohmaier, M. (2026). Prompt Perturbations Reveal Human-Like
+  Biases in Large Language Model Survey Responses. *Seventh Workshop on NLP and Computational
+  Social Science*. arXiv:2507.07188.
+- Sclar, M., Choi, Y., Tsvetkov, Y. and Suhr, A. (2024). Quantifying Language Models' Sensitivity to
+  Spurious Features in Prompt Design. *ICLR 2024*.
+- Tjuatja, L., Chen, V., Wu, T., Talwalkar, A. and Neubig, G. (2024). Do LLMs Exhibit Human-like
+  Response Biases? A Case Study in Survey Design. *TACL* 12.
 
 ## 5. Data and code
 
