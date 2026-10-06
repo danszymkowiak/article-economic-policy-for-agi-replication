@@ -1,0 +1,226 @@
+cell_id,aggregation,composite,prereg,pairing,n_repeats,n_policies,tau,ci_low,ci_high,n_boot_undefined,single_run_min,single_run_max,band_min,band_max,below_band,top3_entered,top3_left,bottom3_entered,bottom3_left,max_abs_rank_shift
+B',mean,standards_of_living,False,paired,1,11,0.9273,0.8545,1.0000,0,0.9273,0.9273,0.9273,0.9636,False,,,,,1.0000
+B',mean,meaning_human_value,False,paired,1,11,0.8182,0.7455,0.9273,0,0.8182,0.8182,0.9273,0.9636,True,,,ubi,nit,2.0000
+B',mean,macro_stabilisation,False,paired,1,11,0.9636,0.8909,1.0000,0,0.9636,0.9636,0.9636,1.0000,False,,,,,1.0000
+B',mean,economic_agency_mobility,False,paired,1,11,0.8545,0.7818,1.0000,0,0.8545,0.8545,0.9273,1.0000,True,ubc,fjg,,,2.0000
+B',mean,ownership_of_gains,False,paired,1,11,1.0000,0.8909,1.0000,0,1.0000,1.0000,0.8909,0.9636,False,,,,,0.0000
+B',mean,democratic_voice,False,paired,1,11,0.9636,0.9273,1.0000,0,0.9636,0.9636,0.9273,0.9636,False,,,,,1.0000
+B',mean,economic_feasibility,False,paired,1,11,0.9542,0.8909,1.0000,0,0.9542,0.9542,0.9636,1.0000,True,,,,,1.0000
+B',mean,implementation_readiness,False,paired,1,11,0.9636,0.8545,1.0000,0,0.9636,0.9636,0.9273,0.9636,False,,,,,1.0000
+B',mean,mild_disruption,True,paired,1,11,0.9636,0.8545,1.0000,0,0.9636,0.9636,0.9273,0.9636,False,,,,,1.0000
+B',mean,moderate_disruption,True,paired,1,11,0.9636,0.8545,1.0000,0,0.9636,0.9636,0.8808,0.8909,False,,,almp,directed_industrial_policy,1.0000
+B',mean,full_transformation,True,paired,1,11,1.0000,0.9636,1.0000,0,1.0000,1.0000,0.9636,1.0000,False,,,,,0.0000
+B',mean,welfare_resilience,True,paired,1,11,1.0000,0.9273,1.0000,0,1.0000,1.0000,0.9636,1.0000,False,,,,,0.0000
+B',mean,agency_voice,True,paired,1,11,0.9636,0.9273,1.0000,0,0.9636,0.9636,0.9636,1.0000,False,,,,,1.0000
+B',mean,feasibility,True,paired,1,11,0.9636,0.8909,1.0000,0,0.9636,0.9636,0.9636,1.0000,False,,,directed_industrial_policy,ubs,1.0000
+B',mean,scenario_durability,True,paired,1,11,0.9273,0.8545,1.0000,0,0.9273,0.9273,0.9273,1.0000,False,,,wage_insurance,eitc,2.0000
+Q1,mean,standards_of_living,False,paired,3,11,0.8182,0.7818,0.8909,0,0.7455,0.9273,0.9273,1.0000,True,,,,,2.0000
+Q1,mean,meaning_human_value,False,paired,3,11,0.6364,0.5636,0.7091,0,0.6000,0.6364,0.9273,0.9636,True,directed_industrial_policy,eitc,,,6.0000
+Q1,mean,macro_stabilisation,False,paired,3,11,0.9273,0.8909,0.9636,0,0.8909,0.9273,0.9273,1.0000,False,,,,,1.0000
+Q1,mean,economic_agency_mobility,False,paired,3,11,0.8182,0.6727,0.8909,0,0.7455,0.7818,0.9273,1.0000,True,ubc,fjg,,,3.0000
+Q1,mean,ownership_of_gains,False,paired,3,11,0.8909,0.8182,0.9636,0,0.8545,0.9636,0.9273,0.9636,True,,,ui,eitc,2.0000
+Q1,mean,democratic_voice,False,paired,3,11,0.8545,0.8182,0.8909,0,0.8182,0.8545,0.9636,0.9636,True,,,,,2.0000
+Q1,mean,economic_feasibility,False,paired,3,11,0.8545,0.8182,0.8909,0,0.8545,0.8545,0.9636,1.0000,True,,,ubs,directed_industrial_policy,1.0000
+Q1,mean,implementation_readiness,False,paired,3,11,0.8909,0.8545,0.9636,0,0.9273,0.9273,0.9273,1.0000,True,,,,,2.0000
+Q1,mean,mild_disruption,True,paired,3,11,0.7818,0.7091,0.8552,0,0.7455,0.8545,0.8909,1.0000,True,,,,,3.0000
+Q1,mean,moderate_disruption,True,paired,3,11,0.7818,0.7091,0.9273,0,0.7455,0.8182,0.8545,0.9273,True,ubs,sawf,almp,directed_industrial_policy,2.0000
+Q1,mean,full_transformation,True,paired,3,11,0.9273,0.8909,0.9636,0,0.8909,0.9636,1.0000,1.0000,True,,,,,1.0000
+Q1,mean,welfare_resilience,True,paired,3,11,0.9273,0.8545,0.9636,0,0.8909,0.9273,0.9636,1.0000,True,,,,,1.0000
+Q1,mean,agency_voice,True,paired,3,11,0.8545,0.8182,0.8909,0,0.8545,0.8909,0.9636,1.0000,True,,,almp,directed_industrial_policy,3.0000
+Q1,mean,feasibility,True,paired,3,11,0.8909,0.8182,0.8909,0,0.8182,0.8909,0.9636,1.0000,True,wage_insurance,nit,,,2.0000
+Q1,mean,scenario_durability,True,paired,3,11,0.7455,0.6727,0.7818,0,0.7091,0.7818,0.9636,1.0000,True,ubs,ubc,wage_insurance,directed_industrial_policy,3.0000
+Q4,mean,standards_of_living,False,paired,3,11,0.9273,0.8182,0.9636,0,0.8909,0.9636,0.9273,1.0000,False,,,,,1.0000
+Q4,mean,meaning_human_value,False,paired,3,11,0.6727,0.6000,0.7455,0,0.6364,0.6727,0.9273,0.9636,True,directed_industrial_policy,eitc,ubi,nit,5.0000
+Q4,mean,macro_stabilisation,False,paired,3,11,0.8909,0.8182,0.9279,0,0.8545,0.8909,0.9273,1.0000,True,,,,,2.0000
+Q4,mean,economic_agency_mobility,False,paired,3,11,0.7091,0.6727,0.7818,0,0.7091,0.7091,0.9273,1.0000,True,nit,fjg,ui,sawf,4.0000
+Q4,mean,ownership_of_gains,False,paired,3,11,0.8545,0.7818,0.9636,0,0.8182,0.9273,0.9273,0.9636,True,,,ui,eitc,2.0000
+Q4,mean,democratic_voice,False,paired,3,11,0.9273,0.8909,0.9636,0,0.9273,0.9273,0.9636,0.9636,True,,,,,2.0000
+Q4,mean,economic_feasibility,False,paired,3,11,0.9636,0.8909,0.9636,0,0.9273,0.9636,0.9636,1.0000,False,,,ubs,directed_industrial_policy,1.0000
+Q4,mean,implementation_readiness,False,paired,3,11,0.8909,0.8182,0.9636,0,0.8545,0.9636,0.9273,1.0000,True,,,ubc,ubs,2.0000
+Q4,mean,mild_disruption,True,paired,3,11,0.7818,0.7818,0.8545,0,0.7818,0.8545,0.8909,1.0000,True,,,,,2.0000
+Q4,mean,moderate_disruption,True,paired,3,11,0.7818,0.7455,0.9273,0,0.7818,0.8545,0.8545,0.9273,True,,,almp,directed_industrial_policy,2.0000
+Q4,mean,full_transformation,True,paired,3,11,1.0000,0.9273,1.0000,0,0.9636,1.0000,1.0000,1.0000,False,,,,,0.0000
+Q4,mean,welfare_resilience,True,paired,3,11,0.9273,0.8909,0.9273,0,0.9273,0.9273,0.9636,1.0000,True,,,,,1.0000
+Q4,mean,agency_voice,True,paired,3,11,0.9273,0.8909,0.9636,0,0.8909,0.9273,0.9636,1.0000,True,,,,,1.0000
+Q4,mean,feasibility,True,paired,3,11,0.9273,0.8909,0.9636,0,0.8909,0.9273,0.9636,1.0000,True,wage_insurance,nit,,,1.0000
+Q4,mean,scenario_durability,True,paired,3,11,0.8545,0.7818,0.8909,0,0.8182,0.8545,0.9636,1.0000,True,,,wage_insurance,directed_industrial_policy,3.0000
+Q3c,mean,standards_of_living,False,paired,1,11,0.7818,0.7340,0.8909,0,0.7818,0.7818,0.9273,0.9636,True,,,,,3.0000
+Q3c,mean,meaning_human_value,False,paired,1,11,0.7818,0.4909,0.8909,0,0.7818,0.7818,0.9273,0.9636,True,wage_insurance,eitc,,,3.0000
+Q3c,mean,macro_stabilisation,False,paired,1,11,0.8182,0.7818,0.9636,0,0.8182,0.8182,0.9636,1.0000,True,,,,,2.0000
+Q3c,mean,economic_agency_mobility,False,paired,1,11,0.8808,0.6727,0.9636,0,0.8808,0.8808,0.9273,1.0000,True,ubs,fjg,wage_insurance,sawf,2.0000
+Q3c,mean,ownership_of_gains,False,paired,1,11,0.9636,0.8441,1.0000,0,0.9636,0.9636,0.8909,0.9636,False,,,almp,ui,1.0000
+Q3c,mean,democratic_voice,False,paired,1,11,1.0000,0.8182,1.0000,0,1.0000,1.0000,0.9273,0.9636,False,,,,,0.0000
+Q3c,mean,economic_feasibility,False,paired,1,11,0.9636,0.8074,0.9909,0,0.9636,0.9636,0.9636,1.0000,False,,,,,1.0000
+Q3c,mean,implementation_readiness,False,paired,1,11,0.9636,0.8182,1.0000,0,0.9636,0.9636,0.9273,0.9636,False,,,ubi,sawf,1.0000
+Q3c,mean,mild_disruption,True,paired,1,11,0.8909,0.7818,0.9636,0,0.8909,0.8909,0.9273,0.9636,True,,,,,2.0000
+Q3c,mean,moderate_disruption,True,paired,1,11,0.9636,0.7223,0.9636,0,0.9636,0.9636,0.8808,0.8909,False,,,almp,directed_industrial_policy,1.0000
+Q3c,mean,full_transformation,True,paired,1,11,1.0000,0.8909,1.0000,0,1.0000,1.0000,0.9636,1.0000,False,,,,,0.0000
+Q3c,mean,welfare_resilience,True,paired,1,11,0.9273,0.8182,1.0000,0,0.9273,0.9273,0.9636,1.0000,True,,,,,1.0000
+Q3c,mean,agency_voice,True,paired,1,11,0.9273,0.8909,1.0000,0,0.9273,0.9273,0.9636,1.0000,True,,,,,1.0000
+Q3c,mean,feasibility,True,paired,1,11,0.9636,0.8182,1.0000,0,0.9636,0.9636,0.9636,1.0000,False,wage_insurance,nit,,,1.0000
+Q3c,mean,scenario_durability,True,paired,1,11,0.8909,0.7455,0.9273,0,0.8909,0.8909,0.9273,1.0000,True,,,,,2.0000
+D2,mean,standards_of_living,False,no personas,51,11,0.7818,0.7455,0.8182,0,0.6358,0.9252,,,False,,,,,2.0000
+D2,mean,meaning_human_value,False,no personas,51,11,0.4182,0.3818,0.4909,0,0.0778,0.7396,,,False,ubc ubi,eitc wage_insurance,directed_industrial_policy,nit,5.0000
+D2,mean,macro_stabilisation,False,no personas,51,11,0.9273,0.9273,1.0000,0,0.7818,0.9816,,,False,,,,,1.0000
+D2,mean,economic_agency_mobility,False,no personas,51,11,0.8909,0.8182,0.9273,0,0.4862,0.9446,,,False,almp,ubs,,,2.0000
+D2,mean,ownership_of_gains,False,no personas,51,11,0.9636,0.8909,0.9636,0,0.7223,0.9439,,,False,,,ui,almp,1.0000
+D2,mean,democratic_voice,False,no personas,51,11,0.9542,0.9175,0.9542,0,0.6606,0.9816,,,False,,,,,1.0000
+D2,mean,economic_feasibility,False,no personas,51,11,0.7818,0.7818,0.8545,0,0.2077,0.9446,,,False,,,,,2.0000
+D2,mean,implementation_readiness,False,no personas,51,11,0.9636,0.8909,1.0000,0,0.5236,0.9909,,,False,,,,,1.0000
+D2,mean,mild_disruption,True,no personas,51,11,0.7818,0.7091,0.8182,0,0.3366,0.8335,,,False,,,,,3.0000
+D2,mean,moderate_disruption,True,no personas,51,11,0.9273,0.8182,0.9636,0,0.5610,0.9542,,,False,ubs,sawf,,,1.0000
+D2,mean,full_transformation,True,no personas,51,11,0.9273,0.9273,0.9273,0,0.7340,0.9723,,,False,,,ui,almp,1.0000
+D2,mean,welfare_resilience,True,no personas,51,11,0.8909,0.8909,0.9273,0,0.7340,0.9446,,,False,ubi,ui,,,2.0000
+D2,mean,agency_voice,True,no personas,51,11,0.8545,0.8545,0.8909,0,0.7818,1.0000,,,False,,,,,2.0000
+D2,mean,feasibility,True,no personas,51,11,0.9273,0.9273,0.9636,0,0.5371,0.9636,,,False,,,directed_industrial_policy,ubs,2.0000
+D2,mean,scenario_durability,True,no personas,51,11,0.8909,0.8545,0.9273,0,0.6606,0.9636,,,False,,,wage_insurance,almp,1.0000
+B',median,standards_of_living,False,paired,1,11,0.9623,0.8335,0.9811,0,0.9623,0.9623,0.9127,0.9718,False,,,,,1.0000
+B',median,meaning_human_value,False,paired,1,11,0.9252,0.7775,0.9630,0,0.9252,0.9252,0.9244,0.9816,False,,,,nit,1.0000
+B',median,macro_stabilisation,False,paired,1,11,0.9175,0.8704,0.9909,0,0.9175,0.9175,0.9252,0.9816,True,,,,,2.5000
+B',median,economic_agency_mobility,False,paired,1,11,0.9244,0.7898,0.9630,0,0.9244,0.9244,0.9446,0.9723,True,,fjg ubs,,sawf,1.5000
+B',median,ownership_of_gains,False,paired,1,11,0.9515,0.9040,0.9903,0,0.9515,0.9515,0.9311,0.9608,False,,,,ui,1.0000
+B',median,democratic_voice,False,paired,1,11,0.9907,0.8808,0.9909,0,0.9907,0.9907,0.9076,0.9630,False,,,,,0.5000
+B',median,economic_feasibility,False,paired,1,11,1.0000,0.9074,1.0000,0,1.0000,1.0000,0.9446,0.9816,False,,,,,0.0000
+B',median,implementation_readiness,False,paired,1,11,0.9175,0.8705,0.9909,0,0.9175,0.9175,0.9446,0.9909,True,,,,,1.5000
+B',median,mild_disruption,True,paired,1,11,0.9533,0.8599,0.9816,0,0.9533,0.9533,0.9526,0.9907,False,,,,,1.0000
+B',median,moderate_disruption,True,paired,1,11,0.9715,0.8412,0.9816,0,0.9715,0.9715,0.9414,1.0000,False,,,,almp directed_industrial_policy,1.0000
+B',median,full_transformation,True,paired,1,11,0.9909,0.9636,1.0000,0,0.9909,0.9909,0.9816,0.9909,False,,,,,0.5000
+B',median,welfare_resilience,True,paired,1,11,0.9542,0.8909,1.0000,0,0.9542,0.9542,0.9909,1.0000,True,,,,,1.0000
+B',median,agency_voice,True,paired,1,11,0.9636,0.9273,1.0000,0,0.9636,0.9636,0.9273,0.9909,False,,,,,1.0000
+B',median,feasibility,True,paired,1,11,0.9636,0.8808,1.0000,0,0.9636,0.9636,0.9636,1.0000,False,,,directed_industrial_policy,ubs,1.0000
+B',median,scenario_durability,True,paired,1,11,0.9909,0.8808,1.0000,0,0.9909,0.9909,0.9446,1.0000,False,,,,almp,0.5000
+Q1,median,standards_of_living,False,paired,3,11,0.7963,0.7340,0.8956,0,0.7851,0.8575,0.9334,0.9718,True,,,,,2.0000
+Q1,median,meaning_human_value,False,paired,3,11,0.6483,0.5505,0.7222,0,0.6358,0.6608,0.9723,1.0000,True,directed_industrial_policy,eitc,,,6.0000
+Q1,median,macro_stabilisation,False,paired,3,11,0.9273,0.8545,0.9542,0,0.9076,0.9175,0.9535,0.9909,True,,,,,1.0000
+Q1,median,economic_agency_mobility,False,paired,3,11,0.6973,0.6111,0.8335,0,0.6617,0.7513,0.9444,1.0000,True,ubc,fjg,,,5.0000
+Q1,median,ownership_of_gains,False,paired,3,11,0.9103,0.8112,0.9720,0,0.9103,0.9303,0.9311,0.9608,True,,,,,1.5000
+Q1,median,democratic_voice,False,paired,3,11,0.9074,0.7818,0.9175,0,0.8765,0.8972,0.9175,0.9542,True,,,,,2.0000
+Q1,median,economic_feasibility,False,paired,3,11,0.8808,0.8182,0.9273,0,0.8808,0.9076,0.9636,0.9909,True,,,ubs,directed_industrial_policy,1.0000
+Q1,median,implementation_readiness,False,paired,3,11,0.9273,0.8545,0.9907,0,0.8808,0.9535,0.9542,1.0000,True,,,,,2.0000
+Q1,median,mild_disruption,True,paired,3,11,0.7593,0.6973,0.8492,0,0.7506,0.8003,0.9526,1.0000,True,,,,,3.0000
+Q1,median,moderate_disruption,True,paired,3,11,0.8602,0.7455,0.9346,0,0.8000,0.8870,0.9515,1.0000,True,ubs,sawf,,directed_industrial_policy,2.0000
+Q1,median,full_transformation,True,paired,3,11,0.9542,0.8808,0.9909,0,0.9252,0.9446,0.9909,0.9909,True,,,,,1.0000
+Q1,median,welfare_resilience,True,paired,3,11,0.9273,0.8909,0.9636,0,0.8909,0.9542,1.0000,1.0000,True,,,,,1.0000
+Q1,median,agency_voice,True,paired,3,11,0.8545,0.8182,0.9273,0,0.8545,0.9175,0.9636,0.9909,True,,,almp,directed_industrial_policy,3.0000
+Q1,median,feasibility,True,paired,3,11,0.8909,0.8182,0.9273,0,0.7818,0.8909,0.9909,1.0000,True,wage_insurance,nit,,,2.0000
+Q1,median,scenario_durability,True,paired,3,11,0.7455,0.6973,0.8182,0,0.7091,0.7091,0.9175,1.0000,True,ubs,ubc,wage_insurance,directed_industrial_policy,3.0000
+Q4,median,standards_of_living,False,paired,3,11,0.8972,0.8146,0.9815,0,0.8853,0.9528,0.9334,0.9718,True,,,,,2.0000
+Q4,median,meaning_human_value,False,paired,3,11,0.6853,0.5505,0.7223,0,0.6742,0.7006,0.9723,1.0000,True,directed_industrial_policy,eitc,ubi,nit,5.5000
+Q4,median,macro_stabilisation,False,paired,3,11,0.9535,0.8182,0.9813,0,0.9252,0.9630,0.9535,0.9909,False,,,,,1.0000
+Q4,median,economic_agency_mobility,False,paired,3,11,0.6973,0.6364,0.7707,0,0.6973,0.7513,0.9444,1.0000,True,nit,fjg,ui,sawf,4.0000
+Q4,median,ownership_of_gains,False,paired,3,11,0.9615,0.8225,0.9817,0,0.9311,0.9615,0.9311,0.9608,False,,,,,1.0000
+Q4,median,democratic_voice,False,paired,3,11,0.9444,0.8705,0.9636,0,0.9247,0.9247,0.9175,0.9542,False,,,,,1.5000
+Q4,median,economic_feasibility,False,paired,3,11,0.9273,0.8909,0.9909,0,0.9175,0.9542,0.9636,0.9909,True,,,ubs,directed_industrial_policy,1.0000
+Q4,median,implementation_readiness,False,paired,3,11,0.9909,0.8441,0.9909,0,0.9630,0.9909,0.9542,1.0000,False,,,,sawf,0.5000
+Q4,median,mild_disruption,True,paired,3,11,0.8333,0.7455,0.8808,0,0.8412,0.8599,0.9526,1.0000,True,,,,,2.0000
+Q4,median,moderate_disruption,True,paired,3,11,0.8303,0.7407,0.9159,0,0.8738,0.8846,0.9515,1.0000,True,,,,directed_industrial_policy,2.0000
+Q4,median,full_transformation,True,paired,3,11,0.9273,0.9074,1.0000,0,0.9175,0.9723,0.9909,0.9909,True,,,,,1.0000
+Q4,median,welfare_resilience,True,paired,3,11,0.9273,0.8909,0.9273,0,0.9273,0.9273,1.0000,1.0000,True,,,,,1.0000
+Q4,median,agency_voice,True,paired,3,11,0.9273,0.9175,0.9636,0,0.9273,0.9273,0.9636,0.9909,True,,,,,1.0000
+Q4,median,feasibility,True,paired,3,11,0.9273,0.8545,0.9636,0,0.9273,0.9542,0.9909,1.0000,True,wage_insurance,nit,,,1.0000
+Q4,median,scenario_durability,True,paired,3,11,0.8182,0.7818,0.8545,0,0.8074,0.8182,0.9175,1.0000,True,,,wage_insurance,directed_industrial_policy,3.0000
+Q3c,median,standards_of_living,False,paired,1,11,0.8681,0.7091,0.9349,0,0.8681,0.8681,0.9127,0.9718,True,,,,,2.5000
+Q3c,median,meaning_human_value,False,paired,1,11,0.6483,0.3965,0.8772,0,0.6483,0.6483,0.9244,0.9816,True,wage_insurance,almp eitc,,,4.5000
+Q3c,median,macro_stabilisation,False,paired,1,11,0.9252,0.7777,0.9723,0,0.9252,0.9252,0.9252,0.9816,False,,,,,1.0000
+Q3c,median,economic_agency_mobility,False,paired,1,11,0.8972,0.5887,0.9334,0,0.8972,0.8972,0.9446,0.9723,True,ubs,fjg,wage_insurance,sawf,1.5000
+Q3c,median,ownership_of_gains,False,paired,1,11,0.9528,0.8074,0.9816,0,0.9528,0.9528,0.9311,0.9608,False,,,almp,,1.5000
+Q3c,median,democratic_voice,False,paired,1,11,0.9349,0.7512,0.9723,0,0.9349,0.9349,0.9076,0.9630,False,,,,,1.5000
+Q3c,median,economic_feasibility,False,paired,1,11,0.9542,0.7594,0.9909,0,0.9542,0.9542,0.9446,0.9816,False,,,,directed_industrial_policy,1.0000
+Q3c,median,implementation_readiness,False,paired,1,11,0.9816,0.8074,0.9909,0,0.9816,0.9816,0.9446,0.9909,False,,,,,0.5000
+Q3c,median,mild_disruption,True,paired,1,11,0.8874,0.6606,0.9436,0,0.8874,0.8874,0.9526,0.9907,True,,,,,2.0000
+Q3c,median,moderate_disruption,True,paired,1,11,0.9175,0.6853,0.9542,0,0.9175,0.9175,0.9414,1.0000,True,,,almp,directed_industrial_policy,1.5000
+Q3c,median,full_transformation,True,paired,1,11,0.9636,0.8602,0.9909,0,0.9636,0.9636,0.9816,0.9909,True,,,,,1.0000
+Q3c,median,welfare_resilience,True,paired,1,11,0.9542,0.8074,0.9909,0,0.9542,0.9542,0.9909,1.0000,True,,,,,1.0000
+Q3c,median,agency_voice,True,paired,1,11,0.9273,0.8801,1.0000,0,0.9273,0.9273,0.9273,0.9909,False,,,,,1.0000
+Q3c,median,feasibility,True,paired,1,11,0.9542,0.7818,0.9909,0,0.9542,0.9542,0.9636,1.0000,True,wage_insurance,nit,,,1.0000
+Q3c,median,scenario_durability,True,paired,1,11,0.8705,0.7091,0.9446,0,0.8705,0.8705,0.9446,1.0000,True,,,almp,directed_industrial_policy,3.0000
+D2,median,standards_of_living,False,no personas,51,11,0.7707,0.7455,0.8441,0,0.6228,0.8956,,,False,,,,,3.0000
+D2,median,meaning_human_value,False,no personas,51,11,0.4182,0.3818,0.5138,0,0.0778,0.7396,,,False,ubc ubi,eitc wage_insurance,directed_industrial_policy,nit,5.0000
+D2,median,macro_stabilisation,False,no personas,51,11,0.9273,0.8909,0.9909,0,0.7818,0.9816,,,False,,,,,1.0000
+D2,median,economic_agency_mobility,False,no personas,51,11,0.8909,0.8182,0.9175,0,0.4862,0.9446,,,False,almp,ubs,,,2.0000
+D2,median,ownership_of_gains,False,no personas,51,11,0.8228,0.8228,0.9816,0,0.6857,0.9524,,,False,,,,almp,3.0000
+D2,median,democratic_voice,False,no personas,51,11,0.9444,0.9074,0.9630,0,0.6667,0.9907,,,False,,,,,1.0000
+D2,median,economic_feasibility,False,no personas,51,11,0.8182,0.7818,0.8545,0,0.2455,0.9816,,,False,,,,,2.0000
+D2,median,implementation_readiness,False,no personas,51,11,0.9636,0.8909,0.9909,0,0.5236,0.9909,,,False,,,,,1.0000
+D2,median,mild_disruption,True,no personas,51,11,0.8074,0.7455,0.8545,0,0.3586,0.8599,,,False,,,,,3.0000
+D2,median,moderate_disruption,True,no personas,51,11,0.8975,0.8182,0.9349,0,0.5192,0.9515,,,False,ubs,sawf,,almp,1.0000
+D2,median,full_transformation,True,no personas,51,11,0.9273,0.8909,0.9273,0,0.7340,0.9723,,,False,,,ui,almp,1.0000
+D2,median,welfare_resilience,True,no personas,51,11,0.8909,0.8909,0.9273,0,0.7340,0.9446,,,False,ubi,ui,,,2.0000
+D2,median,agency_voice,True,no personas,51,11,0.8545,0.8545,0.8909,0,0.7818,1.0000,,,False,,,,,2.0000
+D2,median,feasibility,True,no personas,51,11,0.9273,0.8909,0.9636,0,0.5371,0.9636,,,False,,,directed_industrial_policy,ubs,2.0000
+D2,median,scenario_durability,True,no personas,51,11,0.8909,0.8182,0.9273,0,0.6606,0.9636,,,False,,,wage_insurance,almp,1.0000
+B',trimmed_mean_10,standards_of_living,False,paired,1,11,0.9636,0.8182,1.0000,0,0.9636,0.9636,0.9273,1.0000,False,,,,,1.0000
+B',trimmed_mean_10,meaning_human_value,False,paired,1,11,0.8182,0.7455,0.9636,0,0.8182,0.8182,0.9273,0.9636,True,,,ubi,nit,2.0000
+B',trimmed_mean_10,macro_stabilisation,False,paired,1,11,0.9636,0.8801,1.0000,0,0.9636,0.9636,0.9636,1.0000,False,,,,,1.0000
+B',trimmed_mean_10,economic_agency_mobility,False,paired,1,11,0.8909,0.7818,0.9909,0,0.8909,0.8909,0.9273,0.9636,True,ubc,fjg,,,2.0000
+B',trimmed_mean_10,ownership_of_gains,False,paired,1,11,0.9636,0.8545,1.0000,0,0.9636,0.9636,0.8909,0.9273,False,,,,,1.0000
+B',trimmed_mean_10,democratic_voice,False,paired,1,11,0.9636,0.9273,1.0000,0,0.9636,0.9636,0.9273,0.9636,False,,,,,1.0000
+B',trimmed_mean_10,economic_feasibility,False,paired,1,11,0.9636,0.8909,1.0000,0,0.9636,0.9636,0.9273,1.0000,False,,,,,1.0000
+B',trimmed_mean_10,implementation_readiness,False,paired,1,11,0.9636,0.8545,1.0000,0,0.9636,0.9636,0.9273,0.9909,False,,,,,1.0000
+B',trimmed_mean_10,mild_disruption,True,paired,1,11,0.9273,0.8545,1.0000,0,0.9273,0.9273,0.9273,1.0000,False,,,,,1.0000
+B',trimmed_mean_10,moderate_disruption,True,paired,1,11,0.9175,0.8545,1.0000,0,0.9175,0.9175,0.8909,0.9273,False,,,almp wage_insurance,directed_industrial_policy,2.0000
+B',trimmed_mean_10,full_transformation,True,paired,1,11,1.0000,0.9636,1.0000,0,1.0000,1.0000,1.0000,1.0000,False,,,,,0.0000
+B',trimmed_mean_10,welfare_resilience,True,paired,1,11,0.9636,0.9273,1.0000,0,0.9636,0.9636,0.9636,1.0000,False,,,,,1.0000
+B',trimmed_mean_10,agency_voice,True,paired,1,11,0.9636,0.9273,1.0000,0,0.9636,0.9636,0.9636,1.0000,False,,,,,1.0000
+B',trimmed_mean_10,feasibility,True,paired,1,11,0.9636,0.8909,1.0000,0,0.9636,0.9636,0.9636,1.0000,False,,,directed_industrial_policy,ubs,1.0000
+B',trimmed_mean_10,scenario_durability,True,paired,1,11,0.9273,0.8545,1.0000,0,0.9273,0.9273,0.9273,1.0000,False,,,wage_insurance,eitc,2.0000
+Q1,trimmed_mean_10,standards_of_living,False,paired,3,11,0.7818,0.7455,0.8909,0,0.7091,0.8909,0.9273,1.0000,True,,,,,3.0000
+Q1,trimmed_mean_10,meaning_human_value,False,paired,3,11,0.6000,0.5636,0.7091,0,0.6000,0.6606,0.9273,1.0000,True,directed_industrial_policy,eitc,,,6.0000
+Q1,trimmed_mean_10,macro_stabilisation,False,paired,3,11,0.9273,0.8909,0.9636,0,0.9273,0.9273,0.9273,1.0000,False,,,,,1.0000
+Q1,trimmed_mean_10,economic_agency_mobility,False,paired,3,11,0.7455,0.6727,0.8545,0,0.7340,0.7818,0.9636,1.0000,True,ubc,fjg,,,4.0000
+Q1,trimmed_mean_10,ownership_of_gains,False,paired,3,11,0.9273,0.8545,0.9636,0,0.8909,0.9273,0.8909,0.9909,False,,,ui,eitc,1.0000
+Q1,trimmed_mean_10,democratic_voice,False,paired,3,11,0.8545,0.7818,0.8909,0,0.8545,0.8545,0.9273,1.0000,True,,,,,2.0000
+Q1,trimmed_mean_10,economic_feasibility,False,paired,3,11,0.8545,0.8182,0.8909,0,0.8182,0.8545,0.9636,1.0000,True,,,ubs,directed_industrial_policy,1.0000
+Q1,trimmed_mean_10,implementation_readiness,False,paired,3,11,0.8909,0.8545,0.9636,0,0.8909,0.9636,0.9273,1.0000,True,,,,,2.0000
+Q1,trimmed_mean_10,mild_disruption,True,paired,3,11,0.7455,0.7091,0.8545,0,0.7455,0.8545,0.9273,1.0000,True,,,,,3.0000
+Q1,trimmed_mean_10,moderate_disruption,True,paired,3,11,0.8074,0.7455,0.9273,0,0.7340,0.8074,0.8909,0.9636,True,ubs,sawf,almp wage_insurance,directed_industrial_policy,3.0000
+Q1,trimmed_mean_10,full_transformation,True,paired,3,11,0.9273,0.8909,0.9636,0,0.9273,0.9273,1.0000,1.0000,True,,,,,1.0000
+Q1,trimmed_mean_10,welfare_resilience,True,paired,3,11,0.9273,0.8545,0.9636,0,0.8909,0.9273,0.9636,1.0000,True,,,,,1.0000
+Q1,trimmed_mean_10,agency_voice,True,paired,3,11,0.8545,0.8182,0.8909,0,0.8545,0.8909,0.9636,1.0000,True,,,almp,directed_industrial_policy,3.0000
+Q1,trimmed_mean_10,feasibility,True,paired,3,11,0.8909,0.8182,0.9273,0,0.7818,0.8909,0.9636,1.0000,True,wage_insurance,nit,,,2.0000
+Q1,trimmed_mean_10,scenario_durability,True,paired,3,11,0.7455,0.6727,0.7818,0,0.7091,0.7818,0.9636,1.0000,True,ubs,ubc,wage_insurance,directed_industrial_policy,3.0000
+Q4,trimmed_mean_10,standards_of_living,False,paired,3,11,0.8909,0.8182,0.9636,0,0.8545,0.8909,0.9273,1.0000,True,,,,,2.0000
+Q4,trimmed_mean_10,meaning_human_value,False,paired,3,11,0.6727,0.6000,0.7091,0,0.6727,0.7091,0.9273,1.0000,True,directed_industrial_policy,eitc,ubi,nit,5.0000
+Q4,trimmed_mean_10,macro_stabilisation,False,paired,3,11,0.8909,0.8182,0.9282,0,0.8545,0.8909,0.9273,1.0000,True,,,,,2.0000
+Q4,trimmed_mean_10,economic_agency_mobility,False,paired,3,11,0.7091,0.6727,0.7818,0,0.7091,0.7091,0.9636,1.0000,True,nit,fjg,ui,sawf,4.0000
+Q4,trimmed_mean_10,ownership_of_gains,False,paired,3,11,0.8909,0.7818,0.9636,0,0.8545,0.9636,0.8909,0.9909,False,,,ui,eitc,2.0000
+Q4,trimmed_mean_10,democratic_voice,False,paired,3,11,0.9273,0.8909,0.9636,0,0.9273,0.9273,0.9273,1.0000,False,,,,,2.0000
+Q4,trimmed_mean_10,economic_feasibility,False,paired,3,11,0.9636,0.8909,0.9636,0,0.9273,0.9636,0.9636,1.0000,False,,,ubs,directed_industrial_policy,1.0000
+Q4,trimmed_mean_10,implementation_readiness,False,paired,3,11,0.9273,0.8182,0.9636,0,0.8909,0.9636,0.9273,1.0000,False,,,ubc,sawf,2.0000
+Q4,trimmed_mean_10,mild_disruption,True,paired,3,11,0.7818,0.7818,0.8545,0,0.7818,0.8182,0.9273,1.0000,True,,,,,2.0000
+Q4,trimmed_mean_10,moderate_disruption,True,paired,3,11,0.7707,0.7455,0.8909,0,0.7707,0.8074,0.8909,0.9636,True,,,almp wage_insurance,directed_industrial_policy,3.0000
+Q4,trimmed_mean_10,full_transformation,True,paired,3,11,0.9636,0.9273,1.0000,0,0.9636,1.0000,1.0000,1.0000,True,,,,,1.0000
+Q4,trimmed_mean_10,welfare_resilience,True,paired,3,11,0.9273,0.8909,0.9273,0,0.9273,0.9273,0.9636,1.0000,True,,,,,1.0000
+Q4,trimmed_mean_10,agency_voice,True,paired,3,11,0.9273,0.8909,0.9636,0,0.8909,0.9273,0.9636,1.0000,True,,,,,1.0000
+Q4,trimmed_mean_10,feasibility,True,paired,3,11,0.9273,0.8909,0.9636,0,0.8909,0.9273,0.9636,1.0000,True,wage_insurance,nit,,,1.0000
+Q4,trimmed_mean_10,scenario_durability,True,paired,3,11,0.8545,0.7818,0.8909,0,0.8441,0.8545,0.9636,1.0000,True,,,wage_insurance,directed_industrial_policy,3.0000
+Q3c,trimmed_mean_10,standards_of_living,False,paired,1,11,0.7818,0.7340,0.8909,0,0.7818,0.7818,0.9273,1.0000,True,,,,,3.0000
+Q3c,trimmed_mean_10,meaning_human_value,False,paired,1,11,0.8545,0.4771,0.8909,0,0.8545,0.8545,0.9273,0.9636,True,wage_insurance,almp,,,2.0000
+Q3c,trimmed_mean_10,macro_stabilisation,False,paired,1,11,0.8545,0.7818,0.9636,0,0.8545,0.8545,0.9636,1.0000,True,,,,,2.0000
+Q3c,trimmed_mean_10,economic_agency_mobility,False,paired,1,11,0.8808,0.6727,0.9636,0,0.8808,0.8808,0.9273,0.9636,True,ubs,fjg,wage_insurance,sawf,2.0000
+Q3c,trimmed_mean_10,ownership_of_gains,False,paired,1,11,0.9636,0.8441,1.0000,0,0.9636,0.9636,0.8909,0.9273,False,,,almp,ui,1.0000
+Q3c,trimmed_mean_10,democratic_voice,False,paired,1,11,1.0000,0.8182,1.0000,0,1.0000,1.0000,0.9273,0.9636,False,,,,,0.0000
+Q3c,trimmed_mean_10,economic_feasibility,False,paired,1,11,0.9636,0.7818,1.0000,0,0.9636,0.9636,0.9273,1.0000,False,,,,,1.0000
+Q3c,trimmed_mean_10,implementation_readiness,False,paired,1,11,0.9636,0.8182,1.0000,0,0.9636,0.9636,0.9273,0.9909,False,,,ubi,sawf,1.0000
+Q3c,trimmed_mean_10,mild_disruption,True,paired,1,11,0.8909,0.7818,0.9636,0,0.8909,0.8909,0.9273,1.0000,True,,,,,2.0000
+Q3c,trimmed_mean_10,moderate_disruption,True,paired,1,11,0.9636,0.7337,0.9636,0,0.9636,0.9636,0.8909,0.9273,False,,,almp,directed_industrial_policy,1.0000
+Q3c,trimmed_mean_10,full_transformation,True,paired,1,11,1.0000,0.8909,1.0000,0,1.0000,1.0000,1.0000,1.0000,False,,,,,0.0000
+Q3c,trimmed_mean_10,welfare_resilience,True,paired,1,11,0.9273,0.8182,1.0000,0,0.9273,0.9273,0.9636,1.0000,True,,,,,1.0000
+Q3c,trimmed_mean_10,agency_voice,True,paired,1,11,0.9273,0.8909,1.0000,0,0.9273,0.9273,0.9636,1.0000,True,,,,,1.0000
+Q3c,trimmed_mean_10,feasibility,True,paired,1,11,0.9636,0.8182,1.0000,0,0.9636,0.9636,0.9636,1.0000,False,wage_insurance,nit,,,1.0000
+Q3c,trimmed_mean_10,scenario_durability,True,paired,1,11,0.8909,0.7452,0.9273,0,0.8909,0.8909,0.9273,1.0000,True,,,,,2.0000
+D2,trimmed_mean_10,standards_of_living,False,no personas,51,11,0.7455,0.7455,0.8182,0,0.5984,0.8874,,,False,,,,,3.0000
+D2,trimmed_mean_10,meaning_human_value,False,no personas,51,11,0.4182,0.3818,0.4909,0,0.0778,0.7396,,,False,ubc ubi,eitc wage_insurance,directed_industrial_policy,nit,5.0000
+D2,trimmed_mean_10,macro_stabilisation,False,no personas,51,11,0.9273,0.8909,1.0000,0,0.7818,0.9816,,,False,,,,,1.0000
+D2,trimmed_mean_10,economic_agency_mobility,False,no personas,51,11,0.8909,0.8182,0.9273,0,0.4862,0.9446,,,False,almp,ubs,,,2.0000
+D2,trimmed_mean_10,ownership_of_gains,False,no personas,51,11,0.9273,0.8909,0.9636,0,0.6853,0.9535,,,False,,,ui,almp,2.0000
+D2,trimmed_mean_10,democratic_voice,False,no personas,51,11,0.9542,0.9175,0.9542,0,0.6606,0.9816,,,False,,,,,1.0000
+D2,trimmed_mean_10,economic_feasibility,False,no personas,51,11,0.7818,0.7818,0.8545,0,0.2077,0.9446,,,False,,,,,2.0000
+D2,trimmed_mean_10,implementation_readiness,False,no personas,51,11,0.9636,0.8909,0.9636,0,0.5236,0.9909,,,False,,,,,1.0000
+D2,trimmed_mean_10,mild_disruption,True,no personas,51,11,0.7818,0.7455,0.8182,0,0.3366,0.8335,,,False,,,,,3.0000
+D2,trimmed_mean_10,moderate_disruption,True,no personas,51,11,0.8808,0.8182,0.9636,0,0.5095,0.9337,,,False,ubs,sawf,wage_insurance,,1.5000
+D2,trimmed_mean_10,full_transformation,True,no personas,51,11,0.9273,0.9273,0.9273,0,0.7340,0.9723,,,False,,,ui,almp,1.0000
+D2,trimmed_mean_10,welfare_resilience,True,no personas,51,11,0.8909,0.8909,0.9273,0,0.7340,0.9446,,,False,ubi,ui,,,2.0000
+D2,trimmed_mean_10,agency_voice,True,no personas,51,11,0.8545,0.8545,0.8909,0,0.7818,1.0000,,,False,,,,,2.0000
+D2,trimmed_mean_10,feasibility,True,no personas,51,11,0.9273,0.8909,0.9636,0,0.5371,0.9636,,,False,,,directed_industrial_policy,ubs,2.0000
+D2,trimmed_mean_10,scenario_durability,True,no personas,51,11,0.8909,0.8545,0.9273,0,0.6606,0.9636,,,False,,,wage_insurance,almp,1.0000

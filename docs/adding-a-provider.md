@@ -9,6 +9,7 @@ Adding a vendor means writing one adapter and registering it. Nothing in `applic
 ```python
 class ModelClient(Protocol):
     provider: str
+
     def submit_batch(self, jobs: Sequence[RenderedJob]) -> str: ...
     def fetch_results(self, batch_id: str) -> BatchResult: ...
 ```
@@ -50,6 +51,7 @@ fake transport:
 ```python
 class TestAcmeClient(ModelClientContract):
     provider = "acme"
+
     def make_client(self, tmp_path):
         return AcmeClient(..., transport=fake_transport)
 ```

@@ -222,6 +222,9 @@ __marimo__/
 # Private reference material
 docs/private/
 
+# Spend ledger and its lock
+results/batches.*
+
 # Raw results: kept local until release (decide redistribution after checking provider terms)
 results/raw/*
 !results/raw/.gitkeep
@@ -233,20 +236,25 @@ results/smoketest/
 # Pilot runs (labeled non-inference; same redistribution caution as raw results)
 results/pilot/
 
-# Generated analysis reports (commit code, not study outputs); transcribed published inputs stay
-analysis/*
-!analysis/published/
+# Generated analysis reports (aggregate only) are committed so the write-up's numbers can be checked
 
-# Adversarial arm: its own store, ledger and generated report (commit code, not outputs)
+# Adversarial arm: its own store and ledger (the aggregate report is committed)
 adversarial/results/
-adversarial/report.md
-adversarial/candidates.csv
 
 # Claude subagent arm: local data until release (TASK-35)
 subagent_arm/results/
 subagent_arm/work/
 subagent_arm/pilot/
 
-# Reversed-scale probe (exploratory, TASK-38): its own store, ledger and generated report
+# Reversed-scale probe (exploratory, TASK-38): its own store and ledger (the report is committed)
 scale_probe/results/
-scale_probe/report.md
+
+# Third-party copies of the source paper and essay (copyrighted; see README for links and hashes)
+docs/economic-policy-for-agi-ssrn.pdf
+docs/economic-policy-for-agi.html
+
+# Internal process files kept local: task tracker, agent instructions, handoff notes
+backlog/
+CLAUDE.md
+TODO.md
+subagent_arm/PLAN.md

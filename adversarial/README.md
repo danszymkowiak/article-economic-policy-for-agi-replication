@@ -40,7 +40,7 @@ sent whole, in search order. One that does not fit waits, and no cheaper later c
 ahead of it, until collected spend frees room. When nothing fits and nothing is in flight, the
 search stops as `budget exhausted`.
 
-## Running (fake provider only until the prereg is frozen)
+## Running (done; results in `report.md` and `candidates.csv`)
 
 ```bash
 uv run python -m adversarial plan               # search state, next candidates, estimate; read-only
@@ -50,5 +50,4 @@ uv run python -m adversarial report             # adversarial/report.md and cand
 ```
 
 Run `collect` then `submit --confirm` repeatedly (cron-friendly) until the status is no longer
-`running`. Paid runs need the prereg frozen and the provider added to `approved_providers` by
-the user.
+`running`. Paid runs need the provider in `approved_providers`.

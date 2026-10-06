@@ -1,6 +1,8 @@
-"""The transcribed published scores match the committed SSRN PDF, value by value (TASK-18).
+"""The transcribed published scores match the SSRN PDF, value by value (TASK-18).
 
-The PDF text comes from `pdftotext -layout`; the test is skipped where poppler is not installed.
+The PDF is not redistributed: place it at `docs/economic-policy-for-agi-ssrn.pdf` (sha256 in the
+README) to run these tests. The text comes from `pdftotext -layout`; the tests are skipped where
+the PDF is missing or poppler is not installed.
 """
 
 import re
@@ -55,6 +57,8 @@ NUMBER = re.compile(r"[+-]?\d+\.\d")
 
 @pytest.fixture(scope="module")
 def paper_text():
+    if not PDF.exists():
+        pytest.skip(f"{PDF.relative_to(REPO)} not present (not redistributed; see README)")
     if shutil.which("pdftotext") is None:
         pytest.skip("pdftotext (poppler) not installed")
     out = subprocess.run(

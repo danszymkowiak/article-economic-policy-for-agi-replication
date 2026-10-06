@@ -1,0 +1,67 @@
+cell_id,term,with_residual,df,mean_square,estimate,share
+B,repeat,False,4,42.8613,-0.0123,0.0000
+B,criterion,False,12,376964.1916,117.7083,0.2783
+B,policy,False,10,145791.4820,26.9783,0.0638
+B,persona,False,48,758.3451,0.7853,0.0019
+B,repeat x criterion,False,48,36.8820,0.0180,0.0000
+B,repeat x policy,False,40,108.5823,0.0313,0.0001
+B,repeat x persona,False,192,99.9059,0.0666,0.0002
+B,criterion x policy,False,120,59711.0819,243.5848,0.5759
+B,criterion x persona,False,576,52.6436,0.3293,0.0008
+B,policy x persona,False,480,167.7625,1.1040,0.0026
+B,repeat x criterion x policy,False,480,25.7020,-0.0046,0.0000
+B,repeat x criterion x persona,False,2304,27.4217,0.1358,0.0003
+B,repeat x policy x persona,False,1920,88.8934,4.8435,0.0115
+B,criterion x policy x persona,False,5760,33.0360,1.4217,0.0034
+B,repeat x criterion x policy x persona,True,23040,25.9274,25.9274,0.0613
+B',criterion,False,12,80778.4770,121.9129,0.2887
+B',policy,False,10,29443.6549,25.6367,0.0607
+B',persona,False,50,169.1359,0.5126,0.0012
+B',criterion x policy,False,120,12381.2981,242.2492,0.5737
+B',criterion x persona,False,600,30.6286,0.3673,0.0009
+B',policy x persona,False,500,91.7882,5.0154,0.0119
+B',criterion x policy x persona,True,6000,26.5878,26.5878,0.0630
+Q1,repeat,False,2,35.1606,-0.0193,0.0000
+Q1,criterion,False,12,244302.8806,123.4903,0.3023
+Q1,policy,False,10,62125.7531,12.8207,0.0314
+Q1,persona,False,50,417.4510,0.6375,0.0016
+Q1,repeat x criterion,False,24,36.9722,0.0018,0.0000
+Q1,repeat x policy,False,20,164.0413,0.0990,0.0002
+Q1,repeat x persona,False,100,100.3636,0.0657,0.0002
+Q1,criterion x policy,False,120,36460.9479,238.0620,0.5828
+Q1,criterion x persona,False,600,35.6501,0.1709,0.0004
+Q1,policy x persona,False,500,127.7527,0.9050,0.0022
+Q1,repeat x criterion x policy,False,240,34.8101,0.1687,0.0004
+Q1,repeat x criterion x persona,False,1200,27.3604,0.1051,0.0003
+Q1,repeat x policy x persona,False,1000,89.8076,4.8925,0.0120
+Q1,criterion x policy x persona,False,6000,28.8554,0.8837,0.0022
+Q1,repeat x criterion x policy x persona,True,12000,26.2045,26.2045,0.0641
+Q4,repeat,False,2,22.2537,-0.0120,0.0000
+Q4,criterion,False,12,221591.1568,106.8588,0.2506
+Q4,policy,False,10,68560.7086,13.4124,0.0315
+Q4,persona,False,50,563.2218,0.9076,0.0021
+Q4,repeat x criterion,False,24,34.7667,0.0184,0.0000
+Q4,repeat x policy,False,20,100.9657,0.0307,0.0001
+Q4,repeat x persona,False,100,79.4997,-0.0274,0.0000
+Q4,criterion x policy,False,120,41726.7466,272.5278,0.6392
+Q4,criterion x persona,False,600,41.4624,0.2623,0.0006
+Q4,policy x persona,False,500,167.0569,2.0026,0.0047
+Q4,repeat x criterion x policy,False,240,22.4001,-0.0146,0.0000
+Q4,repeat x criterion x persona,False,1200,25.2072,0.1876,0.0004
+Q4,repeat x policy x persona,False,1000,81.3573,4.4779,0.0105
+Q4,criterion x policy x persona,False,6000,30.7422,2.5327,0.0059
+Q4,repeat x criterion x policy x persona,True,12000,23.1440,23.1440,0.0543
+Q3c,criterion,False,12,13471.5162,113.1655,0.2747
+Q3c,policy,False,10,4184.3270,15.7638,0.0383
+Q3c,persona,False,8,282.3778,1.1885,0.0029
+Q3c,criterion x policy,False,120,2261.3032,248.2628,0.6026
+Q3c,criterion x persona,False,96,33.7631,0.6205,0.0015
+Q3c,policy x persona,False,80,105.5943,6.0505,0.0147
+Q3c,criterion x policy x persona,True,960,26.9381,26.9381,0.0654
+D2,repeat,False,44,85.5286,0.1584,0.0004
+D2,criterion,False,12,74501.0177,128.7848,0.3024
+D2,policy,False,10,30999.6555,34.5316,0.0811
+D2,repeat x criterion,False,528,18.6424,-0.1701,0.0000
+D2,repeat x policy,False,440,64.7536,3.4031,0.0080
+D2,criterion x policy,False,120,10754.4051,238.5309,0.5600
+D2,repeat x criterion x policy,True,5280,20.5138,20.5138,0.0482

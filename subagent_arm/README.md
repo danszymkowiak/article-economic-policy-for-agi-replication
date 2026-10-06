@@ -6,7 +6,7 @@ variation battery. A user-approved exception to "single structured batch calls, 
 subagents"; its rows never enter the main inference. A difference between the models is a
 difference between two model-and-harness bundles, not a clean model effect.
 
-## Run (after the prereg is frozen and the user approves the agent count)
+## Run (done; the report is in `reports/`)
 
 ```
 uv run python -m subagent_arm prepare            # one task file per job under work/tasks
@@ -18,6 +18,7 @@ uv run python -m subagent_arm ingest             # answers -> results/rows.jsonl
 uv run python -m subagent_arm status
 ```
 
+The rater agent is defined in `.claude/agents/rater.md` (pinned by hash in prereg s7).
 An invalid or discarded run is retried once by a fresh agent; a second failure is terminal.
 Analyse the store with the normal commands, e.g.
 `uv run llm-panel --config subagent_arm/config.subagent.yaml analyze variance`.

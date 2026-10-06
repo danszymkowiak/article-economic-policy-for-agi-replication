@@ -1,6 +1,6 @@
 # How stable are LLM-panel policy scores? A preregistered sensitivity study of "Economic Policy for AGI"
 
-**DRAFT (TASK-24), 2026-10-06.** Not yet shared with the authors (TASK-25). Every number below is
+**DRAFT (TASK-24), 2026-10-06.** Shared with the authors on 2026-10-06. Every number below is
 read from the analysis reports in `analysis/`, `subagent_arm/reports/`, `scale_probe/` and
 `adversarial/`, which are regenerated from the append-only raw stores.
 
